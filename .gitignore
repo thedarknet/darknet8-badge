@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+#board files
+*.s#[0-9]
