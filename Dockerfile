@@ -29,15 +29,31 @@ RUN wget -O $ESP_TCHAIN_BASEDIR/esp32-openocd.tar.gz \
 
 # Setup IDF_PATH
 RUN mkdir -p /esp
-RUN cd /esp && git clone --recursive https://github.com/espressif/esp-idf.git 
+# fetch IDF and make writeable 
+# ERROR: esp-idf must be cloned from git to work.
+# RUN wget -O /esp/esp-idf.tar.gz \
+#	https://github.com/espressif/esp-idf/archive/v3.1.2.tar.gz \
+#	&& tar -zxf /esp/esp-idf.tar.gz -C /esp/  \
+#	&& ln -s /esp/esp-idf-3.1.2 /esp/esp-idf \
+#	&& chmod -R 775 /esp/esp-idf
+
+
+RUN cd /esp && git clone --branch v3.1.2 --depth 1 --recursive https://github.com/espressif/esp-idf.git && chmod -R 775 esp-idf
 ENV IDF_PATH /esp/esp-idf
 RUN python -m pip install -r $IDF_PATH/requirements.txt
 
 # Add the toolchain binaries to PATH
 ENV PATH $ESP_TCHAIN_BASEDIR/xtensa-esp32-elf/bin:$ESP_TCHAIN_BASEDIR/openocd-esp32/bin:$IDF_PATH/tools:$PATH
 
+RUN useradd -m -u 10000 -G dialout,root -s /bin/bash dndev
+RUN echo "#########\n# START Added by docker buid\n######" >> /home/dndev/.bashrc
+RUN echo "export PATH=$ESP_TCHAIN_BASEDIR/xtensa-esp32-elf/bin:$ESP_TCHAIN_BASEDIR/openocd-esp32/bin:$IDF_PATH/tools:$PATH" >> /home/dndev/.bashrc
+RUN echo "#########\n# END Added by docker buid\n######" >> /home/dndev/.bashrc
+
+COPY docker/entry.sh /bin/entry.sh 
+RUN chmod +x /bin/entry.sh
 # This is the directory where our project will show up
 RUN mkdir -p /esp/project
 WORKDIR /esp/project
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/entry.sh"]
 
