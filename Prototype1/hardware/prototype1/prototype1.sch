@@ -8293,8 +8293,8 @@ Standard 3-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="C5" library="passives" deviceset="C-US" device="C0805" value="1 uF"/>
 <part name="IC3" library="ICs" deviceset="FT2232HL-REEL" device=""/>
 <part name="F1" library="crystals-timing" deviceset="ABLS-12.000MHZ-B4-T" device=""/>
-<part name="C6" library="passives" deviceset="C-US" device="C0805" value="20 pF"/>
-<part name="C7" library="passives" deviceset="C-US" device="C0805" value="20 pF"/>
+<part name="C6" library="passives" deviceset="C-US" device="C0805" value="27 pF"/>
+<part name="C7" library="passives" deviceset="C-US" device="C0805" value="27 pF"/>
 <part name="C8" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
 <part name="C9" library="passives" deviceset="C-US" device="C0805" value="3.3 uF"/>
 <part name="C10" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
@@ -8340,6 +8340,8 @@ Standard 3-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="J8" library="connector" deviceset="M06" device="NO_SILK_YES_STOP"/>
 <part name="J1" library="connector" deviceset="M14" device=""/>
 <part name="U$3" library="logos" deviceset="CMD_C0DE_LOGO" device="CMD_CODE_LOGO_TOP_COPPER"/>
+<part name="C2" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
+<part name="C3" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
 </parts>
 <sheets>
 <sheet>
@@ -8997,6 +8999,10 @@ to allow for external control of suspend.</text>
 <attribute name="NAME" x="133.35" y="89.9414" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="133.35" y="94.742" size="1.778" layer="96" rot="R180"/>
 </instance>
+<instance part="C3" gate="G$1" x="22.86" y="149.86" smashed="yes" rot="R270">
+<attribute name="NAME" x="23.495" y="156.464" size="1.778" layer="95" rot="R270"/>
+<attribute name="VALUE" x="16.129" y="159.004" size="1.778" layer="96" rot="R270"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -9193,6 +9199,11 @@ to allow for external control of suspend.</text>
 <wire x1="132.08" y1="111.76" x2="137.16" y2="111.76" width="0.1524" layer="91"/>
 <label x="137.16" y="111.76" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="C3" gate="G$1" pin="2"/>
+<wire x1="17.78" y1="149.86" x2="15.24" y2="149.86" width="0.1524" layer="91"/>
+<label x="15.24" y="149.86" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="VCC" class="0">
 <segment>
@@ -9245,11 +9256,6 @@ to allow for external control of suspend.</text>
 <label x="50.8" y="-12.7" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC4" gate="G$1" pin="VCC"/>
-<wire x1="25.4" y1="137.16" x2="25.4" y2="147.32" width="0.1524" layer="91"/>
-<label x="25.4" y="144.78" size="1.778" layer="95" rot="R90"/>
-</segment>
-<segment>
 <pinref part="R7" gate="G$1" pin="2"/>
 <wire x1="33.02" y1="149.86" x2="33.02" y2="152.4" width="0.1524" layer="91"/>
 <label x="33.02" y="152.4" size="1.778" layer="95" rot="R90"/>
@@ -9293,6 +9299,14 @@ to allow for external control of suspend.</text>
 <pinref part="R24" gate="G$1" pin="1"/>
 <wire x1="134.62" y1="91.44" x2="139.7" y2="91.44" width="0.1524" layer="91"/>
 <label x="139.7" y="91.44" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="IC4" gate="G$1" pin="VCC"/>
+<pinref part="C3" gate="G$1" pin="1"/>
+<wire x1="25.4" y1="137.16" x2="25.4" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="25.4" y1="149.86" x2="25.4" y2="160.02" width="0.1524" layer="91"/>
+<junction x="25.4" y="149.86"/>
+<label x="25.4" y="160.02" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VCC1.8" class="0">
@@ -9622,7 +9636,7 @@ to allow for external control of suspend.</text>
 </sheet>
 <sheet>
 <plain>
-<text x="71.12" y="93.98" size="1.778" layer="91">HOLD is LOW, so connecting 
+<text x="81.28" y="109.22" size="1.778" layer="91">HOLD is LOW, so connecting 
 to VCC for now but need 
 more investigation</text>
 <text x="-15.24" y="50.8" size="1.778" layer="91">puts W bar low writes are disabled, 
@@ -9632,8 +9646,8 @@ PROM we'll need to hold the button
 </plain>
 <instances>
 <instance part="IC5" gate="G$1" x="38.1" y="83.82" smashed="yes">
-<attribute name="NAME" x="62.23" y="91.44" size="1.778" layer="95" align="center-left"/>
-<attribute name="VALUE" x="62.23" y="88.9" size="1.778" layer="96" align="center-left"/>
+<attribute name="NAME" x="44.45" y="93.98" size="1.778" layer="95" align="center-left"/>
+<attribute name="VALUE" x="44.45" y="88.9" size="1.778" layer="96" align="center-left"/>
 </instance>
 <instance part="R13" gate="G$1" x="22.86" y="88.9" smashed="yes" rot="R90">
 <attribute name="NAME" x="21.3614" y="85.09" size="1.778" layer="95" rot="R90"/>
@@ -9653,6 +9667,10 @@ PROM we'll need to hold the button
 <instance part="R16" gate="G$1" x="-12.7" y="71.12" smashed="yes" rot="R90">
 <attribute name="NAME" x="-14.1986" y="67.31" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="-9.398" y="67.31" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C2" gate="G$1" x="71.12" y="93.98" smashed="yes">
+<attribute name="NAME" x="72.136" y="94.615" size="1.778" layer="95"/>
+<attribute name="VALUE" x="72.136" y="89.789" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -9681,6 +9699,11 @@ PROM we'll need to hold the button
 <wire x1="-12.7" y1="66.04" x2="-12.7" y2="63.5" width="0.1524" layer="91"/>
 <label x="-12.7" y="63.5" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="C2" gate="G$1" pin="1"/>
+<wire x1="71.12" y1="96.52" x2="71.12" y2="99.06" width="0.1524" layer="91"/>
+<label x="71.12" y="99.06" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="SPI_PROM_MOSI" class="0">
 <segment>
@@ -9692,8 +9715,12 @@ PROM we'll need to hold the button
 <net name="VCC" class="0">
 <segment>
 <pinref part="IC5" gate="G$1" pin="VCC"/>
-<wire x1="66.04" y1="83.82" x2="71.12" y2="83.82" width="0.1524" layer="91"/>
-<label x="71.12" y="83.82" size="1.778" layer="95"/>
+<wire x1="66.04" y1="83.82" x2="66.04" y2="88.9" width="0.1524" layer="91"/>
+<pinref part="C2" gate="G$1" pin="2"/>
+<wire x1="66.04" y1="88.9" x2="71.12" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="71.12" y1="88.9" x2="73.66" y2="88.9" width="0.1524" layer="91"/>
+<junction x="71.12" y="88.9"/>
+<label x="73.66" y="88.9" size="1.778" layer="95"/>
 </segment>
 <segment>
 <pinref part="IC5" gate="G$1" pin="!HOLD"/>
