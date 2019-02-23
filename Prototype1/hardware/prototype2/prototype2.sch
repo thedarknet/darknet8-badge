@@ -9379,7 +9379,7 @@ Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/93LC46BT-I_OT
 <part name="R19" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="100 R"/>
 <part name="LED8" library="leds" deviceset="LED" device="3MM"/>
 <part name="R20" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="100 R"/>
-<part name="J4" library="connector" deviceset="M04" device="PTH"/>
+<part name="J4" library="connector" deviceset="M04" device="PTH" value="DN PAIR"/>
 </parts>
 <sheets>
 <sheet>
@@ -11534,7 +11534,6 @@ to allow for external control of suspend.</text>
 <approved hash="113,4,69.85,54.1528,LED7,,,,,"/>
 <approved hash="113,2,181.017,40.3809,J2,,,,,"/>
 <approved hash="113,1,191.77,33.3417,LED8,,,,,"/>
-<approved hash="113,1,-18.4573,79.0296,J4,,,,,"/>
 </errors>
 </schematic>
 </drawing>
