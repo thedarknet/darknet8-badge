@@ -1970,7 +1970,6 @@ https://images-na.ssl-images-amazon.com/images/I/71NoBTVxD7L._SL1500_.jpg</descr
 <wire x1="5.625" y1="13.575" x2="3.75" y2="15.45" width="0.254" layer="1"/>
 <wire x1="3.75" y1="15.45" x2="3.75" y2="30" width="0.254" layer="1"/>
 <wire x1="3.7" y1="30" x2="3.7" y2="44" width="0.254" layer="1"/>
-<wire x1="3.7" y1="44" x2="3.7" y2="44.05" width="0.254" layer="1"/>
 <wire x1="69" y1="7.6" x2="68.1" y2="6.7" width="0.254" layer="1"/>
 <wire x1="67.1" y1="1.9" x2="33" y2="1.9" width="0.254" layer="1"/>
 <wire x1="33" y1="3" x2="25.95" y2="3" width="0.254" layer="1"/>
@@ -2375,10 +2374,6 @@ https://images-na.ssl-images-amazon.com/images/I/71NoBTVxD7L._SL1500_.jpg</descr
 <via x="14.2" y="23.75" extent="1-16" drill="0.8"/>
 <wire x1="14.2" y1="23.75" x2="14.39" y2="23.94" width="0.1778" layer="1"/>
 <wire x1="14.39" y1="23.94" x2="17.34" y2="23.94" width="0.1778" layer="1"/>
-<via x="47.2" y="35.75" extent="1-16" drill="0.8"/>
-<wire x1="44.69" y1="36.39" x2="46.36" y2="36.39" width="0.1778" layer="1"/>
-<wire x1="47" y1="35.75" x2="47.2" y2="35.75" width="0.1778" layer="1"/>
-<wire x1="46.36" y1="36.39" x2="47" y2="35.75" width="0.1778" layer="1"/>
 <wire x1="30.058" y1="35.5" x2="30.058" y2="35" width="0.1778" layer="1"/>
 <via x="18.25" y="42.15" extent="1-16" drill="0.8"/>
 <via x="29.1" y="45.85" extent="1-16" drill="0.8"/>
@@ -2443,6 +2438,7 @@ https://images-na.ssl-images-amazon.com/images/I/71NoBTVxD7L._SL1500_.jpg</descr
 <wire x1="93.915" y1="44" x2="96.15" y2="44" width="0.2" layer="1"/>
 <wire x1="9.81" y1="43.19" x2="6.89" y2="43.19" width="0.1778" layer="1"/>
 <wire x1="14.26" y1="38.74" x2="9.81" y2="43.19" width="0.1778" layer="1"/>
+<wire x1="43.69" y1="36.39" x2="44.69" y2="36.39" width="0.1778" layer="1"/>
 </signal>
 <signal name="DISPLAY_CS">
 <contactref element="U2" pad="28"/>
