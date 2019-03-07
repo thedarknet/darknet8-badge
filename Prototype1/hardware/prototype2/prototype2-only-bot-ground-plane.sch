@@ -3923,9 +3923,10 @@ Source: &lt;a href="https://www.arrow.com/en/products/ldl112d33r/stmicroelectron
 <text x="-2.54" y="3.81" size="1.27" layer="25" ratio="10">&gt;NAME</text>
 </package>
 <package name="TACTILE-2PIN-NARROW">
+<description>3-6-19: increased diameter and whole size</description>
 <text x="-2.794" y="2.032" size="0.6096" layer="25" font="vector" ratio="10">&gt;NAME</text>
-<pad name="P$1" x="3.2639" y="0" drill="1.1" diameter="2.1844"/>
-<pad name="P$2" x="-3.2639" y="0" drill="1.1" diameter="2.1844"/>
+<pad name="P$1" x="3.2639" y="0" drill="1.3" diameter="2.3"/>
+<pad name="P$2" x="-3.2639" y="0" drill="1.3" diameter="2.3"/>
 <wire x1="-3.048" y1="-1.778" x2="-3.048" y2="1.7272" width="0.127" layer="49"/>
 <wire x1="-3.048" y1="-1.778" x2="3.048" y2="-1.778" width="0.127" layer="49"/>
 <wire x1="3.048" y1="-1.778" x2="3.048" y2="1.7272" width="0.127" layer="49"/>
@@ -9279,7 +9280,7 @@ Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/93LC46BT-I_OT
 <part name="GND18" library="dc-26" deviceset="GND" device=""/>
 <part name="R1" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="10K"/>
 <part name="R4" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="10K"/>
-<part name="C1" library="passives" deviceset="C-US" device="C0805" value="10 uf"/>
+<part name="C1" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
 <part name="U$2" library="connector" deviceset="DX4R005JJ2" device="DX4R005JJ2"/>
 <part name="RESETTABLE_FUSE" library="passives" deviceset="0ZCJ0050FF2G" device=""/>
 <part name="C4" library="passives" deviceset="C-US" device="C0805" value="1 uF"/>
@@ -9293,7 +9294,7 @@ Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/93LC46BT-I_OT
 <part name="C10" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
 <part name="C11" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
 <part name="C12" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
-<part name="R5" library="passives" deviceset="RESISTOR" device="0805-RES" value="1K"/>
+<part name="R5" library="passives" deviceset="RESISTOR" device="0805-RES" value="1 K"/>
 <part name="R6" library="passives" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
 <part name="C14" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
 <part name="C15" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
@@ -9307,15 +9308,15 @@ Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/93LC46BT-I_OT
 <part name="R8" library="passives" deviceset="RESISTOR" device="0805-RES" value="10K"/>
 <part name="IC4" library="eeprom" deviceset="93LC46BT-I_OT" device=""/>
 <part name="R9" library="passives" deviceset="RESISTOR" device="0805-RES" value="10K"/>
-<part name="R10" library="passives" deviceset="RESISTOR" device="0805-RES" value="2.2K"/>
+<part name="R10" library="passives" deviceset="RESISTOR" device="0805-RES" value="2.2 K"/>
 <part name="LED2" library="leds" deviceset="LED" device="3MM" value="rx-led"/>
 <part name="LED3" library="leds" deviceset="LED" device="3MM" value="tx-led"/>
-<part name="R11" library="passives" deviceset="RESISTOR" device="0805-RES" value="56"/>
-<part name="R12" library="passives" deviceset="RESISTOR" device="0805-RES" value="56"/>
+<part name="R11" library="passives" deviceset="RESISTOR" device="0805-RES" value="56 R"/>
+<part name="R12" library="passives" deviceset="RESISTOR" device="0805-RES" value="56 R"/>
 <part name="EMIFILTER1" library="passives" deviceset="MEM2012S101RT" device=""/>
 <part name="EMIFILTER2" library="passives" deviceset="MEM2012S101RT" device=""/>
 <part name="D1" library="passives" deviceset="DIODE" device="SMA"/>
-<part name="R22" library="passives" deviceset="RESISTOR" device="0805-RES" value="4.7K"/>
+<part name="R22" library="passives" deviceset="RESISTOR" device="0805-RES" value="4.7 K"/>
 <part name="R23" library="passives" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
 <part name="R24" library="passives" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
 <part name="J8" library="connector" deviceset="M06" device="NO_SILK_YES_STOP"/>
@@ -9323,24 +9324,24 @@ Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/93LC46BT-I_OT
 <part name="U$3" library="logos" deviceset="CMD_C0DE_LOGO" device="CMD_CODE_LOGO_TOP_COPPER"/>
 <part name="C3" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
 <part name="U$4" library="defcon" deviceset="DC-27-SAO" device=""/>
-<part name="OFF/ON" library="switches" deviceset="SWITCH-SPST" device="PTH"/>
+<part name="OFF/ON" library="switches" deviceset="SWITCH-SPST" device="PTH_LOCK"/>
 <part name="IC-IP5305" library="charging-ic" deviceset="IP5305" device="ESOP8" package3d_urn="urn:adsk.eagle:package:8974512/1"/>
 <part name="LED1" library="leds" deviceset="LED" device="3MM"/>
 <part name="LED4" library="leds" deviceset="LED" device="3MM"/>
 <part name="LED5" library="leds" deviceset="LED" device="3MM"/>
 <part name="LED6" library="leds" deviceset="LED" device="3MM"/>
-<part name="C13" library="passives" deviceset="C-US" device="C0805" value="10 uf"/>
-<part name="C22" library="passives" deviceset="C-US" device="C0805" value="10 uf"/>
-<part name="C23" library="passives" deviceset="C-US" device="C0805" value="10 uf"/>
-<part name="C24" library="passives" deviceset="C-US" device="C0805" value="10 uf"/>
+<part name="C13" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
+<part name="C22" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
+<part name="C23" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
+<part name="C24" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
 <part name="R2" library="passives" deviceset="RESISTOR" device="0805-RES" value="10 R"/>
 <part name="J3" library="connector" deviceset="M02" device="PTH"/>
 <part name="L1" library="passives" deviceset="NRS4018T2R2MDGJ" device=""/>
 <part name="R3" library="passives" deviceset="RESISTOR" device="0805-RES" value="20 R"/>
 <part name="R17" library="passives" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
-<part name="C25" library="passives" deviceset="C-US" device="C0805" value="10 uf"/>
+<part name="C25" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
 <part name="LED7" library="leds" deviceset="LED" device="3MM"/>
-<part name="U$5" library="switches" deviceset="SWITCH_TACTILE" device="TACTILE-2PIN-NARROW"/>
+<part name="CHARGE-VOLTAGE" library="switches" deviceset="SWITCH_TACTILE" device="TACTILE-2PIN-NARROW" value="UserButton"/>
 <part name="J2" library="connector" deviceset="M06" device="SILK_FEMALE_PTH"/>
 <part name="IC1" library="ICs" deviceset="ATTINY13A-SSU" device=""/>
 <part name="R13" library="passives" deviceset="RESISTOR" device="0805-RES" value="100 R"/>
@@ -11146,7 +11147,7 @@ to allow for external control of suspend.</text>
 <instance part="LED7" gate="G$1" x="71.12" y="53.34" smashed="yes" rot="R270">
 <attribute name="VALUE" x="66.548" y="47.625" size="1.778" layer="96"/>
 </instance>
-<instance part="U$5" gate="G$1" x="68.58" y="43.18" smashed="yes" rot="R90">
+<instance part="CHARGE-VOLTAGE" gate="G$1" x="68.58" y="43.18" smashed="yes" rot="R90">
 <attribute name="NAME" x="71.882" y="46.736" size="1.27" layer="95" font="vector" rot="R180"/>
 </instance>
 </instances>
@@ -11229,7 +11230,7 @@ to allow for external control of suspend.</text>
 <pinref part="LED7" gate="G$1" pin="C"/>
 <wire x1="66.04" y1="53.34" x2="58.42" y2="53.34" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="53.34" x2="58.42" y2="48.26" width="0.1524" layer="91"/>
-<pinref part="U$5" gate="G$1" pin="A"/>
+<pinref part="CHARGE-VOLTAGE" gate="G$1" pin="A"/>
 <wire x1="58.42" y1="48.26" x2="58.42" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="43.18" x2="63.5" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="58.42" y1="48.26" x2="53.34" y2="48.26" width="0.1524" layer="91"/>
@@ -11430,7 +11431,7 @@ to allow for external control of suspend.</text>
 <net name="N$25" class="0">
 <segment>
 <pinref part="R17" gate="G$1" pin="2"/>
-<pinref part="U$5" gate="G$1" pin="C"/>
+<pinref part="CHARGE-VOLTAGE" gate="G$1" pin="C"/>
 <wire x1="76.2" y1="43.18" x2="73.66" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 </net>
