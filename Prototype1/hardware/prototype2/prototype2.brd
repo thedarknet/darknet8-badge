@@ -2231,6 +2231,7 @@ https://images-na.ssl-images-amazon.com/images/I/71NoBTVxD7L._SL1500_.jpg</descr
 <wire x1="21.4867" y1="28.5953" x2="21.57" y2="28.512" width="0.1778" layer="1"/>
 <wire x1="19.84666875" y1="31" x2="21.4867" y2="29.35996875" width="0.1778" layer="1"/>
 <wire x1="18.582" y1="31" x2="19.84666875" y2="31" width="0.1778" layer="1"/>
+<contactref element="U2" pad="GND"/>
 </signal>
 <signal name="DISPLAY_CS">
 <contactref element="U2" pad="28"/>
