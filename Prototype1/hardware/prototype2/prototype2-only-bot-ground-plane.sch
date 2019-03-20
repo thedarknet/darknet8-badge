@@ -9317,8 +9317,6 @@ Source: &lt;a href="https://componentsearchengine.com/Datasheets/1/93LC46BT-I_OT
 <part name="EMIFILTER2" library="passives" deviceset="MEM2012S101RT" device=""/>
 <part name="D1" library="passives" deviceset="DIODE" device="SMA"/>
 <part name="R22" library="passives" deviceset="RESISTOR" device="0805-RES" value="4.7 K"/>
-<part name="R23" library="passives" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
-<part name="R24" library="passives" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
 <part name="J8" library="connector" deviceset="M06" device="NO_SILK_YES_STOP"/>
 <part name="J1" library="connector" deviceset="M14" device=""/>
 <part name="U$3" library="logos" deviceset="CMD_C0DE_LOGO" device="CMD_CODE_LOGO_TOP_COPPER"/>
@@ -10126,14 +10124,6 @@ to allow for external control of suspend.</text>
 <attribute name="NAME" x="130.81" y="110.2614" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="130.81" y="115.062" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="R23" gate="G$1" x="127" y="101.6" smashed="yes" rot="R180">
-<attribute name="NAME" x="130.81" y="100.1014" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="130.81" y="104.902" size="1.778" layer="96" rot="R180"/>
-</instance>
-<instance part="R24" gate="G$1" x="129.54" y="91.44" smashed="yes" rot="R180">
-<attribute name="NAME" x="133.35" y="89.9414" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="133.35" y="94.742" size="1.778" layer="96" rot="R180"/>
-</instance>
 <instance part="C3" gate="G$1" x="22.86" y="149.86" smashed="yes" rot="R270">
 <attribute name="NAME" x="23.495" y="156.464" size="1.778" layer="95" rot="R270"/>
 <attribute name="VALUE" x="16.129" y="159.004" size="1.778" layer="96" rot="R270"/>
@@ -10443,16 +10433,6 @@ to allow for external control of suspend.</text>
 <label x="-83.82" y="27.94" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="R23" gate="G$1" pin="1"/>
-<wire x1="132.08" y1="101.6" x2="139.7" y2="101.6" width="0.1524" layer="91"/>
-<label x="139.7" y="101.6" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="R24" gate="G$1" pin="1"/>
-<wire x1="134.62" y1="91.44" x2="139.7" y2="91.44" width="0.1524" layer="91"/>
-<label x="139.7" y="91.44" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="IC4" gate="G$1" pin="VCC"/>
 <pinref part="C3" gate="G$1" pin="1"/>
 <wire x1="25.4" y1="137.16" x2="25.4" y2="149.86" width="0.1524" layer="91"/>
@@ -10733,22 +10713,12 @@ to allow for external control of suspend.</text>
 <wire x1="83.82" y1="35.56" x2="91.44" y2="35.56" width="0.1524" layer="91"/>
 <label x="91.44" y="35.56" size="1.778" layer="95"/>
 </segment>
-<segment>
-<pinref part="R23" gate="G$1" pin="2"/>
-<wire x1="121.92" y1="101.6" x2="119.38" y2="101.6" width="0.1524" layer="91"/>
-<label x="111.76" y="101.6" size="1.778" layer="95"/>
-</segment>
 </net>
 <net name="PWRSAV" class="0">
 <segment>
 <pinref part="IC3" gate="G$1" pin="BCBUS7"/>
 <wire x1="50.8" y1="86.36" x2="50.8" y2="91.44" width="0.1524" layer="91"/>
 <label x="50.8" y="88.9" size="1.778" layer="95" rot="R90"/>
-</segment>
-<segment>
-<pinref part="R24" gate="G$1" pin="2"/>
-<wire x1="124.46" y1="91.44" x2="119.38" y2="91.44" width="0.1524" layer="91"/>
-<label x="114.3" y="91.44" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="RXD_SPI_PROM_MOSI" class="0">

@@ -3,7 +3,7 @@
 <eagle version="9.3.1">
 <drawing>
 <settings>
-<setting alwaysvectorfont="no"/>
+<setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
@@ -1437,6 +1437,17 @@
 <instances>
 <instance part="U$1" gate="G$1" x="5.08" y="5.08" smashed="yes"/>
 <instance part="U$2" gate="G$1" x="12.7" y="5.08" smashed="yes"/>
+</instances>
+<busses>
+</busses>
+<nets>
+</nets>
+</sheet>
+<sheet>
+<plain>
+<text x="-10.16" y="81.28" size="1.778" layer="91">Put a jumper between the FT2232HL and the rx/tx of the ESP. This will allow for using a usb to serial that isn't the FT2232HL otherwise the FT2232HL keeps the pins high</text>
+</plain>
+<instances>
 </instances>
 <busses>
 </busses>
