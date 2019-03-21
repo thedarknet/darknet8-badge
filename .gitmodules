@@ -1,0 +1,3 @@
+[submodule "Prototype1/firmware/projects/scan/components/libesp"]
+	path = Prototype1/firmware/projects/scan/components/libesp
+	url = https://github.com/cmdc0de/libesp.git

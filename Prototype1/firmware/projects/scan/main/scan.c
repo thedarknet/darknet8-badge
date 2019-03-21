@@ -23,6 +23,7 @@
 */
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
+#include "driver/uart.h"
 #include "esp_wifi.h"
 #include "esp_log.h"
 #include "esp_event_loop.h"
@@ -122,6 +123,21 @@ void app_main()
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK( ret );
+
+	//////////////////////////////////////////////
+	//test uart
+	uart_config_t uart_config = { .baud_rate = 115200, .data_bits =
+			UART_DATA_8_BITS, .parity = UART_PARITY_DISABLE, .stop_bits =
+			UART_STOP_BITS_1, .flow_ctrl = UART_HW_FLOWCTRL_DISABLE };
+	uart_config.use_ref_tick = 0;
+	uart_param_config(UART_NUM_1, &uart_config);
+	ESP_ERROR_CHECK(uart_set_pin(UART_NUM_1,GPIO_NUM_4 , GPIO_NUM_34, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+        ESP_LOGI(TAG, "driver PINS SET UP");
+	// added a buffer for send and receive that we don't have to handle the async send
+	ESP_ERROR_CHECK(uart_driver_install(UART_NUM_1, 512 * 2, 0, 0, NULL, 0));
+        ESP_LOGI(TAG, "driver INSTALLED");
+	//////////////////////
+
 
     wifi_scan();
 }
