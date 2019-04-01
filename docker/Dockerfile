@@ -50,7 +50,7 @@ RUN echo "#########\n# START Added by docker buid\n######" >> /home/dndev/.bashr
 RUN echo "export PATH=$ESP_TCHAIN_BASEDIR/xtensa-esp32-elf/bin:$ESP_TCHAIN_BASEDIR/openocd-esp32/bin:$IDF_PATH/tools:$PATH" >> /home/dndev/.bashrc
 RUN echo "#########\n# END Added by docker buid\n######" >> /home/dndev/.bashrc
 
-COPY docker/entry.sh /bin/entry.sh 
+COPY ./entry.sh /bin/entry.sh 
 RUN chmod +x /bin/entry.sh
 # This is the directory where our project will show up
 RUN mkdir -p /esp/project
