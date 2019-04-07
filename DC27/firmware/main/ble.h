@@ -6,6 +6,13 @@
 #include "freertos/FreeRTOS.h"
 #include <libesp/Task.h>
 
+enum
+{
+	DN8_IDX_SVC,
+
+	DN8_IDX_NB,
+};
+
 class BluetoothTask : public Task {
 public:
 	static const char *LOGTAG;

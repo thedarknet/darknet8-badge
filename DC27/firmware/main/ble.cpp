@@ -18,6 +18,14 @@ BluetoothTask *pBTTask;
 const char *BluetoothTask::LOGTAG = "BluetoothTask";
 const char *LOGTAG = "BluetoothService";
 
+#define DN8_PROFILE_NUM       0x1
+#define DN8_PROFILE_APP_IDX   0x0
+#define DN8_APP_ID            0x55
+#define DN8_DEVICE_NAME       "DN8_SECURITY"
+#define DN8_SVC_INST_ID       0x0
+
+uint16_t dn8_handle_tbl[DN8_IDX_NB];
+
 /* Scan and Advertisement Configuration */
 #define ADV_CONFIG_FLAG       (1 << 0)
 #define SCAN_RSP_CONFIG_FLAG  (1 << 1)
@@ -28,7 +36,31 @@ static esp_ble_adv_data_t dn8_adv_config;
 static esp_ble_adv_params_t dn8_adv_params;
 static esp_ble_adv_data_t dn8_scan_rsp_config;
 
-// TODO: gatts_profile_inst
+#define ESP_GATT_UUID_DN8_SVC 0x444e
+static const uint16_t dn8_svc = ESP_GATT_UUID_DN8_SVC;
+static const uint16_t primary_service_uuid = ESP_GATT_UUID_PRI_SERVICE;
+
+
+struct gatts_profile_inst
+{
+	esp_gatts_cb_t gatts_cb;
+	uint16_t gatts_if;
+	uint16_t app_id;
+	uint16_t conn_id;
+	uint16_t service_handle;
+	esp_gatt_srvc_id_t service_id;
+	uint16_t char_handle;
+	esp_bt_uuid_t char_uuid;
+	esp_gatt_perm_t perm;
+	esp_gatt_char_prop_t property;
+	uint16_t descr_handle;
+	esp_bt_uuid_t descr_uuid;
+};
+static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
+	esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param);
+
+static struct gatts_profile_inst dn8_profile_tab[DN8_PROFILE_NUM];
+
 
 #define CmdQueueTimeout ((TickType_t) 1000 / portTICK_PERIOD_MS)
 void BluetoothTask::run(void* data)
@@ -133,17 +165,70 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 	}
 }
 
+static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
+	esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
+{
+	ESP_LOGV(LOGTAG, "GATTS Profile Event = %x\n", event);
+	switch (event)
+	{
+		case ESP_GATTS_REG_EVT:
+			esp_ble_gap_set_device_name(DN8_DEVICE_NAME);
+			esp_ble_gap_config_local_privacy(true);
+			//esp_ble_gatts_create_attr_tab(dn8_gatt_db, gatts_if,
+			//	DN8_IDX_NB, DN8_SVC_INST_ID);
+			break;
+		case ESP_GATTS_CONNECT_EVT:
+			// setup encryption
+			ESP_LOGI(LOGTAG, "ESP_GATTS_CONNECT_EVT");
+			esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_MITM);
+			break;
+		case ESP_GATTS_DISCONNECT_EVT:
+			// Start advertising again
+			ESP_LOGI(LOGTAG, "ESP_GATTS_DISCONNECT_EVT");
+			esp_ble_gap_start_advertising(&dn8_adv_params);
+			break;
+		case ESP_GATTS_CREAT_ATTR_TAB_EVT:
+			ESP_LOGI(LOGTAG, "The number handle = %x",param->add_attr_tab.num_handle);
+			if (param->create.status == ESP_GATT_OK)
+			{
+				if(param->add_attr_tab.num_handle == DN8_IDX_NB)
+				{
+					memcpy(dn8_handle_tbl, param->add_attr_tab.handles, sizeof(dn8_handle_tbl));
+					esp_ble_gatts_start_service(dn8_handle_tbl[DN8_IDX_SVC]);
+				}
+				else
+					ESP_LOGE(LOGTAG, "Create attribute table event abnormal - Bad Handle Num");
+			}
+			else
+				ESP_LOGE(LOGTAG, "Create atrtibute table failed");
+			break;
+		case ESP_GATTS_READ_EVT:
+		case ESP_GATTS_WRITE_EVT:
+		case ESP_GATTS_EXEC_WRITE_EVT:
+		case ESP_GATTS_MTU_EVT:
+		case ESP_GATTS_CONF_EVT:
+		case ESP_GATTS_UNREG_EVT:
+		case ESP_GATTS_DELETE_EVT:
+		case ESP_GATTS_START_EVT:
+		case ESP_GATTS_STOP_EVT:
+		case ESP_GATTS_OPEN_EVT:
+		case ESP_GATTS_CANCEL_OPEN_EVT:
+		case ESP_GATTS_CLOSE_EVT:
+		case ESP_GATTS_LISTEN_EVT:
+		case ESP_GATTS_CONGEST_EVT:
+		default:
+			break;
+	}
+}
+
 static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,
 	esp_ble_gatts_cb_param_t *param)
 {
 	// If event is register event, store the gatts_if for each profile
 	if (event == ESP_GATTS_REG_EVT)
 	{
-		if (param->reg.status) // ESP_GATT_OK
-		{
-			// Do the thing
-			// profile_tab[APP_IDX].gatts_if = gatts_if;
-		}
+		if (param->reg.status == ESP_GATT_OK)
+			dn8_profile_tab[DN8_PROFILE_APP_IDX].gatts_if = gatts_if;
 		else
 		{
 			ESP_LOGI(LOGTAG, "Reg app failed, app_id %04x, status %d\n",
@@ -158,11 +243,10 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 		for (idx = 0; idx < 0; idx++)
 		{
 			if (gatts_if == ESP_GATT_IF_NONE ||
-				true) // gatts_if == profile_tab[idx].gatts_if
+				gatts_if == dn8_profile_tab[idx].gatts_if)
 			{
-				// do the thing
-				// if (profile_tab[idx].gatts_cb)
-					// profile_tab[idx].gatts_cb(event, gatts_if, param);
+				if (dn8_profile_tab[idx].gatts_cb)
+					dn8_profile_tab[idx].gatts_cb(event, gatts_if, param);
 			}
 		}
 	} while (0);
@@ -221,6 +305,10 @@ static void init_ble_globals(void)
 	dn8_scan_rsp_config.include_name = true;
 	dn8_scan_rsp_config.manufacturer_len = sizeof(dn8_manufacturer);
 	dn8_scan_rsp_config.p_manufacturer_data = dn8_manufacturer;
+
+	// Setup the application callback handler
+	dn8_profile_tab[DN8_PROFILE_APP_IDX].gatts_cb = gatts_profile_event_handler;
+	dn8_profile_tab[DN8_PROFILE_APP_IDX].gatts_if = ESP_GATT_IF_NONE;
 }
 
 static void init_ble_security(void)
@@ -297,15 +385,13 @@ static esp_err_t init_ble(void)
 		return ret;
 	}
 
-	/*
 	// TODO: Our APP ID?
-	ret = esp_ble_gatts_app_register(ESP_HEART_RATE_APP_ID);
+	ret = esp_ble_gatts_app_register(DN8_APP_ID);
 	if (ret)
 	{
 		ESP_LOGE(LOGTAG, "gatts app register error, error code = %x", ret);
 		return ret;
 	}
-	*/
 
 	if (!ret)
 	{
