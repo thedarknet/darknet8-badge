@@ -21,6 +21,8 @@
 #include <libesp/i2c.hpp>
 #include <esp_log.h>
 
+#include "nvs_flash.h"
+
 #include "./ble.h"
 
 /*
@@ -584,6 +586,16 @@ const char *APA102c::LOG = "APA102c";
 BluetoothTask BTTask("BluetoothTask");
 
 void app_main() {
+	esp_err_t ret;
+	
+	// initialize NVS
+	ret = nvs_flash_init();
+	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+		ESP_ERROR_CHECK(nvs_flash_erase()); // TODO: do we actually want this?
+		ret = nvs_flash_init();
+	}
+	ESP_ERROR_CHECK( ret );
+
 	//ESP32_I2CMaster I2cDisplay(GPIO_NUM_27,GPIO_NUM_25,1000000, I2C_NUM_0, 0, 32);
 	//ESP32_I2CMaster I2cDisplay(GPIO_NUM_19,GPIO_NUM_18,1000000, I2C_NUM_0, 0, 32);
 	ESP32_I2CMaster::doIt();
