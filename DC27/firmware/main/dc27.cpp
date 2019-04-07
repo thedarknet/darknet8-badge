@@ -21,6 +21,8 @@
 #include <libesp/i2c.hpp>
 #include <esp_log.h>
 
+#include "./ble.h"
+
 /*
  This code displays some fancy graphics on the 320x240 LCD on an ESP-WROVER_KIT board.
  This example demonstrates the use of both spi_device_transmit as well as
@@ -579,12 +581,16 @@ private:
 
 const char *APA102c::LOG = "APA102c";
 
+BluetoothTask BTTask("BluetoothTask");
+
 void app_main() {
 	//ESP32_I2CMaster I2cDisplay(GPIO_NUM_27,GPIO_NUM_25,1000000, I2C_NUM_0, 0, 32);
 	//ESP32_I2CMaster I2cDisplay(GPIO_NUM_19,GPIO_NUM_18,1000000, I2C_NUM_0, 0, 32);
 	ESP32_I2CMaster::doIt();
 	//I2cDisplay.init();
 	//I2cDisplay.scan();
+	BTTask.init();
+	BTTask.start();
 	libesp::System::get().logSystemInfo();	
 }
 
