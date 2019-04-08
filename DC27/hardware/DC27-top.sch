@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.3.2">
+<eagle version="9.3.0">
 <drawing>
 <settings>
-<setting alwaysvectorfont="yes"/>
+<setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
@@ -8740,6 +8740,9 @@ Datasheet: https://cdn-shop.adafruit.com/product-files/2343/APA102C.pdf</descrip
 <classes>
 <class number="0" name="default" width="0" drill="0">
 </class>
+<class number="1" name="vcc" width="0.2032" drill="0.8">
+<clearance class="1" value="0.1778"/>
+</class>
 <class number="2" name="5v" width="0.254" drill="0.8">
 <clearance class="2" value="0.1778"/>
 </class>
@@ -8933,21 +8936,7 @@ https://docs.google.com/spreadsheets/d/197bZFpu4z_KD0FJGjEzFNKi7uk5QnYig_k_Viobe
 <busses>
 </busses>
 <nets>
-<net name="VCC" class="0">
-<segment>
-<pinref part="R2" gate="G$1" pin="1"/>
-<wire x1="63.5" y1="132.08" x2="63.5" y2="134.62" width="0.1524" layer="91"/>
-<label x="63.5" y="134.62" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="IC1" gate="G$1" pin="VDD"/>
-<wire x1="45.72" y1="129.54" x2="48.26" y2="129.54" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="129.54" x2="55.88" y2="129.54" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="129.54" x2="55.88" y2="134.62" width="0.1524" layer="91"/>
-<pinref part="C1" gate="G$1" pin="2"/>
-<junction x="48.26" y="129.54"/>
-<label x="55.88" y="137.16" size="1.778" layer="95"/>
-</segment>
+<net name="VCC" class="1">
 <segment>
 <pinref part="D2" gate="G$1" pin="A"/>
 <wire x1="45.72" y1="33.02" x2="48.26" y2="33.02" width="0.1524" layer="91"/>
@@ -9431,6 +9420,20 @@ https://docs.google.com/spreadsheets/d/197bZFpu4z_KD0FJGjEzFNKi7uk5QnYig_k_Viobe
 <wire x1="-50.8" y1="30.48" x2="-53.34" y2="30.48" width="0.1524" layer="91"/>
 <label x="-55.88" y="30.48" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="IC1" gate="G$1" pin="VDD"/>
+<wire x1="45.72" y1="129.54" x2="48.26" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="129.54" x2="55.88" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="129.54" x2="55.88" y2="134.62" width="0.1524" layer="91"/>
+<pinref part="C1" gate="G$1" pin="2"/>
+<junction x="48.26" y="129.54"/>
+<label x="55.88" y="137.16" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R2" gate="G$1" pin="1"/>
+<wire x1="63.5" y1="132.08" x2="63.5" y2="134.62" width="0.1524" layer="91"/>
+<label x="63.5" y="134.62" size="1.778" layer="95"/>
+</segment>
 </net>
 </nets>
 </sheet>
@@ -9474,57 +9477,6 @@ https://docs.google.com/spreadsheets/d/197bZFpu4z_KD0FJGjEzFNKi7uk5QnYig_k_Viobe
 <pinref part="U$13" gate="G$1" pin="CI"/>
 <wire x1="71.12" y1="71.12" x2="71.12" y2="76.2" width="0.1524" layer="91"/>
 <label x="71.12" y="76.2" size="1.016" layer="95" rot="R90" xref="yes"/>
-</segment>
-</net>
-<net name="VCC" class="0">
-<segment>
-<pinref part="U$13" gate="G$1" pin="VCC"/>
-<wire x1="81.28" y1="58.42" x2="88.9" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="C26" gate="G$1" pin="1"/>
-<wire x1="88.9" y1="58.42" x2="91.44" y2="58.42" width="0.1524" layer="91"/>
-<junction x="88.9" y="58.42"/>
-<label x="91.44" y="58.42" size="1.016" layer="95"/>
-</segment>
-<segment>
-<pinref part="U$14" gate="G$1" pin="VCC"/>
-<wire x1="81.28" y1="30.48" x2="88.9" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="C27" gate="G$1" pin="1"/>
-<wire x1="88.9" y1="30.48" x2="91.44" y2="30.48" width="0.1524" layer="91"/>
-<junction x="88.9" y="30.48"/>
-<label x="91.44" y="30.48" size="1.016" layer="95"/>
-</segment>
-<segment>
-<pinref part="U$11" gate="G$1" pin="VCC"/>
-<wire x1="35.56" y1="60.96" x2="27.94" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="C28" gate="G$1" pin="1"/>
-<wire x1="27.94" y1="60.96" x2="25.4" y2="60.96" width="0.1524" layer="91"/>
-<junction x="27.94" y="60.96"/>
-<label x="22.86" y="60.96" size="1.016" layer="95"/>
-</segment>
-<segment>
-<pinref part="U$12" gate="G$1" pin="VCC"/>
-<wire x1="35.56" y1="33.02" x2="27.94" y2="33.02" width="0.1524" layer="91"/>
-<pinref part="C29" gate="G$1" pin="1"/>
-<wire x1="27.94" y1="33.02" x2="25.4" y2="33.02" width="0.1524" layer="91"/>
-<junction x="27.94" y="33.02"/>
-<label x="22.86" y="33.02" size="1.016" layer="95"/>
-</segment>
-</net>
-<net name="N$28" class="0">
-<segment>
-<pinref part="U$11" gate="G$1" pin="GND"/>
-<wire x1="50.8" y1="58.42" x2="58.42" y2="58.42" width="0.1524" layer="91"/>
-<pinref part="U$12" gate="G$1" pin="GND"/>
-<wire x1="58.42" y1="58.42" x2="58.42" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="58.42" y1="33.02" x2="58.42" y2="30.48" width="0.1524" layer="91"/>
-<wire x1="58.42" y1="30.48" x2="50.8" y2="30.48" width="0.1524" layer="91"/>
-<pinref part="U$14" gate="G$1" pin="GND"/>
-<wire x1="66.04" y1="33.02" x2="58.42" y2="33.02" width="0.1524" layer="91"/>
-<junction x="58.42" y="33.02"/>
-<pinref part="U$13" gate="G$1" pin="GND"/>
-<wire x1="66.04" y1="60.96" x2="58.42" y2="60.96" width="0.1524" layer="91"/>
-<wire x1="58.42" y1="60.96" x2="58.42" y2="58.42" width="0.1524" layer="91"/>
-<junction x="58.42" y="58.42"/>
 </segment>
 </net>
 <net name="N$34" class="0">
@@ -9594,13 +9546,61 @@ https://docs.google.com/spreadsheets/d/197bZFpu4z_KD0FJGjEzFNKi7uk5QnYig_k_Viobe
 <wire x1="88.9" y1="22.86" x2="88.9" y2="20.32" width="0.1524" layer="91"/>
 <label x="88.9" y="20.32" size="1.016" layer="95"/>
 </segment>
+<segment>
+<pinref part="U$11" gate="G$1" pin="GND"/>
+<wire x1="50.8" y1="58.42" x2="58.42" y2="58.42" width="0.1524" layer="91"/>
+<pinref part="U$12" gate="G$1" pin="GND"/>
+<wire x1="58.42" y1="58.42" x2="58.42" y2="33.02" width="0.1524" layer="91"/>
+<wire x1="58.42" y1="33.02" x2="58.42" y2="30.48" width="0.1524" layer="91"/>
+<wire x1="58.42" y1="30.48" x2="50.8" y2="30.48" width="0.1524" layer="91"/>
+<pinref part="U$14" gate="G$1" pin="GND"/>
+<wire x1="66.04" y1="33.02" x2="58.42" y2="33.02" width="0.1524" layer="91"/>
+<junction x="58.42" y="33.02"/>
+<pinref part="U$13" gate="G$1" pin="GND"/>
+<wire x1="66.04" y1="60.96" x2="58.42" y2="60.96" width="0.1524" layer="91"/>
+<wire x1="58.42" y1="60.96" x2="58.42" y2="58.42" width="0.1524" layer="91"/>
+<junction x="58.42" y="58.42"/>
+<label x="55.88" y="63.5" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="VBAT" class="2">
+<segment>
+<pinref part="U$11" gate="G$1" pin="VCC"/>
+<wire x1="35.56" y1="60.96" x2="27.94" y2="60.96" width="0.1524" layer="91"/>
+<pinref part="C28" gate="G$1" pin="1"/>
+<wire x1="27.94" y1="60.96" x2="25.4" y2="60.96" width="0.1524" layer="91"/>
+<junction x="27.94" y="60.96"/>
+<label x="22.86" y="60.96" size="1.016" layer="95"/>
+</segment>
+<segment>
+<pinref part="U$12" gate="G$1" pin="VCC"/>
+<wire x1="35.56" y1="33.02" x2="27.94" y2="33.02" width="0.1524" layer="91"/>
+<pinref part="C29" gate="G$1" pin="1"/>
+<wire x1="27.94" y1="33.02" x2="25.4" y2="33.02" width="0.1524" layer="91"/>
+<junction x="27.94" y="33.02"/>
+<label x="22.86" y="33.02" size="1.016" layer="95"/>
+</segment>
+<segment>
+<pinref part="U$13" gate="G$1" pin="VCC"/>
+<wire x1="81.28" y1="58.42" x2="88.9" y2="58.42" width="0.1524" layer="91"/>
+<pinref part="C26" gate="G$1" pin="1"/>
+<wire x1="88.9" y1="58.42" x2="91.44" y2="58.42" width="0.1524" layer="91"/>
+<junction x="88.9" y="58.42"/>
+<label x="91.44" y="58.42" size="1.016" layer="95"/>
+</segment>
+<segment>
+<pinref part="U$14" gate="G$1" pin="VCC"/>
+<wire x1="81.28" y1="30.48" x2="88.9" y2="30.48" width="0.1524" layer="91"/>
+<pinref part="C27" gate="G$1" pin="1"/>
+<wire x1="88.9" y1="30.48" x2="91.44" y2="30.48" width="0.1524" layer="91"/>
+<junction x="88.9" y="30.48"/>
+<label x="91.44" y="30.48" size="1.016" layer="95"/>
+</segment>
 </net>
 </nets>
 </sheet>
 </sheets>
 <errors>
-<approved hash="104,1,35.56,33.02,U$3,3V3,VCC,,,"/>
-<approved hash="104,1,96.52,33.02,U$4,3V3,VCC,,,"/>
 <approved hash="206,1,55.88,73.66,GND,,,,,"/>
 <approved hash="206,1,63.5,73.66,GND,,,,,"/>
 <approved hash="206,1,71.12,73.66,GND,,,,,"/>
