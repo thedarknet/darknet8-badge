@@ -240,7 +240,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 	do
 	{
 		int idx;
-		for (idx = 0; idx < 0; idx++)
+		for (idx = 0; idx < DN8_PROFILE_NUM; idx++)
 		{
 			if (gatts_if == ESP_GATT_IF_NONE ||
 				gatts_if == dn8_profile_tab[idx].gatts_if)
@@ -392,11 +392,9 @@ static esp_err_t init_ble(void)
 		ESP_LOGE(LOGTAG, "gatts app register error, error code = %x", ret);
 		return ret;
 	}
-
-	if (!ret)
+	else // good to go, setup all the other info
 	{
 		init_ble_security();
-		init_ble_globals();
 	}
 	return ret;
 }
@@ -407,6 +405,7 @@ bool BluetoothTask::init()
 	ESP_LOGI(LOGTAG, "INIT START");
 	pBTTask = this;
 
+	init_ble_globals();
 	ret = init_ble();
 	if (ret)
 		ESP_LOGE(LOGTAG, "BLE Initialization failed\n");
