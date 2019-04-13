@@ -29,37 +29,206 @@ uint16_t dn8_handle_tbl[DN8_IDX_NB];
 /* Scan and Advertisement Configuration */
 #define ADV_CONFIG_FLAG       (1 << 0)
 #define SCAN_RSP_CONFIG_FLAG  (1 << 1)
-static uint8_t dn8_manufacturer[3];
-static uint8_t sec_service_uuid[16];
+static uint8_t dn8_manufacturer[3] = {'D', 'N', '8'};
+static uint8_t sec_service_uuid[16] = {0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80,
+	0x00, 0x10, 0x00, 0x00, 0x18, 0x0D, 0x00, 0x00};
 static uint8_t adv_config_done = 0;
 static esp_ble_adv_data_t dn8_adv_config;
 static esp_ble_adv_params_t dn8_adv_params;
 static esp_ble_adv_data_t dn8_scan_rsp_config;
 
-#define ESP_GATT_UUID_DN8_SVC 0x444e
-static const uint16_t dn8_svc = ESP_GATT_UUID_DN8_SVC;
-static const uint16_t primary_service_uuid = ESP_GATT_UUID_PRI_SERVICE;
-
-
-struct gatts_profile_inst
-{
-	esp_gatts_cb_t gatts_cb;
-	uint16_t gatts_if;
-	uint16_t app_id;
-	uint16_t conn_id;
-	uint16_t service_handle;
-	esp_gatt_srvc_id_t service_id;
-	uint16_t char_handle;
-	esp_bt_uuid_t char_uuid;
-	esp_gatt_perm_t perm;
-	esp_gatt_char_prop_t property;
-	uint16_t descr_handle;
-	esp_bt_uuid_t descr_uuid;
-};
 static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 	esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t* param);
 
 static struct gatts_profile_inst dn8_profile_tab[DN8_PROFILE_NUM];
+
+// Serial Stuff
+static uint16_t serial_mtu_size     = 23;
+static uint16_t serial_conn_id      = 0xffff;
+static bool serial_is_connected       = false;
+static bool serial_enable_data_notify = false;
+static esp_gatt_if_t serial_gatts_if   = 0xff;
+static esp_bd_addr_t serial_remote_bda = {0x0,};
+
+static serial_recv_data_node_t* serial_recv_data_node = NULL;
+static serial_recv_data_buff_t SerialRecvDataBuff;
+
+// Characteristic Definition helpers
+#define CHAR_DECLARATION_SIZE   (sizeof(uint8_t))
+static const uint16_t character_declaration_uuid = ESP_GATT_UUID_CHAR_DECLARE;
+static const uint16_t character_client_config_uuid = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
+
+static const uint8_t char_prop_read_notify = ESP_GATT_CHAR_PROP_BIT_READ|ESP_GATT_CHAR_PROP_BIT_NOTIFY;
+static const uint8_t char_prop_read_write = ESP_GATT_CHAR_PROP_BIT_WRITE_NR|ESP_GATT_CHAR_PROP_BIT_READ;
+
+/*
+ * SPP Profile Attributes
+ ************************************
+ */
+//Serial - data receive characteristic, read&write without response
+static const uint16_t serial_data_receive_uuid = ESP_GATT_UUID_SERIAL_DATA_RECEIVE;
+static const uint8_t  serial_data_receive_val[20] = {0x00};
+
+//Serial - data notify characteristic, notify&read
+static const uint16_t serial_data_notify_uuid = ESP_GATT_UUID_SERIAL_DATA_NOTIFY;
+static const uint8_t  serial_data_notify_val[20] = {0x00};
+static const uint8_t  serial_data_notify_ccc[2] = {0x00, 0x00};
+
+//Serial - command characteristic, read&write without response
+static const uint16_t serial_command_uuid = ESP_GATT_UUID_SERIAL_COMMAND_RECEIVE;
+static const uint8_t  serial_command_val[10] = {0x00};
+
+//Serial - status characteristic, notify&read
+static const uint16_t serial_status_uuid = ESP_GATT_UUID_SERIAL_COMMAND_NOTIFY;
+static const uint8_t  serial_status_val[10] = {0x00};
+static const uint8_t  serial_status_ccc[2] = {0x00, 0x00};
+
+static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
+{
+	// Service
+	[DN8_IDX_SVC] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&primary_service_uuid,
+			ESP_GATT_PERM_READ,
+			sizeof(uint16_t),
+			sizeof(dn8_svc),
+			(uint8_t *)&dn8_svc}},
+
+	//Serial - Data receive characteristic, value
+	[DN8_IDX_SERIAL_DATA_RECV_CHAR] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_declaration_uuid,
+			ESP_GATT_PERM_READ,
+			CHAR_DECLARATION_SIZE,
+			CHAR_DECLARATION_SIZE,
+			(uint8_t *)&char_prop_read_write}},
+	[DN8_IDX_SERIAL_DATA_RECV_VAL] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&serial_data_receive_uuid,
+			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
+			SERIAL_DATA_MAX_LEN,
+			sizeof(serial_data_receive_val),
+			(uint8_t *)serial_data_receive_val}},
+
+	//Serial: Data notify characteristic, value, descriptor
+	[DN8_IDX_SERIAL_DATA_NOTIFY_CHAR] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_declaration_uuid,
+			ESP_GATT_PERM_READ,
+			CHAR_DECLARATION_SIZE,
+			CHAR_DECLARATION_SIZE,
+			(uint8_t *)&char_prop_read_notify}},
+	[DN8_IDX_SERIAL_DATA_NOTIFY_VAL] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&serial_data_notify_uuid,
+			ESP_GATT_PERM_READ,
+			SERIAL_DATA_MAX_LEN,
+			sizeof(serial_data_notify_val),
+			(uint8_t *)serial_data_notify_val}},
+	[DN8_IDX_SERIAL_DATA_NOTIFY_CFG] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_client_config_uuid,
+			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
+			sizeof(uint16_t),
+			sizeof(serial_data_notify_ccc),
+			(uint8_t *)serial_data_notify_ccc}},
+
+	//Serial: Command characteristic, value
+	[DN8_IDX_SERIAL_COMMAND_CHAR] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_declaration_uuid,
+			ESP_GATT_PERM_READ,
+			CHAR_DECLARATION_SIZE,
+			CHAR_DECLARATION_SIZE,
+			(uint8_t *)&char_prop_read_write}},
+	[DN8_IDX_SERIAL_COMMAND_VAL] =
+	{{ESP_GATT_AUTO_RSP},
+	{ESP_UUID_LEN_16,
+		(uint8_t *)&serial_command_uuid,
+		ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
+		SERIAL_CMD_MAX_LEN,
+		sizeof(serial_command_val),
+		(uint8_t *)serial_command_val}},
+
+	//Serial: Status Characteristic, value, descriptor
+	[DN8_IDX_SERIAL_STATUS_CHAR] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_declaration_uuid,
+			ESP_GATT_PERM_READ,
+			CHAR_DECLARATION_SIZE,
+			CHAR_DECLARATION_SIZE,
+			(uint8_t *)&char_prop_read_notify}},
+	[DN8_IDX_SERIAL_STATUS_VAL] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&serial_status_uuid,
+			ESP_GATT_PERM_READ,
+			SERIAL_STATUS_MAX_LEN,
+			sizeof(serial_status_val),
+			(uint8_t *)serial_status_val}},
+	[DN8_IDX_SERIAL_STATUS_CFG] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_client_config_uuid,
+			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
+			sizeof(uint16_t),
+			sizeof(serial_status_ccc),
+			(uint8_t *)serial_status_ccc}},
+};
+
+
+static uint8_t find_char_and_desr_index(uint16_t handle)
+{
+	for (int i = 0; i < DN8_IDX_NB; i++)
+	{
+		if (handle == dn8_handle_tbl[i])
+			return i;
+	}
+	return 0xff; // error
+}
+
+static void store_wr_buffer(esp_ble_gatts_cb_param_t *param)
+{
+	// TODO
+
+	return;
+}
+
+static void free_write_buffer(void)
+{
+	serial_recv_data_node_t* serial_recv_data_node_p2 = NULL;
+	serial_recv_data_node = SerialRecvDataBuff.first_node;
+	while (serial_recv_data_node != NULL)
+	{
+		serial_recv_data_node_p2 = serial_recv_data_node->next_node;
+		free(serial_recv_data_node->node_buff);
+		free(serial_recv_data_node);
+		serial_recv_data_node = serial_recv_data_node_p2;
+	}
+	SerialRecvDataBuff.node_num = 0;
+	SerialRecvDataBuff.buff_size = 0;
+	SerialRecvDataBuff.first_node = NULL;
+}
+
+static void print_write_buffer(void)
+{
+	serial_recv_data_node = SerialRecvDataBuff.first_node;
+	while(serial_recv_data_node != NULL)
+	{
+		// TODO: uart_write_bytes?
+		ESP_LOG_BUFFER_HEXDUMP(LOGTAG, (char *)(serial_recv_data_node->node_buff),
+			serial_recv_data_node->len, ESP_LOG_INFO);
+		serial_recv_data_node = serial_recv_data_node->next_node;
+	}
+}
 
 
 #define CmdQueueTimeout ((TickType_t) 1000 / portTICK_PERIOD_MS)
@@ -169,22 +338,31 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 	esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
 	ESP_LOGV(LOGTAG, "GATTS Profile Event = %x\n", event);
+	uint8_t res = 0xff;
 	switch (event)
 	{
 		case ESP_GATTS_REG_EVT:
 			esp_ble_gap_set_device_name(DN8_DEVICE_NAME);
 			esp_ble_gap_config_local_privacy(true);
-			//esp_ble_gatts_create_attr_tab(dn8_gatt_db, gatts_if,
-			//	DN8_IDX_NB, DN8_SVC_INST_ID);
+			// TODO: SPP Conflict, adv_data raw?!
+			esp_ble_gatts_create_attr_tab(dn8_gatt_db, gatts_if, DN8_IDX_NB, DN8_SVC_INST_ID);
 			break;
 		case ESP_GATTS_CONNECT_EVT:
-			// setup encryption
 			ESP_LOGI(LOGTAG, "ESP_GATTS_CONNECT_EVT");
+			// Get the connection details for the serial stuff
+			serial_conn_id      = param->connect.conn_id;
+			serial_gatts_if     = gatts_if;
+			serial_is_connected = true;
+			memcpy(&serial_remote_bda, &param->connect.remote_bda, sizeof(esp_bd_addr_t));
+			// setup encryption
 			esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_MITM);
 			break;
 		case ESP_GATTS_DISCONNECT_EVT:
-			// Start advertising again
 			ESP_LOGI(LOGTAG, "ESP_GATTS_DISCONNECT_EVT");
+			// Clean up serial stuff
+			serial_is_connected = false;
+			serial_enable_data_notify = false;
+			// Start advertising again
 			esp_ble_gap_start_advertising(&dn8_adv_params);
 			break;
 		case ESP_GATTS_CREAT_ATTR_TAB_EVT:
@@ -200,12 +378,65 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 					ESP_LOGE(LOGTAG, "Create attribute table event abnormal - Bad Handle Num");
 			}
 			else
-				ESP_LOGE(LOGTAG, "Create atrtibute table failed");
+				ESP_LOGE(LOGTAG, "Create attribute table failed");
 			break;
-		case ESP_GATTS_READ_EVT:
-		case ESP_GATTS_WRITE_EVT:
+		case ESP_GATTS_READ_EVT: // TODO: SPP
+			ESP_LOGI(LOGTAG, "ESP_GATTS_READ_EVT");
+			res = find_char_and_desr_index(param->read.handle);
+			if(res == DN8_IDX_SERIAL_STATUS_VAL)
+			{
+				// TODO: Client read the status characteristic
+			}
+			break;
+		case ESP_GATTS_WRITE_EVT: // TODO: SPP
+			res = find_char_and_desr_index(param->write.handle);
+			if (!param->write.is_prep)
+			{
+				ESP_LOGI(LOGTAG, "ESP_GATTS_WRITE_EVT : handle = %d\n", res);
+				if (res == DN8_IDX_SERIAL_COMMAND_VAL)
+				{
+					// TODO: send cmd to uart cmd_queue
+				}
+				else if (res == DN8_IDX_SERIAL_DATA_NOTIFY_CFG)
+				{
+					if ((param->write.len == 2) && (param->write.value[0] == 0x01) &&
+						(param->write.value[1] == 0x00))
+					{
+						serial_enable_data_notify = true;
+					}
+					else if ((param->write.len == 2)&&(param->write.value[0] == 0x00)&&
+						(param->write.value[1] == 0x00))
+					{
+						serial_enable_data_notify = false;
+					}
+				}
+				else if (res == DN8_IDX_SERIAL_DATA_RECV_VAL)
+				{
+					esp_log_buffer_char(LOGTAG, (char*)(param->write.value), param->write.len);
+					// TODO: uart_write_bytes
+				}
+				else
+				{
+					// TODO
+				}
+			}
+			else if (param->write.is_prep && (res == DN8_IDX_SERIAL_DATA_RECV_VAL))
+			{
+				ESP_LOGI(LOGTAG, "ESP_GATTS_PREP_WRITE_EVT : handle = %d\n", res);
+				store_wr_buffer(param);
+			}
+			break;
 		case ESP_GATTS_EXEC_WRITE_EVT:
+			ESP_LOGI(LOGTAG, "ESP_GATTS_EXEC_WRITE_EVT\n");
+			if (param->exec_write.exec_write_flag)
+			{
+				print_write_buffer();
+				free_write_buffer();
+			}
+			break;
 		case ESP_GATTS_MTU_EVT:
+			serial_mtu_size = param->mtu.mtu;
+			break;
 		case ESP_GATTS_CONF_EVT:
 		case ESP_GATTS_UNREG_EVT:
 		case ESP_GATTS_DELETE_EVT:
@@ -255,29 +486,6 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
 static void init_ble_globals(void)
 {
-	//This is the 3 byte manufacturer data for advertisements
-	dn8_manufacturer[0] = 'D';
-	dn8_manufacturer[1] = 'N';
-	dn8_manufacturer[2] = '8';
-	
-	//The security sevice UUID... this is annoying...
-	sec_service_uuid[0] = 0xfb;
-	sec_service_uuid[1] = 0x34;
-	sec_service_uuid[2] = 0x9b;
-	sec_service_uuid[3] = 0x5f;
-	sec_service_uuid[4] = 0x80;
-	sec_service_uuid[5] = 0x00;
-	sec_service_uuid[6] = 0x00;
-	sec_service_uuid[7] = 0x80;
-	sec_service_uuid[8] = 0x00;
-	sec_service_uuid[9] = 0x10;
-	sec_service_uuid[10] = 0x00;
-	sec_service_uuid[11] = 0x00;
-	sec_service_uuid[12] = 0x18;
-	sec_service_uuid[13] = 0x0d;
-	sec_service_uuid[14] = 0x00;
-	sec_service_uuid[15] = 0x00;
-
 	// Advertisement configuation
 	dn8_adv_config.set_scan_rsp = false;
 	dn8_adv_config.include_txpower = true;
@@ -309,6 +517,11 @@ static void init_ble_globals(void)
 	// Setup the application callback handler
 	dn8_profile_tab[DN8_PROFILE_APP_IDX].gatts_cb = gatts_profile_event_handler;
 	dn8_profile_tab[DN8_PROFILE_APP_IDX].gatts_if = ESP_GATT_IF_NONE;
+
+	// null out the Serial Receive Buffer
+	SerialRecvDataBuff.node_num = 0;
+	SerialRecvDataBuff.buff_size = 0;
+	SerialRecvDataBuff.first_node = NULL;
 }
 
 static void init_ble_security(void)
