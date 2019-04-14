@@ -51,6 +51,7 @@ static esp_gatt_if_t serial_gatts_if   = 0xff;
 static esp_bd_addr_t serial_remote_bda = {0x0,};
 
 static serial_recv_data_node_t* serial_recv_data_node = NULL;
+static serial_recv_data_node_t* serial_recv_data_node_p2 = NULL;
 static serial_recv_data_buff_t SerialRecvDataBuff;
 
 // Characteristic Definition helpers
@@ -197,14 +198,26 @@ static uint8_t find_char_and_desr_index(uint16_t handle)
 
 static void store_wr_buffer(esp_ble_gatts_cb_param_t *param)
 {
-	// TODO
-
+	serial_recv_data_node = (serial_recv_data_node_t*)malloc(sizeof(serial_recv_data_node_t));
+	if (!serial_recv_data_node)
+	{
+		ESP_LOGI(LOGTAG, "malloc error %s %d\n", __func__, __LINE__);
+		return;
+	}
+	if(serial_recv_data_node_p2 != NULL)
+		serial_recv_data_node_p2->next_node = serial_recv_data_node;
+	SerialRecvDataBuff.buff_size += param->write.len;
+	serial_recv_data_node->next_node = NULL;
+	serial_recv_data_node->node_buff = (uint8_t *)malloc(param->write.len);
+	serial_recv_data_node_p2 = serial_recv_data_node;
+	if (SerialRecvDataBuff.node_num == 0)
+		SerialRecvDataBuff.first_node = serial_recv_data_node;
+	SerialRecvDataBuff.node_num++;
 	return;
 }
 
 static void free_write_buffer(void)
 {
-	serial_recv_data_node_t* serial_recv_data_node_p2 = NULL;
 	serial_recv_data_node = SerialRecvDataBuff.first_node;
 	while (serial_recv_data_node != NULL)
 	{
@@ -273,7 +286,7 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
 			break;
 		case ESP_GAP_BLE_PASSKEY_REQ_EVT:
 			// Passkey request event, in the case of a non-preset passkey
-			// TODO: This, we will want to replace a preset passkey
+			// TODO: We will want to replace a preset passkey
 			ESP_LOGI(LOGTAG, "PASSKEY_REQ_EVT");
 			break;
 		case ESP_GAP_BLE_SEC_REQ_EVT:
@@ -380,12 +393,12 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 			else
 				ESP_LOGE(LOGTAG, "Create attribute table failed");
 			break;
-		case ESP_GATTS_READ_EVT: // TODO: SPP
+		case ESP_GATTS_READ_EVT:
 			ESP_LOGI(LOGTAG, "ESP_GATTS_READ_EVT");
 			res = find_char_and_desr_index(param->read.handle);
 			if(res == DN8_IDX_SERIAL_STATUS_VAL)
 			{
-				// TODO: Client read the status characteristic
+				// TODO: Client read the status characteristic (not in example)
 			}
 			break;
 		case ESP_GATTS_WRITE_EVT: // TODO: SPP
@@ -396,6 +409,18 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 				if (res == DN8_IDX_SERIAL_COMMAND_VAL)
 				{
 					// TODO: send cmd to uart cmd_queue
+					/*
+					uint8_t* serial_cmd_buff = NULL;
+					serial_cmd_buff = (uint8_t*)malloc((serial_mtu_size - 3) * sizeof(uint8_t));
+					if (!serial_cmd_buff)
+					{
+						ESP_LOGE(LOGTAG, "%s malloc failed\n", __func__);
+						break;
+					}
+					memset(serial_cmd_buf, 0x0, (serial_mtu_size - 3));
+					memcpy(serial_cmd_buf, param->write.value, param->write.len);
+					xQueueSend(cmd_queue, &serial_cmd_buff, 10/portTICK_PERIOD_MS);
+					*/
 				}
 				else if (res == DN8_IDX_SERIAL_DATA_NOTIFY_CFG)
 				{
@@ -412,12 +437,13 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 				}
 				else if (res == DN8_IDX_SERIAL_DATA_RECV_VAL)
 				{
+					// TODO: ifdef debug - when we finish turn this off
 					esp_log_buffer_char(LOGTAG, (char*)(param->write.value), param->write.len);
-					// TODO: uart_write_bytes
+					// TODO: uart_write_bytes or send the message to our queue to respond to
 				}
 				else
 				{
-					// TODO
+					// TODO (left out of example)
 				}
 			}
 			else if (param->write.is_prep && (res == DN8_IDX_SERIAL_DATA_RECV_VAL))
@@ -598,7 +624,6 @@ static esp_err_t init_ble(void)
 		return ret;
 	}
 
-	// TODO: Our APP ID?
 	ret = esp_ble_gatts_app_register(DN8_APP_ID);
 	if (ret)
 	{
