@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.3.0">
+<eagle version="9.3.2">
 <drawing>
 <settings>
-<setting alwaysvectorfont="no"/>
+<setting alwaysvectorfont="yes"/>
 <setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
@@ -33,11 +33,11 @@
 <layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
-<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="yes" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
 <layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
@@ -49,7 +49,7 @@
 <layer number="38" name="bTest" color="7" fill="1" visible="no" active="yes"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="yes" active="yes"/>
 <layer number="40" name="bKeepout" color="1" fill="11" visible="yes" active="yes"/>
-<layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="yes"/>
+<layer number="41" name="tRestrict" color="4" fill="10" visible="yes" active="yes"/>
 <layer number="42" name="bRestrict" color="1" fill="10" visible="yes" active="yes"/>
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="yes"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
@@ -2990,8 +2990,8 @@ chip</description>
 </library>
 <library name="logos">
 <packages>
-<package name="DN_LOGO_DC26">
-<polygon width="0.01" layer="25">
+<package name="DN_LOGO_LONG_SILK">
+<polygon width="0.01" layer="21">
 <vertex x="2.936575" y="2.50581875"/>
 <vertex x="2.936575" y="1.46518125"/>
 <vertex x="3.31435625" y="1.46518125"/>
@@ -3017,7 +3017,7 @@ chip</description>
 <vertex x="2.0883" y="-0.27771875"/>
 <vertex x="2.0883" y="2.50581875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="7.4789125" y="2.50581875"/>
 <vertex x="7.879871875" y="1.986659375"/>
 <vertex x="8.28083125" y="1.467496875"/>
@@ -3035,7 +3035,7 @@ chip</description>
 <vertex x="6.130021875" y="-0.27771875"/>
 <vertex x="6.130021875" y="2.50581875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="10.639975" y="2.50581875"/>
 <vertex x="13.7016375" y="2.50581875"/>
 <vertex x="13.7016375" y="1.85686875"/>
@@ -3049,7 +3049,7 @@ chip</description>
 <vertex x="13.72713125" y="-0.27771875"/>
 <vertex x="10.639975" y="-0.27771875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="17.5" y="2.50581875"/>
 <vertex x="17.5" y="1.7873375"/>
 <vertex x="16.280896875" y="1.7873375"/>
@@ -3059,7 +3059,7 @@ chip</description>
 <vertex x="14.213521875" y="1.7873375"/>
 <vertex x="14.213521875" y="2.50581875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="6.611584375" y="-0.27771875"/>
 <vertex x="6.611584375" y="-0.8404"/>
 <vertex x="5.658371875" y="-0.8404"/>
@@ -3067,7 +3067,7 @@ chip</description>
 <vertex x="7.117546875" y="-2.475228125"/>
 <vertex x="7.117546875" y="-0.27771875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-7.257340625" y="-0.27771875"/>
 <vertex x="-8.506771875" y="-0.27771875"/>
 <vertex x="-8.1944125" y="-0.687190625"/>
@@ -3075,14 +3075,14 @@ chip</description>
 <vertex x="-7.5697" y="-1.5061375"/>
 <vertex x="-7.257340625" y="-1.9156125"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-8.902896875" y="-2.475228125"/>
 <vertex x="-7.6488125" y="-2.475228125"/>
 <vertex x="-7.962334375" y="-2.063309375"/>
 <vertex x="-8.275853125" y="-1.65139375"/>
 <vertex x="-8.902896875" y="-0.82755625"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="8.886325" y="-0.84590625"/>
 <vertex x="8.837846875" y="-0.844528125"/>
 <vertex x="8.78936875" y="-0.843153125"/>
@@ -3147,7 +3147,7 @@ chip</description>
 <vertex x="8.934396875" y="-0.847471875"/>
 <vertex x="8.9114" y="-0.846209375"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="9.09111875" y="-2.000015625"/>
 <vertex x="9.08205625" y="-1.987790625"/>
 <vertex x="9.069896875" y="-1.97713125"/>
@@ -3176,13 +3176,13 @@ chip</description>
 <vertex x="9.10641875" y="-2.02386875"/>
 <vertex x="9.099278125" y="-2.0104125"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-6.594065625" y="-0.27771875"/>
 <vertex x="-6.594065625" y="-2.475228125"/>
 <vertex x="-5.950328125" y="-2.475228125"/>
 <vertex x="-5.950328125" y="-0.27771875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="4.04185" y="-0.8404"/>
 <vertex x="4.04185" y="-0.27771875"/>
 <vertex x="2.9457875" y="-0.27771875"/>
@@ -3333,7 +3333,7 @@ chip</description>
 <vertex x="4.9950625" y="-2.475228125"/>
 <vertex x="4.9950625" y="-0.8404"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-2.321834375" y="-2.16148125"/>
 <vertex x="-2.338146875" y="-2.1250875"/>
 <vertex x="-2.352684375" y="-2.0874375"/>
@@ -3470,7 +3470,7 @@ chip</description>
 <vertex x="-2.28038125" y="-2.242665625"/>
 <vertex x="-2.30396875" y="-2.2041625"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-1.772703125" y="-1.64405625"/>
 <vertex x="-1.77210625" y="-1.68625625"/>
 <vertex x="-1.765128125" y="-1.72360625"/>
@@ -3544,7 +3544,7 @@ chip</description>
 <vertex x="-1.7738125" y="-1.63025625"/>
 <vertex x="-1.773315625" y="-1.637634375"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="17.477421875" y="-2.182625"/>
 <vertex x="17.45744375" y="-2.223884375"/>
 <vertex x="17.433225" y="-2.260925"/>
@@ -3560,7 +3560,7 @@ chip</description>
 <vertex x="17.034096875" y="-2.475228125"/>
 <vertex x="17.477421875" y="-2.475228125"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="9.203928125" y="-0.27771875"/>
 <vertex x="9.212665625" y="-0.2783"/>
 <vertex x="9.221403125" y="-0.2788875"/>
@@ -3659,7 +3659,7 @@ chip</description>
 <vertex x="10.492415625" y="-2.475228125"/>
 <vertex x="10.492415625" y="-0.27771875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="1.074765625" y="-2.321109375"/>
 <vertex x="1.052715625" y="-2.301546875"/>
 <vertex x="1.03304375" y="-2.2777375"/>
@@ -3881,13 +3881,13 @@ chip</description>
 <vertex x="1.12725" y="-2.362253125"/>
 <vertex x="1.099534375" y="-2.34283125"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="11.155725" y="-0.27771875"/>
 <vertex x="11.155725" y="-2.475228125"/>
 <vertex x="11.862875" y="-2.475228125"/>
 <vertex x="11.862875" y="-0.27771875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="17.477421875" y="-0.8024"/>
 <vertex x="17.477421875" y="-0.27771875"/>
 <vertex x="16.860390625" y="-0.27771875"/>
@@ -3914,7 +3914,7 @@ chip</description>
 <vertex x="17.464284375" y="-0.69875"/>
 <vertex x="17.472740625" y="-0.748334375"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="14.98936875" y="-2.321109375"/>
 <vertex x="14.96731875" y="-2.301546875"/>
 <vertex x="14.947646875" y="-2.2777375"/>
@@ -4105,7 +4105,7 @@ chip</description>
 <vertex x="15.041853125" y="-2.362253125"/>
 <vertex x="15.0141375" y="-2.34283125"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="16.807075" y="-0.915628125"/>
 <vertex x="16.803453125" y="-0.89698125"/>
 <vertex x="16.798359375" y="-0.880053125"/>
@@ -4220,13 +4220,13 @@ chip</description>
 <vertex x="16.812515625" y="-0.95599375"/>
 <vertex x="16.809796875" y="-0.9358125"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-10.251596875" y="-0.27771875"/>
 <vertex x="-10.251596875" y="-2.475228125"/>
 <vertex x="-9.566175" y="-2.475228125"/>
 <vertex x="-9.566175" y="-0.27771875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-4.101815625" y="-0.8404"/>
 <vertex x="-5.287053125" y="-0.8404"/>
 <vertex x="-5.287053125" y="-1.9064375"/>
@@ -4286,13 +4286,13 @@ chip</description>
 <vertex x="-4.00636875" y="-0.844271875"/>
 <vertex x="-4.051371875" y="-0.840103125"/>
 </polygon>
-<polygon width="0.01" layer="29">
+<polygon width="0.01" layer="21">
 <vertex x="-15.07604375" y="-2.505815625"/>
 <vertex x="-15.07604375" y="-1.536234375"/>
 <vertex x="-16.288021875" y="-1.536234375"/>
 <vertex x="-16.288021875" y="-2.505815625"/>
 </polygon>
-<polygon width="0.01" layer="29">
+<polygon width="0.01" layer="21">
 <vertex x="-12.89448125" y="-2.505815625"/>
 <vertex x="-15.07604375" y="-0.32425625"/>
 <vertex x="-16.288021875" y="-0.32425625"/>
@@ -4303,7 +4303,7 @@ chip</description>
 <vertex x="-12.046096875" y="1.372515625"/>
 <vertex x="-12.046096875" y="-2.505815625"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-14.34885625" y="-1.415034375"/>
 <vertex x="-14.22765625" y="-1.2938375"/>
 <vertex x="-15.07604375" y="-0.445453125"/>
@@ -4318,7 +4318,7 @@ chip</description>
 <vertex x="-17.5" y="2.463296875"/>
 <vertex x="-17.5" y="-1.415034375"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-7.225796875" y="1.18849375"/>
 <vertex x="-7.22715" y="1.247396875"/>
 <vertex x="-7.228984375" y="1.303703125"/>
@@ -4494,7 +4494,7 @@ chip</description>
 <vertex x="-7.223575" y="1.068075"/>
 <vertex x="-7.22444375" y="1.1295875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="-3.020971875" y="0.418165625"/>
 <vertex x="-3.405125" y="1.11405"/>
 <vertex x="-3.78928125" y="1.8099375"/>
@@ -4528,7 +4528,7 @@ chip</description>
 <vertex x="-3.598653125" y="-0.27771875"/>
 <vertex x="-2.636815625" y="-0.27771875"/>
 </polygon>
-<polygon width="0.01" layer="25">
+<polygon width="0.01" layer="21">
 <vertex x="1.09868125" y="0.921971875"/>
 <vertex x="1.13528125" y="0.944859375"/>
 <vertex x="1.16664375" y="0.96921875"/>
@@ -5032,33 +5032,35 @@ chip</description>
 <clearance class="2" value="0.1778"/>
 </class>
 </classes>
-<designrules name="OthermillDRC_30_deg_v2">
-<description language="en">
-&lt;b&gt;Othermill EAGLE Design Rules v2&lt;/b&gt;
-&lt;p&gt;DRC for Othermill, 30º Engraving Bit&lt;/p&gt;
-&lt;b&gt;-- Rules --&lt;/b&gt;&lt;li&gt;6 mil traces&lt;/li&gt;
-&lt;li&gt;6mil clearance&lt;/li&gt;
-</description>
+<designrules name="oshpark-2layer">
+<description language="en">&lt;b&gt;OSH Park Design Rules&lt;/b&gt;
+&lt;p&gt;
+Please make sure your boards conform to these design rules.
+&lt;/p&gt;
+&lt;p&gt;
+Note, that not all DRC settings must be set by the manufacturer. Several can be adjusted for the design, including those listed on our docs page here. 
+&lt;a href=&quot;http://docs.oshpark.com/design-tools/eagle/design-rules-files/&quot;&gt;Adjustable Settings&lt;/a&gt;
+&lt;/p&gt;</description>
 <param name="layerSetup" value="(1*16)"/>
-<param name="mtCopper" value="0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm 0.035mm"/>
-<param name="mtIsolate" value="1.5mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm 0.15mm 0.2mm"/>
+<param name="mtCopper" value="0.035559375mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.0356mm 0.035559375mm"/>
+<param name="mtIsolate" value="1.6mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm 0.1499mm 0.2007mm"/>
 <param name="mdWireWire" value="6mil"/>
 <param name="mdWirePad" value="6mil"/>
 <param name="mdWireVia" value="6mil"/>
 <param name="mdPadPad" value="6mil"/>
 <param name="mdPadVia" value="6mil"/>
 <param name="mdViaVia" value="6mil"/>
-<param name="mdSmdPad" value="0mil"/>
-<param name="mdSmdVia" value="0mil"/>
-<param name="mdSmdSmd" value="0mil"/>
+<param name="mdSmdPad" value="6mil"/>
+<param name="mdSmdVia" value="6mil"/>
+<param name="mdSmdSmd" value="6mil"/>
 <param name="mdViaViaSameLayer" value="8mil"/>
 <param name="mnLayersViaInSmd" value="2"/>
-<param name="mdCopperDimension" value="0mil"/>
+<param name="mdCopperDimension" value="15mil"/>
 <param name="mdDrill" value="6mil"/>
 <param name="mdSmdStop" value="0mil"/>
 <param name="msWidth" value="6mil"/>
-<param name="msDrill" value="0.8mm"/>
-<param name="msMicroVia" value="9.99mm"/>
+<param name="msDrill" value="10mil"/>
+<param name="msMicroVia" value="10mil"/>
 <param name="msBlindViaRatio" value="0.5"/>
 <param name="rvPadTop" value="0.25"/>
 <param name="rvPadInner" value="0.25"/>
@@ -5067,36 +5069,36 @@ chip</description>
 <param name="rvViaInner" value="0.25"/>
 <param name="rvMicroViaOuter" value="0.25"/>
 <param name="rvMicroViaInner" value="0.25"/>
-<param name="rlMinPadTop" value="10mil"/>
+<param name="rlMinPadTop" value="5mil"/>
 <param name="rlMaxPadTop" value="20mil"/>
-<param name="rlMinPadInner" value="10mil"/>
+<param name="rlMinPadInner" value="5mil"/>
 <param name="rlMaxPadInner" value="20mil"/>
-<param name="rlMinPadBottom" value="10mil"/>
+<param name="rlMinPadBottom" value="5mil"/>
 <param name="rlMaxPadBottom" value="20mil"/>
-<param name="rlMinViaOuter" value="10mil"/>
+<param name="rlMinViaOuter" value="5mil"/>
 <param name="rlMaxViaOuter" value="20mil"/>
-<param name="rlMinViaInner" value="8mil"/>
+<param name="rlMinViaInner" value="5mil"/>
 <param name="rlMaxViaInner" value="20mil"/>
-<param name="rlMinMicroViaOuter" value="4mil"/>
+<param name="rlMinMicroViaOuter" value="5mil"/>
 <param name="rlMaxMicroViaOuter" value="20mil"/>
-<param name="rlMinMicroViaInner" value="4mil"/>
+<param name="rlMinMicroViaInner" value="5mil"/>
 <param name="rlMaxMicroViaInner" value="20mil"/>
 <param name="psTop" value="-1"/>
 <param name="psBottom" value="-1"/>
 <param name="psFirst" value="-1"/>
-<param name="psElongationLong" value="50"/>
+<param name="psElongationLong" value="100"/>
 <param name="psElongationOffset" value="100"/>
-<param name="mvStopFrame" value="0.05"/>
-<param name="mvCreamFrame" value="0.05"/>
-<param name="mlMinStopFrame" value="1mil"/>
-<param name="mlMaxStopFrame" value="2mil"/>
-<param name="mlMinCreamFrame" value="2mil"/>
-<param name="mlMaxCreamFrame" value="10mil"/>
-<param name="mlViaStopLimit" value="30mil"/>
-<param name="srRoundness" value="0.1"/>
-<param name="srMinRoundness" value="2mil"/>
-<param name="srMaxRoundness" value="10mil"/>
-<param name="slThermalIsolate" value="6mil"/>
+<param name="mvStopFrame" value="1"/>
+<param name="mvCreamFrame" value="0"/>
+<param name="mlMinStopFrame" value="2.5mil"/>
+<param name="mlMaxStopFrame" value="2.5mil"/>
+<param name="mlMinCreamFrame" value="0mil"/>
+<param name="mlMaxCreamFrame" value="0mil"/>
+<param name="mlViaStopLimit" value="0mil"/>
+<param name="srRoundness" value="0"/>
+<param name="srMinRoundness" value="0mil"/>
+<param name="srMaxRoundness" value="0mil"/>
+<param name="slThermalIsolate" value="10mil"/>
 <param name="slThermalsForVias" value="0"/>
 <param name="dpMaxLengthDifference" value="10mm"/>
 <param name="dpGapFactor" value="2.5"/>
@@ -5261,7 +5263,7 @@ chip</description>
 <element name="LED22" library="leds" package="GULLWING_LED" value="" x="84.4" y="72.9" smashed="yes" rot="MR0"/>
 <element name="LED23" library="leds" package="GULLWING_LED" value="" x="76.6" y="73.1" smashed="yes" rot="MR0"/>
 <element name="LED24" library="leds" package="GULLWING_LED" value="" x="67" y="73.75" smashed="yes" rot="MR0"/>
-<element name="U$5" library="logos" package="DN_LOGO_DC26" value="DN_LOGODC26" x="51" y="105.5" smashed="yes"/>
+<element name="U$5" library="logos" package="DN_LOGO_LONG_SILK" value="DN_LOGO" x="51" y="105.5" smashed="yes"/>
 <element name="U$2" library="logos" package="CMD_C0DE_LOGO" value="CMD_C0DE_LOGO" x="69" y="20" smashed="yes"/>
 <element name="D1" library="passives" package="SOD-123FL" value="DIODE-SCHOTTKYSOD-123FL" x="80" y="111" smashed="yes" rot="MR180">
 <attribute name="NAME" x="78.722" y="109.857" size="0.889" layer="26" ratio="15" rot="MR180"/>
