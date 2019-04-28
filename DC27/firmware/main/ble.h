@@ -4,6 +4,7 @@
 #include "esp_system.h"
 #include <esp_log.h>
 #include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 #include <libesp/Task.h>
 
 #include "esp_bt.h"
@@ -87,6 +88,9 @@ typedef struct serial_recv_data_buff
 } serial_recv_data_buff_t;
 
 class BluetoothTask : public Task {
+private:
+	QueueHandle_t gameTaskQueue = nullptr;
+
 public:
 	static const char *LOGTAG;
 
@@ -94,6 +98,8 @@ public:
 	bool init();
 	virtual void run(void* data);
 	virtual ~BluetoothTask();
+
+	void setGameTaskQueue(QueueHandle_t queue);
 };
 
 #endif // DC27_BLUETOOTH

@@ -14,6 +14,9 @@
 #include "esp_bt_defs.h"
 #include "esp_bt_main.h"
 
+// app libraries
+#include "./serial_game.h"
+
 BluetoothTask *pBTTask;
 const char *BluetoothTask::LOGTAG = "BluetoothTask";
 const char *LOGTAG = "BluetoothService";
@@ -53,6 +56,11 @@ static esp_bd_addr_t serial_remote_bda = {0x0,};
 static serial_recv_data_node_t* serial_recv_data_node = NULL;
 static serial_recv_data_node_t* serial_recv_data_node_p2 = NULL;
 static serial_recv_data_buff_t SerialRecvDataBuff;
+
+
+// Serial game connectivity
+static QueueHandle_t gameTaskQueue_g = nullptr;
+
 
 // Characteristic Definition helpers
 #define CHAR_DECLARATION_SIZE   (sizeof(uint8_t))
@@ -234,6 +242,7 @@ static void free_write_buffer(void)
 static void print_write_buffer(void)
 {
 	serial_recv_data_node = SerialRecvDataBuff.first_node;
+	ESP_LOGI(LOGTAG, "print_write_buffer");
 	while(serial_recv_data_node != NULL)
 	{
 		// TODO: send data to text menu queue
@@ -241,6 +250,33 @@ static void print_write_buffer(void)
 			serial_recv_data_node->len, ESP_LOG_INFO);
 		serial_recv_data_node = serial_recv_data_node->next_node;
 	}
+}
+
+static void send_raw_game_command(char* buffer, uint16_t length)
+{
+	if (gameTaskQueue_g == nullptr)
+	{
+		ESP_LOGE(LOGTAG, "ATTEMPTED TO SEND COMMAND TO NON-EXISTANT GAME QUEUE");
+		return;
+	}
+
+	SerialGameMsg* msg = (SerialGameMsg*)malloc(sizeof(SerialGameMsg));
+	char* data = (char*)malloc(length);
+	memset(msg, '\0', sizeof(SerialGameMsg));
+	msg->mtype = SGAME_RAW_INPUT;
+	msg->length = length;
+	msg->data = data;
+	memcpy(data, buffer, length);
+	msg->returnQueue = nullptr; // TODO: Setup response queue
+	xQueueSend(gameTaskQueue_g, (void*)&msg, (TickType_t)100);
+	return;
+}
+
+
+void BluetoothTask::setGameTaskQueue(QueueHandle_t queue)
+{
+	this->gameTaskQueue = queue;
+	gameTaskQueue_g = queue;
 }
 
 
@@ -437,9 +473,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 				}
 				else if (res == DN8_IDX_SERIAL_DATA_RECV_VAL)
 				{
-					// TODO: ifdef debug - when we finish turn this off
-					esp_log_buffer_char(LOGTAG, (char*)(param->write.value), param->write.len);
-					// TODO: Send data to text menu queue
+					send_raw_game_command((char*)(param->write.value), param->write.len);
 				}
 				else
 				{
