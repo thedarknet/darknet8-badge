@@ -16,7 +16,7 @@
 #include "nvs_flash.h"
 
 #include "./ble.h"
-#include "./serial_game.h"
+#include "./game_master.h"
 
 /*
  This code displays some fancy graphics on the 320x240 LCD on an ESP-WROVER_KIT board.
@@ -576,7 +576,7 @@ private:
 const char *APA102c::LOG = "APA102c";
 
 BluetoothTask BTTask("BluetoothTask");
-SerialGameTask GameTask("SerialGameTask");
+GameTask GameTask("GameTask");
 
 void app_main() {
 	esp_err_t ret;

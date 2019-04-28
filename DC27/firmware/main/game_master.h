@@ -10,20 +10,33 @@
 #include "freertos/queue.h"
 #include "libesp/Task.h"
 
-QueueHandle_t GetSerialGameMsgQueue(void);
+QueueHandle_t GetGameMsgQueue(void);
 
 typedef enum
 {
 	// Inbound
-	SGAME_GET_MENU,
 	SGAME_RAW_INPUT,
 
 	// Outbound
-	SGAME_MENU_LINE,
 	SGAME_RAW_OUTPUT,
 
 	SGAME_UNKNOWN
 } GameMsgType;
+
+typedef enum
+{
+	GAME_INIT = 0x00,
+	GAME_ACTION = 0x01,
+
+	GAME_UNKNOWN = 0xFF
+} GameDataType;
+
+typedef struct
+{
+	uint8_t context;
+	GameDataType dtype;
+	char* data;
+} GameData;
 
 typedef struct
 {
@@ -31,25 +44,28 @@ typedef struct
 	uint16_t length;
 	char* data;
 	QueueHandle_t returnQueue;
-} SerialGameMsg;
+} GameMsg;
 
-class SerialGameTask : public Task {
+class GameTask : public Task {
 private:
 	static const int GAME_QUEUE_SIZE = 3;
-	static const int GAME_MSG_SIZE = sizeof(SerialGameMsg);
+	static const int GAME_MSG_SIZE = sizeof(GameMsg);
 	StaticQueue_t GameQueue;
 	QueueHandle_t GameQueueHandle = nullptr;
 	uint8_t gameQueueBuffer[GAME_QUEUE_SIZE*GAME_MSG_SIZE];
 
-	void commandHandler(SerialGameMsg* msg);
+	void commandHandler(GameMsg* msg);
 
 public:
 	const char *LOGTAG;
-	SerialGameTask(const std::string &tName, uint16_t stackSize=10000, uint8_t priority=5);
+	GameTask(const std::string &tName, uint16_t stackSize=10000, uint8_t priority=5);
 	bool init();
 	virtual void run(void* data);
-	virtual ~SerialGameTask();
+	virtual ~GameTask();
 	QueueHandle_t getQueueHandle() {return GameQueueHandle;}
+
+	bool isGameUnlocked(uint8_t game_id);
+	bool setGameUnlocked(uint8_t game_id);
 };
 
 #endif //__SERIAL_GAME__

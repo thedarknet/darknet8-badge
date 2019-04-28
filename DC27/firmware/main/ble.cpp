@@ -15,7 +15,7 @@
 #include "esp_bt_main.h"
 
 // app libraries
-#include "./serial_game.h"
+#include "./game_master.h"
 
 BluetoothTask *pBTTask;
 const char *BluetoothTask::LOGTAG = "BluetoothTask";
@@ -260,9 +260,9 @@ static void send_raw_game_command(char* buffer, uint16_t length)
 		return;
 	}
 
-	SerialGameMsg* msg = (SerialGameMsg*)malloc(sizeof(SerialGameMsg));
+	GameMsg* msg = (GameMsg*)malloc(sizeof(GameMsg));
 	char* data = (char*)malloc(length);
-	memset(msg, '\0', sizeof(SerialGameMsg));
+	memset(msg, '\0', sizeof(GameMsg));
 	msg->mtype = SGAME_RAW_INPUT;
 	msg->length = length;
 	msg->data = data;
