@@ -236,7 +236,7 @@ static void print_write_buffer(void)
 	serial_recv_data_node = SerialRecvDataBuff.first_node;
 	while(serial_recv_data_node != NULL)
 	{
-		// TODO: uart_write_bytes?
+		// TODO: send data to text menu queue
 		ESP_LOG_BUFFER_HEXDUMP(LOGTAG, (char *)(serial_recv_data_node->node_buff),
 			serial_recv_data_node->len, ESP_LOG_INFO);
 		serial_recv_data_node = serial_recv_data_node->next_node;
@@ -439,7 +439,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 				{
 					// TODO: ifdef debug - when we finish turn this off
 					esp_log_buffer_char(LOGTAG, (char*)(param->write.value), param->write.len);
-					// TODO: uart_write_bytes or send the message to our queue to respond to
+					// TODO: Send data to text menu queue
 				}
 				else
 				{
