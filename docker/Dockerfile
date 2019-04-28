@@ -4,7 +4,7 @@ FROM ubuntu:18.04
 RUN apt -qq update \
     && apt install -y gcc git wget make libncurses-dev flex bison gperf python python-serial \
                           cmake ninja-build ccache vim picocom python-pip python-setuptools \
-       			python-cryptography python-future python-pyparsing libusb-1.0 telnet \
+       			python-cryptography python-future python-pyparsing libusb-1.0 telnet ccache \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -29,6 +29,7 @@ RUN wget -O $ESP_TCHAIN_BASEDIR/esp32-openocd.tar.gz \
 
 # Setup IDF_PATH
 RUN mkdir -p /esp
+RUN mkdir -p /ccache
 # fetch IDF and make writeable 
 # ERROR: esp-idf must be cloned from git to work.
 # RUN wget -O /esp/esp-idf.tar.gz \
@@ -38,7 +39,7 @@ RUN mkdir -p /esp
 #	&& chmod -R 775 /esp/esp-idf
 
 
-RUN cd /esp && git clone --branch v3.1.2 --depth 1 --recursive https://github.com/espressif/esp-idf.git && chmod -R 775 esp-idf
+RUN cd /esp && git clone --branch v3.2 --depth 1 --recursive https://github.com/espressif/esp-idf.git && chmod -R 775 esp-idf
 ENV IDF_PATH /esp/esp-idf
 RUN python -m pip install -r $IDF_PATH/requirements.txt
 

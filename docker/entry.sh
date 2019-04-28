@@ -12,6 +12,7 @@ fi
 
 CURRENT_DIR=$PWD
 
+chmod 777 /ccache
 echo "Host UID: $USER_ID GID: $GROUP_ID"
 groupmod -o -g $GROUP_ID dndev
 usermod -o -u $USER_ID -g $GROUP_ID dndev
