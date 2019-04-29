@@ -14,6 +14,9 @@
 #include "esp_bt_defs.h"
 #include "esp_bt_main.h"
 
+// app libraries
+#include "./game_master.h"
+
 BluetoothTask *pBTTask;
 const char *BluetoothTask::LOGTAG = "BluetoothTask";
 const char *LOGTAG = "BluetoothService";
@@ -53,6 +56,12 @@ static esp_bd_addr_t serial_remote_bda = {0x0,};
 static serial_recv_data_node_t* serial_recv_data_node = NULL;
 static serial_recv_data_node_t* serial_recv_data_node_p2 = NULL;
 static serial_recv_data_buff_t SerialRecvDataBuff;
+
+
+// Serial game connectivity
+static QueueHandle_t gameTaskQueue_g = nullptr;
+static QueueHandle_t bleGameResponseQueue_g = nullptr;
+
 
 // Characteristic Definition helpers
 #define CHAR_DECLARATION_SIZE   (sizeof(uint8_t))
@@ -234,24 +243,83 @@ static void free_write_buffer(void)
 static void print_write_buffer(void)
 {
 	serial_recv_data_node = SerialRecvDataBuff.first_node;
+	ESP_LOGI(LOGTAG, "print_write_buffer");
 	while(serial_recv_data_node != NULL)
 	{
-		// TODO: uart_write_bytes?
+		// TODO: send data to text menu queue
 		ESP_LOG_BUFFER_HEXDUMP(LOGTAG, (char *)(serial_recv_data_node->node_buff),
 			serial_recv_data_node->len, ESP_LOG_INFO);
 		serial_recv_data_node = serial_recv_data_node->next_node;
 	}
 }
 
+static void send_raw_game_command(char* buffer, uint16_t length)
+{
+	if (gameTaskQueue_g == nullptr)
+	{
+		ESP_LOGE(LOGTAG, "ATTEMPTED TO SEND COMMAND TO NON-EXISTANT GAME QUEUE");
+		return;
+	}
 
-#define CmdQueueTimeout ((TickType_t) 1000 / portTICK_PERIOD_MS)
+	GameMsg* msg = (GameMsg*)malloc(sizeof(GameMsg));
+	char* data = (char*)malloc(length);
+	memset(msg, '\0', sizeof(GameMsg));
+	msg->mtype = SGAME_RAW_INPUT;
+	msg->length = length;
+	msg->data = data; // TODO?
+	memcpy(data, buffer, length);
+	msg->returnQueue = bleGameResponseQueue_g;
+	xQueueSend(gameTaskQueue_g, (void*)&msg, (TickType_t)100);
+	return;
+}
+
+
+void BluetoothTask::setGameTaskQueue(QueueHandle_t queue)
+{
+	this->gameTaskQueue = queue;
+	gameTaskQueue_g = queue;
+}
+
+
+void BluetoothTask::gameCommandHandler(GameMsg* msg)
+{
+	// TODO: Switch
+	GameData* gdata = nullptr;
+	switch(msg->mtype)
+	{
+	case SGAME_RAW_OUTPUT:
+		// msg->length
+		gdata = (GameData*)msg->data;
+		esp_log_buffer_char(LOGTAG, gdata, msg->length);
+		// TODO: indicate code with MTU handling
+		esp_ble_gatts_send_indicate(serial_gatts_if, serial_conn_id,
+			dn8_handle_tbl[DN8_IDX_SERIAL_DATA_NOTIFY_VAL],
+			msg->length, (uint8_t*)gdata, false);
+		return;
+	case SGAME_RAW_INPUT: // should not happen
+	default:
+		return;
+	}
+	return;
+}
+
+#define CmdQueueTimeout ((TickType_t) 500 / portTICK_PERIOD_MS)
 void BluetoothTask::run(void* data)
 {
+	GameMsg* msg = nullptr;
 	ESP_LOGI(LOGTAG, "RUNNING");
 	while (1)
 	{
-		//ESP_LOGI(LOGTAG, "BOOP");
-		vTaskDelay(CmdQueueTimeout);
+		if (xQueueReceive(BLEGameQueueHandle, &msg, CmdQueueTimeout))
+		{
+			if (msg != nullptr)
+			{
+				this->gameCommandHandler(msg);
+				free(msg->data);
+				free(msg);
+			}
+		}
+		// TODO General Command Queue
 	}
 	ESP_LOGI(LOGTAG, "COMPLETE");
 }
@@ -437,9 +505,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 				}
 				else if (res == DN8_IDX_SERIAL_DATA_RECV_VAL)
 				{
-					// TODO: ifdef debug - when we finish turn this off
-					esp_log_buffer_char(LOGTAG, (char*)(param->write.value), param->write.len);
-					// TODO: uart_write_bytes or send the message to our queue to respond to
+					send_raw_game_command((char*)(param->write.value), param->write.len);
 				}
 				else
 				{
@@ -642,6 +708,12 @@ bool BluetoothTask::init()
 	esp_err_t ret = 0;
 	ESP_LOGI(LOGTAG, "INIT START");
 	pBTTask = this;
+
+	this->BLEGameQueueHandle = xQueueCreateStatic(BLE_QUEUE_SIZE, BLE_MSG_SIZE,
+		bleGameQueueBuffer, &BLEGameQueue);
+	bleGameResponseQueue_g = this->BLEGameQueueHandle;
+
+	// TODO: General command queue
 
 	init_ble_globals();
 	ret = init_ble();
