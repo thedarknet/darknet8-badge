@@ -28,19 +28,25 @@
  before the transaction is sent, the callback will set this line to the correct state.
 */
 
-#define PIN_NUM_MISO 25
+#define PIN_NUM_MISO 19
 #define PIN_NUM_MOSI 23
-#define PIN_NUM_CLK  19
-#define PIN_NUM_CS   22
+#define PIN_NUM_CLK  18
+#define PIN_NUM_CS   17
 
-#define PIN_NUM_DC   21
-#define PIN_NUM_RST  18
-#define PIN_NUM_BCKL 5
+#define PIN_NUM_DC   4
+#define PIN_NUM_RST  -1
+#define PIN_NUM_BCKL -1
 
 
-#define LED_PIN_MOSI 13
-#define LED_PIN_CLK  14
+#define LED_PIN_MOSI 16
+#define LED_PIN_CLK  2
 #define LED_PIN_NONE -1
+
+
+#define I2C_SCL GPIO_NUM_22
+#define I2C_SDA GPIO_NUM_21
+
+
 //To speed up transfers, every SPI transfer sends a bunch of lines. This define specifies how many. More means more memory use,
 //but less overhead for setting up / finishing transfers. Make sure 240 is dividable by this.
 #define PARALLEL_LINES 16
@@ -587,11 +593,13 @@ void app_main() {
 	}
 	ESP_ERROR_CHECK( ret );
 
-	//ESP32_I2CMaster I2cDisplay(GPIO_NUM_27,GPIO_NUM_25,1000000, I2C_NUM_0, 0, 32);
-	//ESP32_I2CMaster I2cDisplay(GPIO_NUM_19,GPIO_NUM_18,1000000, I2C_NUM_0, 0, 32);
 	ESP32_I2CMaster::doIt();
-	//I2cDisplay.init();
-	//I2cDisplay.scan();
+
+	/////
+	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
+	I2c.init(false);
+	I2c.scan();
+	////
 	BTTask.init();
 	BTTask.start();
 	libesp::System::get().logSystemInfo();	
