@@ -60,6 +60,7 @@ static serial_recv_data_buff_t SerialRecvDataBuff;
 
 // Serial game connectivity
 static QueueHandle_t gameTaskQueue_g = nullptr;
+static QueueHandle_t bleGameResponseQueue_g = nullptr;
 
 
 // Characteristic Definition helpers
@@ -265,9 +266,9 @@ static void send_raw_game_command(char* buffer, uint16_t length)
 	memset(msg, '\0', sizeof(GameMsg));
 	msg->mtype = SGAME_RAW_INPUT;
 	msg->length = length;
-	msg->data = data;
+	msg->data = data; // TODO?
 	memcpy(data, buffer, length);
-	msg->returnQueue = nullptr; // TODO: Setup response queue
+	msg->returnQueue = bleGameResponseQueue_g;
 	xQueueSend(gameTaskQueue_g, (void*)&msg, (TickType_t)100);
 	return;
 }
@@ -280,14 +281,45 @@ void BluetoothTask::setGameTaskQueue(QueueHandle_t queue)
 }
 
 
-#define CmdQueueTimeout ((TickType_t) 1000 / portTICK_PERIOD_MS)
+void BluetoothTask::gameCommandHandler(GameMsg* msg)
+{
+	// TODO: Switch
+	GameData* gdata = nullptr;
+	switch(msg->mtype)
+	{
+	case SGAME_RAW_OUTPUT:
+		// msg->length
+		gdata = (GameData*)msg->data;
+		esp_log_buffer_char(LOGTAG, gdata, msg->length);
+		// TODO: indicate code with MTU handling
+		esp_ble_gatts_send_indicate(serial_gatts_if, serial_conn_id,
+			dn8_handle_tbl[DN8_IDX_SERIAL_DATA_NOTIFY_VAL],
+			msg->length, (uint8_t*)gdata, false);
+		return;
+	case SGAME_RAW_INPUT: // should not happen
+	default:
+		return;
+	}
+	return;
+}
+
+#define CmdQueueTimeout ((TickType_t) 500 / portTICK_PERIOD_MS)
 void BluetoothTask::run(void* data)
 {
+	GameMsg* msg = nullptr;
 	ESP_LOGI(LOGTAG, "RUNNING");
 	while (1)
 	{
-		//ESP_LOGI(LOGTAG, "BOOP");
-		vTaskDelay(CmdQueueTimeout);
+		if (xQueueReceive(BLEGameQueueHandle, &msg, CmdQueueTimeout))
+		{
+			if (msg != nullptr)
+			{
+				this->gameCommandHandler(msg);
+				free(msg->data);
+				free(msg);
+			}
+		}
+		// TODO General Command Queue
 	}
 	ESP_LOGI(LOGTAG, "COMPLETE");
 }
@@ -676,6 +708,12 @@ bool BluetoothTask::init()
 	esp_err_t ret = 0;
 	ESP_LOGI(LOGTAG, "INIT START");
 	pBTTask = this;
+
+	this->BLEGameQueueHandle = xQueueCreateStatic(BLE_QUEUE_SIZE, BLE_MSG_SIZE,
+		bleGameQueueBuffer, &BLEGameQueue);
+	bleGameResponseQueue_g = this->BLEGameQueueHandle;
+
+	// TODO: General command queue
 
 	init_ble_globals();
 	ret = init_ble();

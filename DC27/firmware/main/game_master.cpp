@@ -49,23 +49,42 @@ bool GameTask::setGameUnlocked(uint8_t gameid)
 void GameTask::commandHandler(GameMsg* msg)
 {
 	GameData* data = nullptr;
+	GameMsg* omsg = nullptr;
+	char* odata = nullptr;
 	switch(msg->mtype)
 	{
 	case SGAME_RAW_INPUT:
 		data = (GameData*)msg->data;
+		/* TODO: Uncomment this when phone app starts sending stuff
 		if ((data->context >= INSTALLED_GAMES) ||
 			(!unlocked_games[data->context]))
 		{
-			free(msg);
 			esp_log_buffer_char(LOGTAG, msg->data, msg->length);
 			ESP_LOGI(LOGTAG, "Attempted to access invalid or locked game\n");
 			return; // Game is not unlocked
 		}
+		*/
 		/* TODO
 			Get game object
 			Dispatch message to the game with response queue
 		*/
 		esp_log_buffer_char(LOGTAG, msg->data, msg->length);
+
+		// TODO: Sample return message code, remove this
+		if (msg->returnQueue)
+		{
+			omsg = (GameMsg*)malloc(sizeof(GameMsg));
+			memset(omsg, '\0', sizeof(GameMsg));
+
+			odata = (char*)malloc(4);
+			memcpy(odata, "beep", 4);
+
+			omsg->mtype = SGAME_RAW_OUTPUT;
+			omsg->length = 4;
+			omsg->data = odata;
+			omsg->returnQueue = nullptr;
+			xQueueSend(msg->returnQueue, (void*)&omsg, (TickType_t)100);
+		}
 		return;
 	case SGAME_RAW_OUTPUT: // Should not occur
 	case SGAME_UNKNOWN:
@@ -85,6 +104,8 @@ void GameTask::run(void* data)
 			if (msg != nullptr)
 			{
 				this->commandHandler(msg);
+				free(msg->data);
+				free(msg);
 			}
 		}
 	}

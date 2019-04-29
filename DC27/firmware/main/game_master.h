@@ -35,6 +35,7 @@ typedef struct
 {
 	uint8_t context;
 	GameDataType dtype;
+	uint16_t length;
 	char* data;
 } GameData;
 
