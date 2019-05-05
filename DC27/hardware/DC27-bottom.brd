@@ -587,18 +587,18 @@
 <hole x="13.134228125" y="109.989059375" drill="3"/>
 <text x="17.334228125" y="78.189059375" size="0.4064" layer="25" font="vector">Jumper to use usb to program</text>
 <text x="75.634228125" y="67.789059375" size="0.4064" layer="25" font="vector">Jumper all 4 for jtag via usb</text>
-<text x="14.434228125" y="78.889059375" size="0.4064" layer="25" font="vector">Prog_RX</text>
-<text x="14.334228125" y="77.289059375" size="0.4064" layer="25" font="vector">Prog_TX</text>
+<text x="14.434228125" y="78.889059375" size="0.6096" layer="25" font="vector">Prog_RX</text>
+<text x="14.334228125" y="77.289059375" size="0.6096" layer="25" font="vector">Prog_TX</text>
 <text x="5.134228125" y="78.089059375" size="0.4064" layer="25" font="vector">TXDSPI_PROMCLK</text>
 <text x="4.934228125" y="75.589059375" size="0.4064" layer="25" font="vector">RXDSPI_PROMCLK</text>
 <text x="4.734228125" y="73.789059375" size="0.4064" layer="25" font="vector">SPI_PROM_MISO</text>
 <text x="4.234228125" y="71.689059375" size="0.4064" layer="25" font="vector">SPI_PROM_CS</text>
-<text x="14.434228125" y="68.889059375" size="0.4064" layer="25" font="vector">PWREN</text>
-<text x="14.234228125" y="71.789059375" size="0.4064" layer="25" font="vector">SUSPEND</text>
+<text x="14.434228125" y="68.889059375" size="0.6096" layer="25" font="vector">PWREN</text>
+<text x="14.234228125" y="71.789059375" size="0.6096" layer="25" font="vector">SUSPEND</text>
 <text x="14.534228125" y="74.289059375" size="0.4064" layer="25" font="vector">NC</text>
 <text x="14.434228125" y="81.889059375" size="0.4064" layer="25" font="vector">NC</text>
-<text x="7.034228125" y="81.889059375" size="0.4064" layer="25" font="vector">VCC</text>
-<text x="7.234228125" y="69.089059375" size="0.4064" layer="25" font="vector">GND</text>
+<text x="7.034228125" y="81.889059375" size="0.6096" layer="25" font="vector">VCC</text>
+<text x="7.234228125" y="69.089059375" size="0.6096" layer="25" font="vector">GND</text>
 <text x="39.834228125" y="21.289059375" size="0.3048" layer="25" font="vector">0 %</text>
 <text x="28.834228125" y="21.289059375" size="0.3048" layer="25" font="vector">100 %</text>
 <text x="74.434228125" y="68.589059375" size="0.4064" layer="25" font="vector">TMS</text>
@@ -4522,17 +4522,17 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="NAME" x="37.503428125" y="26.539859375" size="0.4064" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="U$4" library="ICs" package="8-SOIC" value="ATECC608A-SSHDA" x="72.224228125" y="106.393059375" smashed="yes" rot="R270">
-<attribute name="VALUE" x="71.219228125" y="100.103059375" size="0.6096" layer="21"/>
+<attribute name="VALUE" x="71.219228125" y="100.103059375" size="0.6096" layer="21" font="vector"/>
 </element>
 <element name="U2" library="ICs" package="ESP-WROOM-32" value="ESP-WROOM-32" x="51.250228125" y="105.335059375" smashed="yes" rot="R90">
 <attribute name="NAME" x="51.250228125" y="97.575059375" size="0.8128" layer="25" rot="R180" align="center"/>
 <attribute name="VALUE" x="51.250228125" y="98.845059375" size="0.8128" layer="27" rot="R180" align="center"/>
 </element>
 <element name="ESP-RST" library="dc-26" package="TACTILE-2PIN-NARROW" value="UserButton" x="4.744628125" y="97.565859375" smashed="yes" rot="R90">
-<attribute name="NAME" x="2.712628125" y="94.771859375" size="0.6096" layer="25" font="vector" ratio="10" rot="R90"/>
+<attribute name="NAME" x="2.712628125" y="94.771859375" size="0.8128" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="ESP-PROG" library="dc-26" package="TACTILE-2PIN-NARROW" value="UserButton" x="99.046228125" y="97.417059375" smashed="yes" rot="R90">
-<attribute name="NAME" x="97.014228125" y="94.623059375" size="0.6096" layer="25" font="vector" ratio="10" rot="R90"/>
+<attribute name="NAME" x="97.014228125" y="95.623059375" size="0.8128" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="R1" library="dc-26" package="0805" value="10 K" x="95.141028125" y="94.266659375" smashed="yes" rot="R180">
 <attribute name="NAME" x="95.903028125" y="93.441159375" size="0.4064" layer="25" rot="R180"/>
@@ -4542,7 +4542,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="VALUE" x="5.513228125" y="93.043459375" size="0.4064" layer="27" rot="R270"/>
 </element>
 <element name="C1" library="passives" package="C0805" value="10 uF" x="38.561828125" y="111.803459375" smashed="yes" rot="R180">
-<attribute name="NAME" x="39.450828125" y="110.787459375" size="0.4064" layer="25" font="vector" rot="R180"/>
+<attribute name="NAME" x="39.450828125" y="110.787459375" size="0.6096" layer="25" font="vector" rot="R180"/>
 </element>
 <element name="R15" library="dc-26" package="0805" value="100 R" x="7.434228125" y="52.289059375" smashed="yes">
 <attribute name="NAME" x="6.672228125" y="53.114559375" size="0.4064" layer="25"/>
@@ -4562,7 +4562,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="NAME" x="75.800828125" y="80.969659375" size="0.6096" layer="25" ratio="10" rot="R90"/>
 </element>
 <element name="C35" library="passives" package="C0805" value="0.1 uF" x="77.041828125" y="108.983859375" smashed="yes">
-<attribute name="NAME" x="76.152828125" y="109.999859375" size="0.4064" layer="25" font="vector"/>
+<attribute name="NAME" x="76.152828125" y="109.999859375" size="0.6096" layer="25" font="vector"/>
 </element>
 <element name="IC3" library="ICs" package="QFP50P1200X1200X160-64N" value="FT2232HL-REEL" x="52.536228125" y="62.633859375" smashed="yes" rot="R90">
 <attribute name="DESCRIPTION" value="FTDI Chip FT2232HL-REEL, USB Controller, 4-channel, 480MBps, USB 2.0, 64-Pin LQFP" x="52.536228125" y="61.871859375" size="1.778" layer="27" rot="R90" display="off"/>
