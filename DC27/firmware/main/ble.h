@@ -4,6 +4,7 @@
 #include "esp_system.h"
 #include <esp_log.h>
 #include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 #include <libesp/Task.h>
 
 #include "esp_bt.h"
@@ -12,6 +13,7 @@
 #include "esp_bt_defs.h"
 #include "esp_bt_main.h"
 
+#include "./game_master.h"
 
 enum
 {
@@ -87,6 +89,18 @@ typedef struct serial_recv_data_buff
 } serial_recv_data_buff_t;
 
 class BluetoothTask : public Task {
+private:
+	QueueHandle_t gameTaskQueue = nullptr;
+
+	static const int BLE_QUEUE_SIZE = 3;
+	static const int BLE_MSG_SIZE = sizeof(GameMsg);
+	StaticQueue_t BLEGameQueue;
+	QueueHandle_t BLEGameQueueHandle = nullptr;
+	uint8_t bleGameQueueBuffer[BLE_QUEUE_SIZE * BLE_MSG_SIZE];
+	void gameCommandHandler(GameMsg* msg);
+
+	// TODO: General Command Queue
+
 public:
 	static const char *LOGTAG;
 
@@ -94,6 +108,8 @@ public:
 	bool init();
 	virtual void run(void* data);
 	virtual ~BluetoothTask();
+
+	void setGameTaskQueue(QueueHandle_t queue);
 };
 
 #endif // DC27_BLUETOOTH
