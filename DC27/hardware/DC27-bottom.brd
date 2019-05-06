@@ -4467,7 +4467,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <element name="C5" library="passives" package="C0805" value="1 uF" x="74.407028125" y="25.344659375" smashed="yes">
 <attribute name="NAME" x="73.518025" y="26.36065625" size="0.4064" layer="25" font="vector"/>
 </element>
-<element name="IC-IP5305" library="charging-ic" package="SOIC127P600X165-8" package3d_urn="urn:adsk.eagle:package:8974512/1" value="IP5305ESOP8" x="26.005428125" y="20.491059375" smashed="yes" rot="R90"/>
+<element name="IC-IP5305" library="charging-ic" package="SOIC127P600X165-8" package3d_urn="urn:adsk.eagle:package:8974512/1" value="IP5305ESOP8" x="27.005428125" y="20.491059375" smashed="yes" rot="R90"/>
 <element name="LED1" library="leds" package="LED-1206" value="cl1" x="38.334228125" y="21.670259375" smashed="yes" rot="R270">
 <attribute name="NAME" x="38.115228125" y="19.005259375" size="0.6096" layer="25" ratio="10" rot="R270"/>
 </element>
@@ -4486,40 +4486,40 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <element name="C22" library="passives" package="C0805" value="10 uF" x="22.534228125" y="12.740259375" smashed="yes">
 <attribute name="NAME" x="21.645228125" y="13.756259375" size="0.4064" layer="25" font="vector"/>
 </element>
-<element name="C23" library="passives" package="C0805" value="10 uF" x="19.884228125" y="21.989059375" smashed="yes" rot="R90">
-<attribute name="NAME" x="18.868228125" y="21.100059375" size="0.4064" layer="25" font="vector" rot="R90"/>
+<element name="C23" library="passives" package="C0805" value="10 uF" x="20.884228125" y="21.989059375" smashed="yes" rot="R90">
+<attribute name="NAME" x="19.868228125" y="21.100059375" size="0.4064" layer="25" font="vector" rot="R90"/>
 </element>
-<element name="C24" library="passives" package="C0805" value="10 uF" x="22.134228125" y="21.989059375" smashed="yes" rot="R90">
-<attribute name="NAME" x="21.118228125" y="21.100059375" size="0.4064" layer="25" font="vector" rot="R90"/>
+<element name="C24" library="passives" package="C0805" value="10 uF" x="23.134228125" y="21.989059375" smashed="yes" rot="R90">
+<attribute name="NAME" x="22.118228125" y="21.100059375" size="0.4064" layer="25" font="vector" rot="R90"/>
 </element>
 <element name="R2" library="passives" package="0805" value="10 R" x="26.367828125" y="12.835059375" smashed="yes" rot="R180">
 <attribute name="NAME" x="27.129828125" y="12.009559375" size="0.4064" layer="25" rot="R180"/>
 </element>
-<element name="J3" library="connector" package="JST-2-PTH" value="Battery" x="25.549028125" y="36.858659375" smashed="yes">
-<attribute name="NAME" x="24.660028125" y="41.125859375" size="1.27" layer="25" ratio="10"/>
-<attribute name="PROD_ID" value="CONN-09863" x="25.549028125" y="36.858659375" size="1.778" layer="27" display="off"/>
-<attribute name="SKU" value="PRT-09914" x="25.549028125" y="36.858659375" size="1.778" layer="27" display="off"/>
-<attribute name="VALUE" x="24.279028125" y="33.683659375" size="1.27" layer="27"/>
+<element name="J3" library="connector" package="JST-2-PTH" value="Battery" x="16.149028125" y="18.258659375" smashed="yes">
+<attribute name="NAME" x="15.260028125" y="22.525859375" size="1.27" layer="25" ratio="10"/>
+<attribute name="PROD_ID" value="CONN-09863" x="16.149028125" y="18.258659375" size="1.778" layer="27" display="off"/>
+<attribute name="SKU" value="PRT-09914" x="16.149028125" y="18.258659375" size="1.778" layer="27" display="off"/>
+<attribute name="VALUE" x="14.879028125" y="15.083659375" size="1.27" layer="27"/>
 </element>
-<element name="L1" library="passives" package="IND_TAIYO_NRS4018" value="2.2uH" x="25.164628125" y="29.245459375" smashed="yes" rot="R180">
-<attribute name="MANUFACTURER_PART_NUMBER" value="NRS4018T2R2MDGJ" x="81.400228125" y="63.840259375" size="1.778" layer="27" rot="R180" display="off"/>
-<attribute name="VENDOR" value="TAIYO YUDEN" x="81.400228125" y="63.840259375" size="1.778" layer="27" rot="R180" display="off"/>
+<element name="L1" library="passives" package="IND_TAIYO_NRS4018" value="2.2uH" x="26.664628125" y="28.045459375" smashed="yes" rot="R180">
+<attribute name="MANUFACTURER_PART_NUMBER" value="NRS4018T2R2MDGJ" x="82.900228125" y="62.640259375" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="VENDOR" value="TAIYO YUDEN" x="82.900228125" y="62.640259375" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
-<element name="R3" library="passives" package="0805" value="1 K" x="31.934628125" y="27.395059375" smashed="yes" rot="R90">
-<attribute name="NAME" x="31.109128125" y="26.633059375" size="0.4064" layer="25" rot="R90"/>
+<element name="R3" library="passives" package="0805" value="1 K" x="31.934628125" y="28.395059375" smashed="yes" rot="R90">
+<attribute name="NAME" x="31.109128125" y="27.633059375" size="0.4064" layer="25" rot="R90"/>
 </element>
-<element name="R17" library="passives" package="0805" value="10 K" x="35.780628125" y="27.389859375" smashed="yes" rot="R90">
-<attribute name="NAME" x="34.955128125" y="26.627859375" size="0.4064" layer="25" rot="R90"/>
+<element name="R17" library="passives" package="0805" value="10 K" x="33.780628125" y="28.389859375" smashed="yes" rot="R90">
+<attribute name="NAME" x="32.955128125" y="27.627859375" size="0.4064" layer="25" rot="R90"/>
 </element>
-<element name="C25" library="passives" package="C0805" value="10 uF" x="25.676628125" y="33.273459375" smashed="yes" rot="R180">
-<attribute name="NAME" x="26.565628125" y="32.257459375" size="0.6096" layer="25" font="vector" rot="R180"/>
+<element name="C25" library="passives" package="C0805" value="10 uF" x="22.526540625" y="28.376628125" smashed="yes" rot="R270">
+<attribute name="NAME" x="23.542540625" y="29.265628125" size="0.6096" layer="25" font="vector" rot="R270"/>
 </element>
-<element name="LED7" library="leds" package="LED-1206" value="KeyLed" x="33.479028125" y="30.817059375" smashed="yes">
-<attribute name="NAME" x="32.814028125" y="32.188059375" size="0.4064" layer="25" ratio="10"/>
-<attribute name="VALUE" x="32.424028125" y="29.216059375" size="0.4064" layer="27" ratio="10"/>
+<element name="LED7" library="leds" package="LED-1206" value="KeyLed" x="33.479028125" y="32.817059375" smashed="yes">
+<attribute name="NAME" x="32.814028125" y="34.188059375" size="0.4064" layer="25" ratio="10"/>
+<attribute name="VALUE" x="32.424028125" y="31.216059375" size="0.4064" layer="27" ratio="10"/>
 </element>
-<element name="U$5" library="switches" package="TACTILE-2PIN-NARROW" value="SWITCH_TACTILETACTILE-2PIN-NARROW" x="39.535428125" y="29.333859375" smashed="yes" rot="R90">
-<attribute name="NAME" x="37.503428125" y="26.539859375" size="0.4064" layer="25" font="vector" ratio="10" rot="R90"/>
+<element name="U$5" library="switches" package="TACTILE-2PIN-NARROW" value="SWITCH_TACTILETACTILE-2PIN-NARROW" x="39.633859375" y="26.164571875" smashed="yes">
+<attribute name="NAME" x="36.839859375" y="28.196571875" size="0.4064" layer="25" font="vector" ratio="10"/>
 </element>
 <element name="U$4" library="ICs" package="8-SOIC" value="ATECC608A-SSHDA" x="72.224228125" y="106.393059375" smashed="yes" rot="R270">
 <attribute name="VALUE" x="71.219228125" y="100.103059375" size="0.6096" layer="21" font="vector"/>
@@ -4696,8 +4696,8 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <element name="R14" library="passives" package="0805" value="100 R" x="16.573028125" y="83.301059375" smashed="yes" rot="R90">
 <attribute name="NAME" x="15.747528125" y="82.539059375" size="0.4064" layer="25" rot="R90"/>
 </element>
-<element name="U$7" library="logos" package="KRUX_LOGO_SILK" value="KRUX_LOGOKRUX_LOGO_SILK" x="12.331828125" y="14.627859375" smashed="yes" rot="MR0"/>
-<element name="U$8" library="logos" package="CMD_C0DE_LOGO" value="CMD_C0DE_LOGO" x="89.387828125" y="14.865859375" smashed="yes" rot="MR0"/>
+<element name="U$7" library="logos" package="KRUX_LOGO_SILK" value="KRUX_LOGOKRUX_LOGO_SILK" x="12.331828125" y="12.627859375" smashed="yes" rot="MR0"/>
+<element name="U$8" library="logos" package="CMD_C0DE_LOGO" value="CMD_C0DE_LOGO" x="89.387828125" y="12.865859375" smashed="yes" rot="MR0"/>
 <element name="U$9" library="logos" package="DN_LOGO_LONG_SILK" value="DN_LOGO" x="53.640628125" y="108.015459375" smashed="yes" rot="MR0"/>
 <element name="U$1" library="connector" package="2X6" value="M06X2" x="12.770228125" y="69.367059375" smashed="yes" rot="R90">
 <attribute name="NAME" x="8.934828125" y="65.049059375" size="0.8128" layer="25" ratio="10" rot="R90"/>
@@ -5742,11 +5742,11 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="51.786228125" y1="69.826659375" x2="51.786228125" y2="68.371859375" width="0.2032" layer="1"/>
 <wire x1="48.334228125" y1="33.889059375" x2="40.112021875" y2="33.889059375" width="0.1524" layer="16"/>
 <wire x1="40.112021875" y1="33.889059375" x2="40.082521875" y2="33.918559375" width="0.1524" layer="16"/>
-<wire x1="40.082521875" y1="33.918559375" x2="26.063728125" y2="33.918559375" width="0.1524" layer="16"/>
-<wire x1="26.063728125" y1="33.918559375" x2="14.134228125" y2="21.989059375" width="0.1524" layer="16"/>
-<wire x1="14.134228125" y1="21.989059375" x2="10.134228125" y2="21.989059375" width="0.1524" layer="16"/>
-<wire x1="10.134228125" y1="21.989059375" x2="7.334228125" y2="24.789059375" width="0.1524" layer="16"/>
-<wire x1="7.334228125" y1="24.789059375" x2="7.334228125" y2="47.789059375" width="0.1524" layer="16"/>
+<wire x1="40.082521875" y1="33.918559375" x2="19.463728125" y2="33.918559375" width="0.1524" layer="16"/>
+<wire x1="19.463728125" y1="33.918559375" x2="12.234228125" y2="26.689059375" width="0.1524" layer="16"/>
+<wire x1="12.234228125" y1="26.689059375" x2="9.434228125" y2="26.689059375" width="0.1524" layer="16"/>
+<wire x1="9.434228125" y1="26.689059375" x2="7.334228125" y2="28.789059375" width="0.1524" layer="16"/>
+<wire x1="7.334228125" y1="28.789059375" x2="7.334228125" y2="47.789059375" width="0.1524" layer="16"/>
 <wire x1="7.334228125" y1="47.789059375" x2="4.134228125" y2="50.989059375" width="0.1524" layer="16"/>
 <via x="4.134228125" y="50.989059375" extent="1-16" drill="0.4"/>
 <wire x1="4.134228125" y1="50.989059375" x2="5.434228125" y2="52.289059375" width="0.1524" layer="1"/>
@@ -5851,14 +5851,14 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="49.003940625" y1="26.146059375" x2="47.277315625" y2="26.146059375" width="0.254" layer="1"/>
 <wire x1="27.267828125" y1="12.835059375" x2="24.917828125" y2="15.185059375" width="0.254" layer="1"/>
 <wire x1="24.917828125" y1="15.185059375" x2="23.233428125" y2="15.185059375" width="0.254" layer="1"/>
-<wire x1="23.233428125" y1="15.185059375" x2="23.233428125" y2="16.970759375" width="0.254" layer="1"/>
-<wire x1="23.233428125" y1="16.970759375" x2="24.100428125" y2="17.837759375" width="0.254" layer="1"/>
 <wire x1="39.234228125" y1="17.189059375" x2="39.534228125" y2="17.189059375" width="0.254" layer="1"/>
 <wire x1="39.534228125" y1="17.189059375" x2="45.934228125" y2="23.589059375" width="0.254" layer="1"/>
 <wire x1="35.280228125" y1="13.235059375" x2="39.234228125" y2="17.189059375" width="0.254" layer="1"/>
 <wire x1="45.934228125" y1="23.589059375" x2="45.934228125" y2="24.802971875" width="0.254" layer="1"/>
 <wire x1="49.887428125" y1="27.296259375" x2="49.887428125" y2="31.281459375" width="0.254" layer="1"/>
 <wire x1="49.887428125" y1="31.281459375" x2="49.423428125" y2="31.745459375" width="0.254" layer="1"/>
+<wire x1="23.233428125" y1="15.185059375" x2="23.233428125" y2="15.970759375" width="0.254" layer="1"/>
+<wire x1="23.233428125" y1="15.970759375" x2="25.100428125" y2="17.837759375" width="0.254" layer="1"/>
 </signal>
 <signal name="USB_DP">
 <contactref element="U$3" pad="D+"/>
@@ -5894,25 +5894,25 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <contactref element="LED1" pad="A"/>
 <contactref element="LED4" pad="C"/>
 <contactref element="IC-IP5305" pad="LED1"/>
-<wire x1="25.370428125" y1="17.837759375" x2="25.370428125" y2="16.752859375" width="0.2" layer="1"/>
-<wire x1="25.370428125" y1="16.752859375" x2="25.834228125" y2="16.289059375" width="0.2" layer="1"/>
-<wire x1="25.834228125" y1="16.289059375" x2="36.934228125" y2="16.289059375" width="0.2" layer="1"/>
 <wire x1="40.134228125" y1="19.489059375" x2="40.134228125" y2="21.989059375" width="0.2" layer="1"/>
 <wire x1="40.134228125" y1="21.989059375" x2="38.953028125" y2="23.170259375" width="0.2" layer="1"/>
 <wire x1="38.953028125" y1="23.170259375" x2="38.334228125" y2="23.170259375" width="0.2" layer="1"/>
 <wire x1="36.934228125" y1="16.289059375" x2="40.134228125" y2="19.489059375" width="0.2" layer="1"/>
 <wire x1="38.334228125" y1="23.170259375" x2="35.984228125" y2="23.170259375" width="0.2" layer="1"/>
+<wire x1="26.370428125" y1="17.837759375" x2="26.370428125" y2="16.7" width="0.2" layer="1"/>
+<wire x1="26.370428125" y1="16.7" x2="26.78136875" y2="16.289059375" width="0.2" layer="1"/>
+<wire x1="26.78136875" y1="16.289059375" x2="36.934228125" y2="16.289059375" width="0.2" layer="1"/>
 </signal>
 <signal name="N$14">
 <contactref element="LED5" pad="A"/>
 <contactref element="LED6" pad="C"/>
 <contactref element="IC-IP5305" pad="LED2"/>
-<wire x1="27.661278125" y1="19.258609375" x2="26.640428125" y2="18.237759375" width="0.2" layer="1"/>
-<wire x1="26.640428125" y1="17.837759375" x2="26.640428125" y2="18.237759375" width="0.2" layer="1"/>
-<wire x1="27.661278125" y1="19.258609375" x2="27.661278125" y2="19.946709375" width="0.2" layer="1"/>
-<wire x1="31.284228125" y1="23.170259375" x2="30.884828125" y2="23.170259375" width="0.2" layer="1"/>
-<wire x1="30.884828125" y1="23.170259375" x2="27.661278125" y2="19.946709375" width="0.2" layer="1"/>
+<wire x1="27.640428125" y1="17.837759375" x2="27.640428125" y2="18.237759375" width="0.2" layer="1"/>
 <wire x1="31.284228125" y1="23.170259375" x2="33.634228125" y2="23.170259375" width="0.2" layer="1"/>
+<wire x1="31.284228125" y1="22.765384375" x2="31.284228125" y2="23.170259375" width="0.254" layer="1"/>
+<wire x1="29.13428125" y1="19.7316125" x2="27.640428125" y2="18.237759375" width="0.254" layer="1"/>
+<wire x1="29.13428125" y1="20.6154375" x2="31.284228125" y2="22.765384375" width="0.254" layer="1"/>
+<wire x1="29.13428125" y1="19.7316125" x2="29.13428125" y2="20.6154375" width="0.254" layer="1"/>
 </signal>
 <signal name="N$15">
 <contactref element="LED1" pad="C"/>
@@ -5920,11 +5920,13 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <contactref element="LED5" pad="C"/>
 <contactref element="LED6" pad="A"/>
 <contactref element="IC-IP5305" pad="LED3"/>
-<wire x1="27.910428125" y1="17.837759375" x2="28.951728125" y2="17.837759375" width="0.2" layer="1"/>
-<wire x1="28.951728125" y1="17.837759375" x2="31.284228125" y2="20.170259375" width="0.2" layer="1"/>
-<wire x1="31.284228125" y1="20.170259375" x2="33.634228125" y2="20.170259375" width="0.2" layer="1"/>
+<wire x1="31.284228125" y1="20.170259375" x2="31.3" y2="20.170259375" width="0.2" layer="1"/>
+<wire x1="31.3" y1="20.170259375" x2="33.634228125" y2="20.170259375" width="0.2" layer="1"/>
 <wire x1="33.634228125" y1="20.170259375" x2="35.984228125" y2="20.170259375" width="0.2" layer="1"/>
 <wire x1="35.984228125" y1="20.170259375" x2="38.334228125" y2="20.170259375" width="0.2" layer="1"/>
+<wire x1="28.910428125" y1="17.837759375" x2="29.9" y2="17.837759375" width="0.254" layer="1"/>
+<wire x1="29.9" y1="17.837759375" x2="31.3" y2="19.237759375" width="0.254" layer="1"/>
+<wire x1="31.3" y1="19.237759375" x2="31.3" y2="20.170259375" width="0.254" layer="1"/>
 </signal>
 <signal name="N$16">
 <contactref element="R2" pad="2"/>
@@ -5935,46 +5937,54 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <signal name="N$17">
 <contactref element="IC-IP5305" pad="SW"/>
 <contactref element="L1" pad="2"/>
-<wire x1="25.370428125" y1="23.144359375" x2="25.370428125" y2="24.752859375" width="0.254" layer="1"/>
-<wire x1="25.370428125" y1="24.752859375" x2="23.734228125" y2="26.389059375" width="0.254" layer="1"/>
-<wire x1="23.734228125" y1="26.389059375" x2="23.734228125" y2="29.212059375" width="0.254" layer="1"/>
-<wire x1="23.734228125" y1="29.212059375" x2="23.767628125" y2="29.245459375" width="0.254" layer="1"/>
+<wire x1="25.234228125" y1="28.012059375" x2="25.267628125" y2="28.045459375" width="0.254" layer="1"/>
+<wire x1="26.370428125" y1="23.144359375" x2="26.370428125" y2="24.870428125" width="0.2" layer="1"/>
+<wire x1="26.370428125" y1="24.870428125" x2="26.4" y2="24.9" width="0.2" layer="1"/>
+<wire x1="25.739128125" y1="27.507159375" x2="25.234228125" y2="28.012059375" width="0.2" layer="1"/>
+<wire x1="25.739128125" y1="25.978571875" x2="25.739128125" y2="27.507159375" width="0.2" layer="1"/>
+<wire x1="26.4" y1="24.9" x2="26.4" y2="25.3177" width="0.2" layer="1"/>
+<wire x1="26.4" y1="25.3177" x2="25.739128125" y2="25.978571875" width="0.2" layer="1"/>
 </signal>
 <signal name="N$20">
 <contactref element="IC-IP5305" pad="BAT"/>
 <contactref element="L1" pad="1"/>
 <contactref element="C25" pad="1"/>
 <contactref element="J3" pad="2"/>
-<wire x1="26.640428125" y1="23.144359375" x2="26.640428125" y2="29.166659375" width="0.254" layer="1"/>
-<wire x1="26.640428125" y1="29.166659375" x2="26.561628125" y2="29.245459375" width="0.2" layer="1"/>
-<wire x1="26.561628125" y1="29.245459375" x2="26.561628125" y2="33.238459375" width="0.254" layer="1"/>
-<wire x1="26.561628125" y1="33.238459375" x2="26.526628125" y2="33.273459375" width="0.2" layer="1"/>
-<wire x1="26.526628125" y1="33.273459375" x2="26.526628125" y2="36.836259375" width="0.254" layer="1"/>
-<wire x1="26.526628125" y1="36.836259375" x2="26.549028125" y2="36.858659375" width="0.2" layer="1"/>
+<wire x1="28.061628125" y1="28.045459375" x2="28.061628125" y2="28.2" width="0.2" layer="1"/>
+<wire x1="28.061628125" y1="28.2" x2="28.061628125" y2="31" width="0.2" layer="1"/>
+<wire x1="28.061628125" y1="31" x2="27.661628125" y2="31.4" width="0.2" layer="1"/>
+<wire x1="23.9" y1="31.4" x2="22.526540625" y2="30.026540625" width="0.2" layer="1"/>
+<wire x1="22.526540625" y1="30.026540625" x2="22.526540625" y2="29.226628125" width="0.2" layer="1"/>
+<wire x1="27.661628125" y1="31.4" x2="23.9" y2="31.4" width="0.2" layer="1"/>
+<wire x1="22.526540625" y1="29.226628125" x2="21.226628125" y2="29.226628125" width="0.2" layer="1"/>
+<wire x1="17.149028125" y1="25.149028125" x2="17.149028125" y2="18.258659375" width="0.2" layer="1"/>
+<wire x1="21.226628125" y1="29.226628125" x2="17.149028125" y2="25.149028125" width="0.2" layer="1"/>
+<wire x1="27.640428125" y1="27.7788" x2="28.061628125" y2="28.2" width="0.2" layer="1"/>
+<wire x1="27.640428125" y1="23.144359375" x2="27.640428125" y2="27.7788" width="0.2" layer="1"/>
 </signal>
 <signal name="N$21">
 <contactref element="IC-IP5305" pad="KEY"/>
 <contactref element="R3" pad="1"/>
 <contactref element="R17" pad="1"/>
-<wire x1="27.910428125" y1="23.144359375" x2="27.910428125" y2="23.865259375" width="0.2" layer="1"/>
-<wire x1="27.910428125" y1="23.865259375" x2="29.434228125" y2="25.389059375" width="0.2" layer="1"/>
-<wire x1="29.434228125" y1="25.389059375" x2="32.034228125" y2="25.389059375" width="0.2" layer="1"/>
-<wire x1="32.034228125" y1="25.389059375" x2="34.679828125" y2="25.389059375" width="0.2" layer="1"/>
-<wire x1="34.679828125" y1="25.389059375" x2="35.780628125" y2="26.489859375" width="0.2" layer="1"/>
-<wire x1="31.934628125" y1="26.495059375" x2="31.934628125" y2="25.488659375" width="0.2" layer="1"/>
-<wire x1="31.934628125" y1="25.488659375" x2="32.034228125" y2="25.389059375" width="0.2" layer="1"/>
+<wire x1="31.679828125" y1="25.389059375" x2="33.780628125" y2="27.489859375" width="0.2" layer="1"/>
+<wire x1="29.989059375" y1="25.389059375" x2="31.679828125" y2="25.389059375" width="0.2" layer="1"/>
+<wire x1="28.910428125" y1="24.310428125" x2="29.989059375" y2="25.389059375" width="0.2" layer="1"/>
+<wire x1="28.910428125" y1="23.144359375" x2="28.910428125" y2="24.310428125" width="0.2" layer="1"/>
+<wire x1="31.934628125" y1="27.495059375" x2="29.989059375" y2="25.549490625" width="0.1524" layer="1"/>
+<wire x1="29.989059375" y1="25.549490625" x2="29.989059375" y2="25.389059375" width="0.1524" layer="1"/>
 </signal>
 <signal name="N$24">
 <contactref element="R3" pad="2"/>
 <contactref element="LED7" pad="A"/>
-<wire x1="31.934628125" y1="28.295059375" x2="31.934628125" y2="30.772659375" width="0.2" layer="1"/>
-<wire x1="31.934628125" y1="30.772659375" x2="31.979028125" y2="30.817059375" width="0.2" layer="1"/>
+<wire x1="31.934628125" y1="29.295059375" x2="31.934628125" y2="32.772659375" width="0.2" layer="1"/>
+<wire x1="31.934628125" y1="32.772659375" x2="31.979028125" y2="32.817059375" width="0.2" layer="1"/>
 </signal>
 <signal name="N$25">
 <contactref element="R17" pad="2"/>
 <contactref element="U$5" pad="P$2"/>
-<wire x1="35.780628125" y1="28.289859375" x2="37.315528125" y2="28.289859375" width="0.2" layer="1"/>
-<wire x1="37.315528125" y1="28.289859375" x2="39.535428125" y2="26.069959375" width="0.2" layer="1"/>
+<wire x1="33.780628125" y1="29.289859375" x2="34.6" y2="29.289859375" width="0.2" layer="1"/>
+<wire x1="34.6" y1="29.289859375" x2="36.369959375" y2="27.5199" width="0.2" layer="1"/>
+<wire x1="36.369959375" y1="27.5199" x2="36.369959375" y2="26.164571875" width="0.2" layer="1"/>
 </signal>
 <signal name="DISPLAY_CS">
 <contactref element="U2" pad="28"/>
@@ -6680,15 +6690,13 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <contactref element="RESETTABLE_FUSE" pad="1"/>
 <contactref element="C24" pad="2"/>
 <contactref element="C23" pad="2"/>
-<wire x1="24.100428125" y1="23.144359375" x2="22.439528125" y2="23.144359375" width="0.254" layer="1"/>
-<wire x1="22.439528125" y1="23.144359375" x2="22.134228125" y2="22.839059375" width="0.254" layer="1"/>
-<wire x1="22.134228125" y1="22.839059375" x2="19.884228125" y2="22.839059375" width="0.254" layer="1"/>
-<wire x1="19.884228125" y1="22.839059375" x2="20.034228125" y2="22.989059375" width="0.254" layer="1"/>
-<wire x1="20.034228125" y1="22.989059375" x2="20.034228125" y2="25.989059375" width="0.254" layer="1"/>
-<via x="20.034228125" y="25.989059375" extent="1-16" drill="0.6"/>
-<wire x1="20.034228125" y1="25.989059375" x2="35.534228125" y2="25.989059375" width="0.254" layer="16"/>
-<wire x1="35.534228125" y1="25.989059375" x2="38.634228125" y2="29.089059375" width="0.254" layer="16"/>
-<wire x1="38.634228125" y1="29.089059375" x2="56.434228125" y2="29.089059375" width="0.254" layer="16"/>
+<wire x1="23.134228125" y1="22.839059375" x2="20.884228125" y2="22.839059375" width="0.254" layer="1"/>
+<wire x1="21.034228125" y1="25.989059375" x2="21.034228125" y2="22.989059375" width="0.254" layer="1"/>
+<wire x1="20.884228125" y1="22.839059375" x2="21.034228125" y2="22.989059375" width="0.254" layer="1"/>
+<via x="21.034228125" y="25.989059375" extent="1-16" drill="0.6"/>
+<wire x1="21.034228125" y1="25.989059375" x2="30.534228125" y2="25.989059375" width="0.254" layer="16"/>
+<wire x1="30.534228125" y1="25.989059375" x2="33.634228125" y2="29.089059375" width="0.254" layer="16"/>
+<wire x1="33.634228125" y1="29.089059375" x2="56.434228125" y2="29.089059375" width="0.254" layer="16"/>
 <wire x1="57.934228125" y1="27.589059375" x2="57.934228125" y2="22.089059375" width="0.254" layer="16"/>
 <wire x1="57.934228125" y1="22.089059375" x2="60.334228125" y2="19.689059375" width="0.254" layer="16"/>
 <wire x1="60.334228125" y1="19.689059375" x2="60.434228125" y2="19.689059375" width="0.254" layer="16"/>
@@ -6696,6 +6704,8 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="60.434228125" y1="19.689059375" x2="63.653284375" y2="19.689059375" width="0.254" layer="1"/>
 <wire x1="63.653284375" y1="19.689059375" x2="64.03050625" y2="19.3118375" width="0.254" layer="1"/>
 <wire x1="56.434228125" y1="29.089059375" x2="57.934228125" y2="27.589059375" width="0.254" layer="16"/>
+<wire x1="25.100428125" y1="23.144359375" x2="24.795128125" y2="22.839059375" width="0.2" layer="1"/>
+<wire x1="24.795128125" y1="22.839059375" x2="23.134228125" y2="22.839059375" width="0.2" layer="1"/>
 </signal>
 <signal name="FT_JTAG_CLK">
 <contactref element="IC3" pad="16"/>
