@@ -7,7 +7,7 @@
 <setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="6" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="0.1" altunitdist="mm" altunit="mm"/>
+<grid distance="0.000123031496" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="0.1" altunitdist="mm" altunit="mm"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="yes"/>
 <layer number="2" name="Route2" color="16" fill="1" visible="no" active="no"/>
@@ -1193,9 +1193,9 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <vertex x="79.089496875" y="36.2220875"/>
 <vertex x="79.1968125" y="36.3381875"/>
 <vertex x="79.265884375" y="36.488046875"/>
-<vertex x="79.343915625" y="36.8809625"/>
-<vertex x="79.1904375" y="36.88836875"/>
-<vertex x="79.18854375" y="36.875965625"/>
+<vertex x="79.369159375" y="37.003115625"/>
+<vertex x="79.199396875" y="37.00970625"/>
+<vertex x="79.197503125" y="36.997303125"/>
 <vertex x="79.14616875" y="36.797071875"/>
 <vertex x="79.07313125" y="36.742984375"/>
 <vertex x="78.97666875" y="36.722659375"/>
@@ -1344,8 +1344,8 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <vertex x="78.8750375" y="46.771659375"/>
 <vertex x="78.907596875" y="46.831259375"/>
 <vertex x="78.93050625" y="46.8968875"/>
-<vertex x="79.01990625" y="47.326834375"/>
-<vertex x="78.841621875" y="47.3376875"/>
+<vertex x="79.041015625" y="47.43378125"/>
+<vertex x="78.85288125" y="47.443228125"/>
 <vertex x="78.838521875" y="47.313228125"/>
 <vertex x="78.79873125" y="47.222965625"/>
 <vertex x="78.7308625" y="47.1587125"/>
@@ -1608,8 +1608,8 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <vertex x="79.4007625" y="57.480909375"/>
 <vertex x="79.42539375" y="57.498996875"/>
 <vertex x="79.6343375" y="57.724134375"/>
-<vertex x="80.122853125" y="58.12496875"/>
-<vertex x="80.034140625" y="58.2274625"/>
+<vertex x="80.2326125" y="58.213621875"/>
+<vertex x="80.1439" y="58.316115625"/>
 <vertex x="79.713059375" y="57.961328125"/>
 <vertex x="79.657075" y="57.9279125"/>
 <vertex x="79.588175" y="57.91723125"/>
@@ -1649,8 +1649,8 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <vertex x="79.08329375" y="59.374334375"/>
 <vertex x="79.247971875" y="59.702134375"/>
 <vertex x="79.27311875" y="59.80910625"/>
-<vertex x="79.28879375" y="59.99410625"/>
-<vertex x="79.100521875" y="60.00754375"/>
+<vertex x="79.302865625" y="60.109496875"/>
+<vertex x="79.127259375" y="60.114490625"/>
 <vertex x="79.037990625" y="59.826159375"/>
 <vertex x="78.99940625" y="59.768625"/>
 <vertex x="78.942390625" y="59.734003125"/>
