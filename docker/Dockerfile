@@ -50,6 +50,7 @@ RUN useradd -m -u 10000 -G plugdev,dialout,root -s /bin/bash dndev
 RUN echo "#########\n# START Added by docker buid\n######" >> /home/dndev/.bashrc
 RUN echo "export PATH=$ESP_TCHAIN_BASEDIR/xtensa-esp32-elf/bin:$ESP_TCHAIN_BASEDIR/openocd-esp32/bin:$IDF_PATH/tools:$PATH" >> /home/dndev/.bashrc
 RUN echo "#########\n# END Added by docker buid\n######" >> /home/dndev/.bashrc
+COPY ./vimrc /home/dndev/.vimrc
 
 COPY ./entry.sh /bin/entry.sh 
 RUN chmod +x /bin/entry.sh

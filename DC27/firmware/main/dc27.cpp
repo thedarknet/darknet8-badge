@@ -38,6 +38,10 @@
 #define PIN_NUM_RST  -1
 #define PIN_NUM_BCKL -1
 
+#define PIN_NUM_TOUCH_MISO 35
+#define PIN_NUM_TOUCH_MOSI 33
+#define PIN_NUM_TOUCH_CLK  26
+#define PIN_NUM_TOUCH_CS   27
 
 #define LED_PIN_MOSI 16
 #define LED_PIN_CLK  2
@@ -584,6 +588,116 @@ const char *APA102c::LOG = "APA102c";
 BluetoothTask BTTask("BluetoothTask");
 GameTask GameTask("GameTask");
 
+
+#define LED_PIN GPIO_NUM_15
+static xQueueHandle gpio_evt_queue = NULL;
+ 
+static void IRAM_ATTR gpio_isr_handler(void* arg) {
+	uint32_t gpio_num = (uint32_t) arg;
+	static int32_t cnt = 0;
+	gpio_set_level(LED_PIN,++cnt%2);
+	xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+}
+ 
+static void gpio_task_example(void* arg) {
+	uint32_t io_num;
+	for(;;) {
+		if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+			uint32_t level = (uint32_t) gpio_get_level((gpio_num_t)io_num);
+			printf("GPIO[%d] intr, val: %d\n", io_num, level);
+			//build test message
+			libesp::System::get().logSystemInfo();
+		}
+		vTaskDelay(1000 / portTICK_RATE_MS);
+	}
+}
+
+
+#define ESP_INTR_FLAG_DEFAULT 0
+ 
+void initTouch() {
+	gpio_config_t io_conf;
+
+#if 0
+	//SET UP BUTTON
+	//interrupt of falling edge
+	io_conf.intr_type = GPIO_INTR_NEGEDGE;
+	//bit mask of the pins, use GPIO0
+	#define GPIO_INPUT_IO_0 (1ULL << GPIO_NUM_0)
+	io_conf.pin_bit_mask = GPIO_INPUT_IO_0;
+	//set as input mode
+	io_conf.mode = GPIO_MODE_INPUT;
+	//enable pull-up mode
+	//io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+	io_conf.pull_up_en = GPIO_PULLUP_DISABLE; //have hw pull up
+	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+	gpio_config(&io_conf);
+	// END BUTTON SETUP
+	gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+	//start gpio task
+	xTaskCreate(gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
+	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+	//hook isr handler for specific gpio pin
+	gpio_isr_handler_add(GPIO_NUM_0, gpio_isr_handler, (void*) GPIO_INPUT_IO_0);
+#else
+	//SET UP TOUCH
+	//interrupt of falling edge
+	io_conf.intr_type = GPIO_INTR_POSEDGE;
+	//bit mask of the pins, use GPIO0
+	#define GPIO_INPUT_IO_32 (1ULL << GPIO_NUM_32)
+	io_conf.pin_bit_mask = GPIO_INPUT_IO_32;
+	//set as input mode
+	io_conf.mode = GPIO_MODE_INPUT;
+	//io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+	io_conf.pull_up_en = GPIO_PULLUP_DISABLE; //have hw pull up
+	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+	gpio_config(&io_conf);
+	// END TOUCH SETUP
+	gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+	//start gpio task
+	xTaskCreate(gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
+	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+	//hook isr handler for specific gpio pin
+	gpio_isr_handler_add(GPIO_NUM_32, gpio_isr_handler, (void*) GPIO_INPUT_IO_32);
+	//
+	//touch bus config
+	spi_bus_config_t buscfg;
+        buscfg.miso_io_num=PIN_NUM_TOUCH_MISO;
+        buscfg.mosi_io_num=PIN_NUM_TOUCH_MOSI;
+        buscfg.sclk_io_num=PIN_NUM_TOUCH_CLK;
+        buscfg.quadwp_io_num=-1;
+        buscfg.quadhd_io_num=-1;
+        buscfg.max_transfer_sz=32;
+        buscfg.flags = SPICOMMON_BUSFLAG_MASTER;
+        buscfg.intr_flags = 0;
+	//touch device config
+	spi_device_interface_config_t devcfg;
+	devcfg.clock_speed_hz=1*1000*1000;         //Clock out at 1 MHz
+	devcfg.mode=0;                             //SPI mode 0
+	devcfg.spics_io_num=PIN_NUM_TOUCH_CS;               	//CS pin
+	devcfg.queue_size=3;                       //We want to be able to queue 3 transactions at a time
+	devcfg.duty_cycle_pos = 0;
+	devcfg.cs_ena_pretrans = 0;
+	devcfg.cs_ena_posttrans = 0; 
+	devcfg.input_delay_ns = 0;
+	devcfg.flags = 0;
+	devcfg.pre_cb = nullptr;
+	devcfg.post_cb = nullptr;
+	//create wiring
+	//ESP32SPIWiring espSPI = ESP32SPIWiring::create(VSPI_HOST,buscfg, devcfg,2);
+#endif
+	//
+	//set up pin for output
+	io_conf.intr_type = GPIO_INTR_DISABLE;
+	io_conf.mode = GPIO_MODE_OUTPUT;
+	#define GPIO_OUTPUT_LED_MASK (1ULL << GPIO_NUM_15)
+	io_conf.pin_bit_mask = GPIO_OUTPUT_LED_MASK;
+	io_conf.pull_down_en =GPIO_PULLDOWN_DISABLE;
+	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+	gpio_config(&io_conf);
+}
+
+
 void app_main() {
 	esp_err_t ret;
 	
@@ -596,7 +710,7 @@ void app_main() {
 	ESP_ERROR_CHECK( ret );
 
 	ESP32_I2CMaster::doIt();
-
+	initTouch();
 	/////
 	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
 	I2c.init(false);
@@ -649,8 +763,8 @@ void app_main() {
 	
 	//Policy,
 	const int NUM_LEDS = 100;
-	ESP32SPIWiring espSPI = ESP32SPIWiring::create(VSPI_HOST,LED_PIN_NONE,LED_PIN_MOSI,
-																	LED_PIN_CLK,LED_PIN_NONE, 1024, 2);
+	ESP32SPIWiring espSPI = ESP32SPIWiring::create(VSPI_HOST,LED_PIN_NONE,LED_PIN_MOSI, 
+			LED_PIN_CLK,LED_PIN_NONE, 1024, 2);
 	espSPI.init();
 	APA102c apa102c(&espSPI);
 	RGB ledBuf[NUM_LEDS] = {RGB::BLUE};
