@@ -1,0 +1,4 @@
+0x90 to fetch Y pos
+0xD0 to fetch X pos
+x80 for z1 pos
+0xC0 for z2 pos
