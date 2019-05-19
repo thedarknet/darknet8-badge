@@ -253,23 +253,48 @@ static void print_write_buffer(void)
 	}
 }
 
+static GameMsg* buffered_msg = nullptr;
 static void send_raw_game_command(char* buffer, uint16_t length)
 {
+	DN8_BLE_MSG* raw_msg = (DN8_BLE_MSG*)buffer;
+	char* data = nullptr;
 	if (gameTaskQueue_g == nullptr)
 	{
 		ESP_LOGE(LOGTAG, "ATTEMPTED TO SEND COMMAND TO NON-EXISTANT GAME QUEUE");
 		return;
 	}
 
-	GameMsg* msg = (GameMsg*)malloc(sizeof(GameMsg));
-	char* data = (char*)malloc(length);
-	memset(msg, '\0', sizeof(GameMsg));
-	msg->mtype = SGAME_RAW_INPUT;
-	msg->length = length;
-	msg->data = data; // TODO?
-	memcpy(data, buffer, length);
-	msg->returnQueue = bleGameResponseQueue_g;
-	xQueueSend(gameTaskQueue_g, (void*)&msg, (TickType_t)100);
+	if (!buffered_msg) // Create a new message
+	{
+		buffered_msg = (GameMsg*)malloc(sizeof(GameMsg));
+		memset(buffered_msg, '\0', sizeof(GameMsg));
+
+		buffered_msg->mtype = SGAME_RAW_INPUT;
+		buffered_msg->length = raw_msg->size;
+
+		data = (char*)malloc(raw_msg->size);
+		memset(data, '\0', raw_msg->size);
+		buffered_msg->data = data;
+		memcpy(data, raw_msg->data, raw_msg->size);
+
+		buffered_msg->returnQueue = bleGameResponseQueue_g;
+	}
+	else // add the message onto the existing message
+	{
+		data = (char*)malloc(raw_msg->size + buffered_msg->length);
+		memset(data, '\0', raw_msg->size + buffered_msg->length);
+		memcpy(data, buffered_msg->data, buffered_msg->length);
+		memcpy(&data[buffered_msg->length], raw_msg->data, raw_msg->size);
+		free(buffered_msg->data);
+		buffered_msg->data = data;
+	}
+
+	if (!raw_msg->more)
+	{
+		xQueueSend(gameTaskQueue_g, (void*)&buffered_msg, (TickType_t)100);
+		buffered_msg = nullptr;
+	}
+
 	return;
 }
 

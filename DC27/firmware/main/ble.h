@@ -40,6 +40,13 @@ enum
 	DN8_IDX_NB,
 };
 
+typedef struct
+{
+	unsigned char size;
+	bool more;
+	char data[18];
+} DN8_BLE_MSG;
+
 
 #define ESP_GATT_UUID_DN8_SVC 0x444e
 static const uint16_t dn8_svc = ESP_GATT_UUID_DN8_SVC;
