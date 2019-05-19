@@ -84,14 +84,14 @@ static const uint16_t serial_data_notify_uuid = ESP_GATT_UUID_SERIAL_DATA_NOTIFY
 static const uint8_t  serial_data_notify_val[20] = {0x00};
 static const uint8_t  serial_data_notify_ccc[2] = {0x00, 0x00};
 
-//Serial - command characteristic, read&write without response
-static const uint16_t serial_command_uuid = ESP_GATT_UUID_SERIAL_COMMAND_RECEIVE;
-static const uint8_t  serial_command_val[10] = {0x00};
+//Serial - command characteristic, read&write without response - UNUSED
+//static const uint16_t serial_command_uuid = ESP_GATT_UUID_SERIAL_COMMAND_RECEIVE;
+//static const uint8_t  serial_command_val[10] = {0x00};
 
-//Serial - status characteristic, notify&read
-static const uint16_t serial_status_uuid = ESP_GATT_UUID_SERIAL_COMMAND_NOTIFY;
-static const uint8_t  serial_status_val[10] = {0x00};
-static const uint8_t  serial_status_ccc[2] = {0x00, 0x00};
+//Serial - status characteristic, notify&read - UNUSED
+//static const uint16_t serial_status_uuid = ESP_GATT_UUID_SERIAL_COMMAND_NOTIFY;
+//static const uint8_t  serial_status_val[10] = {0x00};
+//static const uint8_t  serial_status_ccc[2] = {0x00, 0x00};
 
 static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 {
@@ -149,7 +149,8 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			sizeof(serial_data_notify_ccc),
 			(uint8_t *)serial_data_notify_ccc}},
 
-	//Serial: Command characteristic, value
+	//Serial: Command characteristic, value - UNUSED
+	/*
 	[DN8_IDX_SERIAL_COMMAND_CHAR] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
@@ -166,8 +167,9 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 		SERIAL_CMD_MAX_LEN,
 		sizeof(serial_command_val),
 		(uint8_t *)serial_command_val}},
-
-	//Serial: Status Characteristic, value, descriptor
+	*/
+	//Serial: Status Characteristic, value, descriptor - UNUSED
+	/*
 	[DN8_IDX_SERIAL_STATUS_CHAR] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
@@ -192,6 +194,7 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			sizeof(uint16_t),
 			sizeof(serial_status_ccc),
 			(uint8_t *)serial_status_ccc}},
+	*/
 };
 
 
@@ -254,10 +257,13 @@ static void print_write_buffer(void)
 }
 
 static GameMsg* buffered_msg = nullptr;
+static uint8_t gameContext = 0x0; // Defaults to gameMaster menu
 static void send_raw_game_command(char* buffer, uint16_t length)
 {
 	DN8_BLE_MSG* raw_msg = (DN8_BLE_MSG*)buffer;
 	char* data = nullptr;
+
+	esp_log_buffer_char(LOGTAG, raw_msg->data, raw_msg->size);
 	if (gameTaskQueue_g == nullptr)
 	{
 		ESP_LOGE(LOGTAG, "ATTEMPTED TO SEND COMMAND TO NON-EXISTANT GAME QUEUE");
@@ -269,6 +275,7 @@ static void send_raw_game_command(char* buffer, uint16_t length)
 		buffered_msg = (GameMsg*)malloc(sizeof(GameMsg));
 		memset(buffered_msg, '\0', sizeof(GameMsg));
 
+		buffered_msg->context = gameContext;
 		buffered_msg->mtype = SGAME_RAW_INPUT;
 		buffered_msg->length = raw_msg->size;
 
@@ -287,10 +294,12 @@ static void send_raw_game_command(char* buffer, uint16_t length)
 		memcpy(&data[buffered_msg->length], raw_msg->data, raw_msg->size);
 		free(buffered_msg->data);
 		buffered_msg->data = data;
+		buffered_msg->length = raw_msg->size + buffered_msg->length;
 	}
 
 	if (!raw_msg->more)
 	{
+		esp_log_buffer_char(LOGTAG,  buffered_msg->data, buffered_msg->length);
 		xQueueSend(gameTaskQueue_g, (void*)&buffered_msg, (TickType_t)100);
 		buffered_msg = nullptr;
 	}
@@ -455,6 +464,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 			break;
 		case ESP_GATTS_CONNECT_EVT:
 			ESP_LOGI(LOGTAG, "ESP_GATTS_CONNECT_EVT");
+			gameContext = 0x0; // set it up to go back to home screen
 			// Get the connection details for the serial stuff
 			serial_conn_id      = param->connect.conn_id;
 			serial_gatts_if     = gatts_if;
@@ -489,20 +499,22 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 		case ESP_GATTS_READ_EVT:
 			ESP_LOGI(LOGTAG, "ESP_GATTS_READ_EVT");
 			res = find_char_and_desr_index(param->read.handle);
+			/*
 			if(res == DN8_IDX_SERIAL_STATUS_VAL)
 			{
 				// TODO: Client read the status characteristic (not in example)
 			}
+			*/
 			break;
 		case ESP_GATTS_WRITE_EVT: // TODO: SPP
 			res = find_char_and_desr_index(param->write.handle);
 			if (!param->write.is_prep)
 			{
 				ESP_LOGI(LOGTAG, "ESP_GATTS_WRITE_EVT : handle = %d\n", res);
-				if (res == DN8_IDX_SERIAL_COMMAND_VAL)
+				/*
+				if (res == DN8_IDX_SERIAL_COMMAND_VAL) // UNUSED
 				{
 					// TODO: send cmd to uart cmd_queue
-					/*
 					uint8_t* serial_cmd_buff = NULL;
 					serial_cmd_buff = (uint8_t*)malloc((serial_mtu_size - 3) * sizeof(uint8_t));
 					if (!serial_cmd_buff)
@@ -513,9 +525,10 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 					memset(serial_cmd_buf, 0x0, (serial_mtu_size - 3));
 					memcpy(serial_cmd_buf, param->write.value, param->write.len);
 					xQueueSend(cmd_queue, &serial_cmd_buff, 10/portTICK_PERIOD_MS);
-					*/
 				}
-				else if (res == DN8_IDX_SERIAL_DATA_NOTIFY_CFG)
+				else
+				*/
+				if (res == DN8_IDX_SERIAL_DATA_NOTIFY_CFG)
 				{
 					if ((param->write.len == 2) && (param->write.value[0] == 0x01) &&
 						(param->write.value[1] == 0x00))
