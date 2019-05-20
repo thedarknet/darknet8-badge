@@ -33,7 +33,6 @@ typedef enum
 
 typedef struct
 {
-	uint8_t context;
 	GameDataType dtype;
 	uint16_t length;
 	char* data;
@@ -41,6 +40,7 @@ typedef struct
 
 typedef struct
 {
+	uint8_t context;
 	GameMsgType mtype;
 	uint16_t length;
 	char* data;
@@ -67,6 +67,11 @@ public:
 
 	bool isGameUnlocked(uint8_t game_id);
 	bool setGameUnlocked(uint8_t game_id);
+
+	void mainMenuSendResponse(GameMsg* msg, char* data, uint8_t size);
+	void sendBadContextError(GameMsg* msg);
+	void sendGameLockedError(GameMsg* msg);
+	void mainMenu(GameMsg* msg);
 };
 
 #endif //__SERIAL_GAME__

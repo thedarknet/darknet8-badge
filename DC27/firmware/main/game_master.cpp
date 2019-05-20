@@ -24,6 +24,7 @@ bool unlocked_games[INSTALLED_GAMES];
 
 	Menu item for pairing with each staff member
 
+	General: GameMaster Interface
 	CmdC0de: MUD Game
 	Gourry:  Hackables
 
@@ -46,44 +47,89 @@ bool GameTask::setGameUnlocked(uint8_t gameid)
 	return true;
 }
 
+void GameTask::mainMenuSendResponse(GameMsg* msg, char* data, uint8_t size)
+{
+	
+	GameMsg* omsg = nullptr;
+	if (msg->returnQueue)
+	{
+		omsg = (GameMsg*)malloc(sizeof(GameMsg));
+		memset(omsg, '\0', sizeof(GameMsg));
+		omsg->mtype = SGAME_RAW_OUTPUT;
+		omsg->length = size;
+		omsg->data = data;
+		omsg->returnQueue = nullptr;
+		xQueueSend(msg->returnQueue, (void*)&omsg, (TickType_t)100);
+	}
+	else
+		free(data);
+	return;
+}
+
+void GameTask::sendBadContextError(GameMsg* msg)
+{
+	char* odata = (char*)malloc(26);
+	memcpy(odata, "Bad Game Context Selection", 26);
+	mainMenuSendResponse(msg, odata, 26);
+	return;
+}
+
+void GameTask::sendGameLockedError(GameMsg* msg)
+{
+	char* odata = (char*)malloc(11);
+	memcpy(odata, "Game Locked", 11);
+	mainMenuSendResponse(msg, odata, 11);
+	return;
+}
+
+static char mainMenu_str[] = "Main Menu:";
+
+void GameTask::mainMenu(GameMsg* msg)
+{
+	GameData* data = (GameData*)msg->data;
+	char* tmp = nullptr;
+	ESP_LOGI(LOGTAG, "Main Menu");
+	if (data->dtype == GAME_INIT)
+	{
+		ESP_LOGI(LOGTAG, "GAME_INIT");
+		// respond with main menu
+		tmp = (char*)malloc(strlen(mainMenu_str));
+		memcpy(tmp, mainMenu_str, strlen(mainMenu_str));
+		mainMenuSendResponse(msg, tmp, strlen(mainMenu_str));
+	}
+	else if (data->dtype == GAME_ACTION)
+	{
+		ESP_LOGI(LOGTAG, "GAME_ACTION");
+		// check msg length (1 byte max)
+		// make a game selection
+		// send game context control setting
+	}
+	else
+	{
+		ESP_LOGI(LOGTAG, "Unknown GameData type");
+		esp_log_buffer_char(LOGTAG, msg->data, msg->length);
+	}
+	return;
+}
+
 void GameTask::commandHandler(GameMsg* msg)
 {
-	GameData* data = nullptr;
-	GameMsg* omsg = nullptr;
-	char* odata = nullptr;
 	switch(msg->mtype)
 	{
 	case SGAME_RAW_INPUT:
-		data = (GameData*)msg->data;
-		/* TODO: Uncomment this when phone app starts sending stuff
-		if ((data->context >= INSTALLED_GAMES) ||
-			(!unlocked_games[data->context]))
+		if ((msg->context >= INSTALLED_GAMES))
+			return sendBadContextError(msg);
+		else if (!isGameUnlocked(msg->context))
+			return sendGameLockedError(msg);
+
+		if (msg->context == 0)
+			return mainMenu(msg);
+		else
 		{
-			esp_log_buffer_char(LOGTAG, msg->data, msg->length);
-			ESP_LOGI(LOGTAG, "Attempted to access invalid or locked game\n");
-			return; // Game is not unlocked
-		}
-		*/
-		/* TODO
-			Get game object
-			Dispatch message to the game with response queue
-		*/
-		esp_log_buffer_char(LOGTAG, msg->data, msg->length);
-
-		// TODO: Sample return message code, remove this
-		if (msg->returnQueue)
-		{
-			omsg = (GameMsg*)malloc(sizeof(GameMsg));
-			memset(omsg, '\0', sizeof(GameMsg));
-
-			odata = (char*)malloc(4);
-			memcpy(odata, "beep", 4);
-
-			omsg->mtype = SGAME_RAW_OUTPUT;
-			omsg->length = 4;
-			omsg->data = odata;
-			omsg->returnQueue = nullptr;
-			xQueueSend(msg->returnQueue, (void*)&omsg, (TickType_t)100);
+			/* TODO
+				Get game object
+				Dispatch message to the game with response queue
+			*/
 		}
 		return;
 	case SGAME_RAW_OUTPUT: // Should not occur
@@ -117,6 +163,7 @@ bool GameTask::init()
 		gameQueueBuffer, &GameQueue);
 
 	memset(&unlocked_games, '\0', sizeof(unlocked_games));
+	unlocked_games[0] = true; // GameMaster Menu is always unlocked
 	// TODO: Check which games have been unlocked
 
 	return true;
