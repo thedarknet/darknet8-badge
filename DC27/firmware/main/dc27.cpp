@@ -12,6 +12,8 @@
 #include <libesp/system.h>
 #include <libesp/i2c.hpp>
 #include <esp_log.h>
+#include <libesp/spibus.h>
+#include <libesp/device/touch/XPT2046.h>
 
 #include "nvs_flash.h"
 
@@ -615,7 +617,7 @@ static void gpio_task_example(void* arg) {
 
 #define ESP_INTR_FLAG_DEFAULT 0
  
-void initTouch() {
+libesp::SPIDevice* initTouch() {
 	gpio_config_t io_conf;
 
 #if 0
@@ -640,36 +642,20 @@ void initTouch() {
 	//hook isr handler for specific gpio pin
 	gpio_isr_handler_add(GPIO_NUM_0, gpio_isr_handler, (void*) GPIO_INPUT_IO_0);
 #else
-	//SET UP TOUCH
-	//interrupt of falling edge
-	io_conf.intr_type = GPIO_INTR_POSEDGE;
-	//bit mask of the pins, use GPIO0
-	#define GPIO_INPUT_IO_32 (1ULL << GPIO_NUM_32)
-	io_conf.pin_bit_mask = GPIO_INPUT_IO_32;
-	//set as input mode
-	io_conf.mode = GPIO_MODE_INPUT;
-	//io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
-	io_conf.pull_up_en = GPIO_PULLUP_DISABLE; //have hw pull up
-	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-	gpio_config(&io_conf);
-	// END TOUCH SETUP
-	gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-	//start gpio task
-	xTaskCreate(gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
-	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-	//hook isr handler for specific gpio pin
-	gpio_isr_handler_add(GPIO_NUM_32, gpio_isr_handler, (void*) GPIO_INPUT_IO_32);
-	//
 	//touch bus config
 	spi_bus_config_t buscfg;
-        buscfg.miso_io_num=PIN_NUM_TOUCH_MISO;
-        buscfg.mosi_io_num=PIN_NUM_TOUCH_MOSI;
-        buscfg.sclk_io_num=PIN_NUM_TOUCH_CLK;
-        buscfg.quadwp_io_num=-1;
-        buscfg.quadhd_io_num=-1;
-        buscfg.max_transfer_sz=32;
-        buscfg.flags = SPICOMMON_BUSFLAG_MASTER;
-        buscfg.intr_flags = 0;
+   buscfg.miso_io_num=PIN_NUM_TOUCH_MISO;
+   buscfg.mosi_io_num=PIN_NUM_TOUCH_MOSI;
+   buscfg.sclk_io_num=PIN_NUM_TOUCH_CLK;
+   buscfg.quadwp_io_num=-1;
+   buscfg.quadhd_io_num=-1;
+   buscfg.max_transfer_sz=24;
+   buscfg.flags = SPICOMMON_BUSFLAG_MASTER;
+   buscfg.intr_flags = 0;
+
+	libesp::SPIBus::initializeBus(VSPI_HOST,buscfg,1);
+	libesp::SPIBus* bus = libesp::SPIBus::get(VSPI_HOST);
+
 	//touch device config
 	spi_device_interface_config_t devcfg;
 	devcfg.clock_speed_hz=1*1000*1000;         //Clock out at 1 MHz
@@ -683,9 +669,12 @@ void initTouch() {
 	devcfg.flags = 0;
 	devcfg.pre_cb = nullptr;
 	devcfg.post_cb = nullptr;
-	//create wiring
-	//ESP32SPIWiring espSPI = ESP32SPIWiring::create(VSPI_HOST,buscfg, devcfg,2);
+
+	libesp::SPIDevice *TouchDev = bus->createMasterDevice(devcfg);
+	return TouchDev;
+
 #endif
+/*
 	//
 	//set up pin for output
 	io_conf.intr_type = GPIO_INTR_DISABLE;
@@ -695,6 +684,7 @@ void initTouch() {
 	io_conf.pull_down_en =GPIO_PULLDOWN_DISABLE;
 	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
 	gpio_config(&io_conf);
+*/
 }
 
 
@@ -709,8 +699,13 @@ void app_main() {
 	}
 	ESP_ERROR_CHECK( ret );
 
+	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+
 	ESP32_I2CMaster::doIt();
-	initTouch();
+	libesp::SPIDevice *touchDev = initTouch();
+	libesp::XPT2046 TouchTask(touchDev,10,50,GPIO_NUM_32);
+	TouchTask.init();
+	TouchTask.start();
 	/////
 	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
 	I2c.init(false);
