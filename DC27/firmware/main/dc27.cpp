@@ -44,6 +44,7 @@
 #define PIN_NUM_TOUCH_MOSI 33
 #define PIN_NUM_TOUCH_CLK  26
 #define PIN_NUM_TOUCH_CS   27
+#define PIN_NUM_TOUCH_IRQ GPIO_NUM_32
 
 #define LED_PIN_MOSI 16
 #define LED_PIN_CLK  2
@@ -618,9 +619,9 @@ static void gpio_task_example(void* arg) {
 #define ESP_INTR_FLAG_DEFAULT 0
  
 libesp::SPIDevice* initTouch() {
-	gpio_config_t io_conf;
 
 #if 0
+	gpio_config_t io_conf;
 	//SET UP BUTTON
 	//interrupt of falling edge
 	io_conf.intr_type = GPIO_INTR_NEGEDGE;
@@ -641,6 +642,14 @@ libesp::SPIDevice* initTouch() {
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 	//hook isr handler for specific gpio pin
 	gpio_isr_handler_add(GPIO_NUM_0, gpio_isr_handler, (void*) GPIO_INPUT_IO_0);
+	//set up pin for output
+	io_conf.intr_type = GPIO_INTR_DISABLE;
+	io_conf.mode = GPIO_MODE_OUTPUT;
+	#define GPIO_OUTPUT_LED_MASK (1ULL << GPIO_NUM_15)
+	io_conf.pin_bit_mask = GPIO_OUTPUT_LED_MASK;
+	io_conf.pull_down_en =GPIO_PULLDOWN_DISABLE;
+	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+	gpio_config(&io_conf);
 #else
 	//touch bus config
 	spi_bus_config_t buscfg;
@@ -674,17 +683,6 @@ libesp::SPIDevice* initTouch() {
 	return TouchDev;
 
 #endif
-/*
-	//
-	//set up pin for output
-	io_conf.intr_type = GPIO_INTR_DISABLE;
-	io_conf.mode = GPIO_MODE_OUTPUT;
-	#define GPIO_OUTPUT_LED_MASK (1ULL << GPIO_NUM_15)
-	io_conf.pin_bit_mask = GPIO_OUTPUT_LED_MASK;
-	io_conf.pull_down_en =GPIO_PULLDOWN_DISABLE;
-	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-	gpio_config(&io_conf);
-*/
 }
 
 
@@ -703,7 +701,7 @@ void app_main() {
 
 	ESP32_I2CMaster::doIt();
 	libesp::SPIDevice *touchDev = initTouch();
-	libesp::XPT2046 TouchTask(touchDev,10,50,GPIO_NUM_32);
+	libesp::XPT2046 TouchTask(touchDev,10,50,PIN_NUM_TOUCH_IRQ);
 	TouchTask.init();
 	TouchTask.start();
 	/////
