@@ -11,7 +11,13 @@
 
 const char* GAMEMASTER_LOGTAG = "GameMaster";
 
-#define INSTALLED_GAMES (1)
+typedef struct
+{
+	GameDataType dtype;
+	char data;
+} GameMasterData;
+
+#define INSTALLED_GAMES (2)
 bool unlocked_games[INSTALLED_GAMES];
 // TODO: Game Objects
 
@@ -49,13 +55,12 @@ bool GameTask::setGameUnlocked(uint8_t gameid)
 
 void GameTask::mainMenuSendResponse(GameMsg* msg, char* data, uint8_t size)
 {
-	
+	// split into chunks?
 	GameMsg* omsg = nullptr;
 	if (msg->returnQueue)
 	{
 		omsg = (GameMsg*)malloc(sizeof(GameMsg));
 		memset(omsg, '\0', sizeof(GameMsg));
-		omsg->mtype = SGAME_RAW_OUTPUT;
 		omsg->length = size;
 		omsg->data = data;
 		omsg->returnQueue = nullptr;
@@ -68,28 +73,31 @@ void GameTask::mainMenuSendResponse(GameMsg* msg, char* data, uint8_t size)
 
 void GameTask::sendBadContextError(GameMsg* msg)
 {
-	char* odata = (char*)malloc(26);
-	memcpy(odata, "Bad Game Context Selection", 26);
-	mainMenuSendResponse(msg, odata, 26);
+	char* odata = (char*)malloc(28);
+	memcpy(odata, "Bad Game Context Selection\n\0", 28);
+	mainMenuSendResponse(msg, odata, 28);
 	return;
 }
 
 void GameTask::sendGameLockedError(GameMsg* msg)
 {
-	char* odata = (char*)malloc(11);
-	memcpy(odata, "Game Locked", 11);
-	mainMenuSendResponse(msg, odata, 11);
+	char* odata = (char*)malloc(13);
+	memcpy(odata, "Game Locked\n\0", 13);
+	mainMenuSendResponse(msg, odata, 13);
 	return;
 }
 
-static char mainMenu_str[] = "Main Menu:";
-
+static char mainMenu_str[] = "I am the game master, speak and I shall echo...\n";
+static char flag[] = "Very Good! {Flag: ZOOP}";
 void GameTask::mainMenu(GameMsg* msg)
 {
-	GameData* data = (GameData*)msg->data;
+	GameMasterData* gdata = (GameMasterData*)msg->data;
 	char* tmp = nullptr;
-	ESP_LOGI(LOGTAG, "Main Menu");
-	if (data->dtype == GAME_INIT)
+	char* ftmp = nullptr;
+	int orig_length = 0;
+	int tmp_length = 0;
+	ESP_LOGI(LOGTAG, "Game Master");
+	if (gdata->dtype == GAME_INIT)
 	{
 		ESP_LOGI(LOGTAG, "GAME_INIT");
 		// respond with main menu
@@ -97,12 +105,31 @@ void GameTask::mainMenu(GameMsg* msg)
 		memcpy(tmp, mainMenu_str, strlen(mainMenu_str));
 		mainMenuSendResponse(msg, tmp, strlen(mainMenu_str));
 	}
-	else if (data->dtype == GAME_ACTION)
+	else if (gdata->dtype == GAME_ACTION)
 	{
-		ESP_LOGI(LOGTAG, "GAME_ACTION");
-		// check msg length (1 byte max)
-		// make a game selection
-		// send game context control setting
+		orig_length = msg->length - 4; // subtrace dtype
+		if (orig_length) // must have at least 1 byte to echo
+		{
+			ESP_LOGI(LOGTAG, "GAME_ACTION: echo %s, length %d", &gdata->data, orig_length);
+			// Prevent corruption by extending the buffer to the length of the flag
+			// Technically corruption can still happen with %n... but hey that's up
+			// to them to figure it out.  They could unlock all the games this way
+			// if they wanted.  But I'm guessing it would take them way too long
+			// to actually figure it out, because string format vulns are a huge pain
+			// in the ass.
+			tmp_length = (strlen(flag) > orig_length) ? strlen(flag) : orig_length;
+			tmp = (char*)malloc(tmp_length); // add \n and null
+			snprintf(tmp, tmp_length, &gdata->data, flag);
+			// We've copied some amount of data, but only echo back the size of the
+			// original message.  Not as easy as passing in just %s!
+			ftmp = (char*)malloc(orig_length + 2);
+			memcpy(ftmp, tmp, orig_length);
+			ftmp[orig_length] = '\n';
+			ftmp[orig_length + 1] = 0x0;
+			free(tmp);
+
+			mainMenuSendResponse(msg, ftmp, orig_length + 2);
+		}
 	}
 	else
 	{
@@ -114,29 +141,22 @@ void GameTask::mainMenu(GameMsg* msg)
 
 void GameTask::commandHandler(GameMsg* msg)
 {
-	switch(msg->mtype)
-	{
-	case SGAME_RAW_INPUT:
-		if ((msg->context >= INSTALLED_GAMES))
-			return sendBadContextError(msg);
-		else if (!isGameUnlocked(msg->context))
-			return sendGameLockedError(msg);
+	ESP_LOGI(LOGTAG, "Message for Game: %x\n", msg->context);
+	if ((msg->context >= INSTALLED_GAMES))
+		return sendBadContextError(msg);
+	else if (!isGameUnlocked(msg->context))
+		return sendGameLockedError(msg);
 
-		if (msg->context == 0)
-			return mainMenu(msg);
-		else
-		{
-			/* TODO
-				Get game object
-				Dispatch message to the game with response queue
-			*/
-		}
-		return;
-	case SGAME_RAW_OUTPUT: // Should not occur
-	case SGAME_UNKNOWN:
-	default:
-		return;
+	if (msg->context == 0)
+		return mainMenu(msg);
+	else
+	{
+		/* TODO
+			Get game object
+			Dispatch message to the game with response queue
+		*/
 	}
+	return;
 }
 
 #define CmdQueueTimeout ((TickType_t) 1000 / portTICK_PERIOD_MS)

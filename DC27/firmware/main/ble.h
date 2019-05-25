@@ -44,7 +44,8 @@ typedef struct
 {
 	unsigned char size;
 	bool more;
-	char data[18];
+	unsigned char context;
+	char data[17];
 } DN8_BLE_MSG;
 
 

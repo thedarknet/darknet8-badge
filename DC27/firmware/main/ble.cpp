@@ -257,7 +257,6 @@ static void print_write_buffer(void)
 }
 
 static GameMsg* buffered_msg = nullptr;
-static uint8_t gameContext = 0x0; // Defaults to gameMaster menu
 static void send_raw_game_command(char* buffer, uint16_t length)
 {
 	DN8_BLE_MSG* raw_msg = (DN8_BLE_MSG*)buffer;
@@ -270,15 +269,16 @@ static void send_raw_game_command(char* buffer, uint16_t length)
 		return;
 	}
 
+	// TODO: Handle communicating with multiple contexts at the same time
+
 	if (!buffered_msg) // Create a new message
 	{
 		buffered_msg = (GameMsg*)malloc(sizeof(GameMsg));
 		memset(buffered_msg, '\0', sizeof(GameMsg));
 
-		buffered_msg->context = gameContext;
-		buffered_msg->mtype = SGAME_RAW_INPUT;
 		buffered_msg->length = raw_msg->size;
-
+		buffered_msg->context = raw_msg->context;
+		ESP_LOGI(LOGTAG, "Buffering Message Context: %x", raw_msg->context);
 		data = (char*)malloc(raw_msg->size);
 		memset(data, '\0', raw_msg->size);
 		buffered_msg->data = data;
@@ -318,22 +318,21 @@ void BluetoothTask::setGameTaskQueue(QueueHandle_t queue)
 void BluetoothTask::gameCommandHandler(GameMsg* msg)
 {
 	// TODO: Switch
-	GameData* gdata = nullptr;
-	switch(msg->mtype)
+	uint32_t curpos = 0;
+	// msg->length
+	esp_log_buffer_char(LOGTAG, msg->data, msg->length);
+	// TODO: indicate code with MTU handling
+	while (msg->length > 20)
 	{
-	case SGAME_RAW_OUTPUT:
-		// msg->length
-		gdata = (GameData*)msg->data;
-		esp_log_buffer_char(LOGTAG, gdata, msg->length);
-		// TODO: indicate code with MTU handling
 		esp_ble_gatts_send_indicate(serial_gatts_if, serial_conn_id,
 			dn8_handle_tbl[DN8_IDX_SERIAL_DATA_NOTIFY_VAL],
-			msg->length, (uint8_t*)gdata, false);
-		return;
-	case SGAME_RAW_INPUT: // should not happen
-	default:
-		return;
+			20, (uint8_t*)&msg->data[curpos], false);
+			msg->length -= 20;
+			curpos += 20;
 	}
+	esp_ble_gatts_send_indicate(serial_gatts_if, serial_conn_id,
+		dn8_handle_tbl[DN8_IDX_SERIAL_DATA_NOTIFY_VAL],
+		msg->length, (uint8_t*)&msg->data[curpos], false);
 	return;
 }
 
@@ -464,7 +463,6 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 			break;
 		case ESP_GATTS_CONNECT_EVT:
 			ESP_LOGI(LOGTAG, "ESP_GATTS_CONNECT_EVT");
-			gameContext = 0x0; // set it up to go back to home screen
 			// Get the connection details for the serial stuff
 			serial_conn_id      = param->connect.conn_id;
 			serial_gatts_if     = gatts_if;

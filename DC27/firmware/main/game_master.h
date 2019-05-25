@@ -14,17 +14,6 @@ QueueHandle_t GetGameMsgQueue(void);
 
 typedef enum
 {
-	// Inbound
-	SGAME_RAW_INPUT,
-
-	// Outbound
-	SGAME_RAW_OUTPUT,
-
-	SGAME_UNKNOWN
-} GameMsgType;
-
-typedef enum
-{
 	GAME_INIT = 0x00,
 	GAME_ACTION = 0x01,
 
@@ -33,16 +22,8 @@ typedef enum
 
 typedef struct
 {
-	GameDataType dtype;
-	uint16_t length;
-	char* data;
-} GameData;
-
-typedef struct
-{
 	uint8_t context;
-	GameMsgType mtype;
-	uint16_t length;
+	uint8_t length;
 	char* data;
 	QueueHandle_t returnQueue;
 } GameMsg;
