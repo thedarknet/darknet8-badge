@@ -9,6 +9,9 @@
 
 #include "./game_master.h"
 
+// XXX: Include your game here, initialize it in GameTask.init
+#include "exploitable.h"
+
 const char* GAMEMASTER_LOGTAG = "GameMaster";
 
 typedef struct
@@ -17,25 +20,11 @@ typedef struct
 	char data;
 } GameMasterData;
 
+
 #define INSTALLED_GAMES (2)
 bool unlocked_games[INSTALLED_GAMES];
-// TODO: Game Objects
-
-/*
-	TODO: 
-
-	Boolean array that dictates what is unlocked
-
-	Command Queue available globally
-
-	Menu item for pairing with each staff member
-
-	General: GameMaster Interface
-	CmdC0de: MUD Game
-	Gourry:  Hackables
-
-	Demo:    Echo w/ format string vulnerability (send in %s to echo a flag)
-*/
+// Game Interfaces are in the form of queues
+QueueHandle_t game_queues[INSTALLED_GAMES];
 
 bool GameTask::isGameUnlocked(uint8_t gameid)
 {
@@ -88,7 +77,8 @@ void GameTask::sendGameLockedError(GameMsg* msg)
 }
 
 static char mainMenu_str[] = "I am the game master, speak and I shall echo...\n";
-static char flag[] = "Very Good! {Flag: ZOOP}";
+static char flag[] = "Very Good! Now Echo This: ZOOP";
+static char exploit_unlocked[] = "Exploitable Game Unlocked\n";
 void GameTask::mainMenu(GameMsg* msg)
 {
 	GameMasterData* gdata = (GameMasterData*)msg->data;
@@ -108,7 +98,18 @@ void GameTask::mainMenu(GameMsg* msg)
 	else if (gdata->dtype == GAME_ACTION)
 	{
 		orig_length = msg->length - 4; // subtrace dtype
-		if (orig_length) // must have at least 1 byte to echo
+		if (!orig_length) // must have at least 1 byte to echo
+			return;
+		if (!strncmp("ZOOP", &gdata->data, 4))
+		{
+			ESP_LOGI(LOGTAG, "GAME_ACTION: ZOOP - unlocking exploitable quest");
+			tmp = (char*)malloc(strlen(exploit_unlocked));
+			memcpy(tmp, exploit_unlocked, strlen(exploit_unlocked));
+			// TODO: Actualy unlock it
+			setGameUnlocked(EXPLOITABLE_ID);
+			mainMenuSendResponse(msg, tmp, strlen(exploit_unlocked));
+		} 
+		else
 		{
 			ESP_LOGI(LOGTAG, "GAME_ACTION: echo %s, length %d", &gdata->data, orig_length);
 			// Prevent corruption by extending the buffer to the length of the flag
@@ -143,19 +144,31 @@ void GameTask::commandHandler(GameMsg* msg)
 {
 	ESP_LOGI(LOGTAG, "Message for Game: %x\n", msg->context);
 	if ((msg->context >= INSTALLED_GAMES))
-		return sendBadContextError(msg);
+	{
+		sendBadContextError(msg);
+		goto cleanup;
+	}
 	else if (!isGameUnlocked(msg->context))
-		return sendGameLockedError(msg);
+	{
+		sendGameLockedError(msg);
+		goto cleanup;
+	}
 
 	if (msg->context == 0)
-		return mainMenu(msg);
+		mainMenu(msg);
 	else
 	{
-		/* TODO
-			Get game object
-			Dispatch message to the game with response queue
-		*/
+		QueueHandle_t game_queue = game_queues[msg->context];
+		if (game_queue)
+		{
+			xQueueSend(game_queue, &msg, (TickType_t)100);
+			return; // don't cleanup, the message needs to be retained
+		}
+		// if the game_queue is invalid, ditch this message
 	}
+cleanup:
+	free(msg->data);
+	free(msg);
 	return;
 }
 
@@ -168,14 +181,12 @@ void GameTask::run(void* data)
 		if (xQueueReceive(GameQueueHandle, &msg, CmdQueueTimeout))
 		{
 			if (msg != nullptr)
-			{
 				this->commandHandler(msg);
-				free(msg->data);
-				free(msg);
-			}
 		}
 	}
 }
+
+ExploitableGameTask ExploitTask("ExploitTask");
 
 bool GameTask::init()
 {
@@ -184,7 +195,17 @@ bool GameTask::init()
 
 	memset(&unlocked_games, '\0', sizeof(unlocked_games));
 	unlocked_games[0] = true; // GameMaster Menu is always unlocked
-	// TODO: Check which games have been unlocked
+
+	// Game Master
+	game_queues[GAMEMASTER_ID] = nullptr; // unused
+
+	// Initialize and start the installed games
+	// Exploitable
+	ExploitTask.init();
+	ExploitTask.start();
+	game_queues[EXPLOITABLE_ID] = ExploitTask.getQueueHandle();
+
+	// TODO: Check which games have been unlocked, stored in hardware
 
 	return true;
 }

@@ -12,6 +12,15 @@
 
 QueueHandle_t GetGameMsgQueue(void);
 
+
+typedef enum
+{
+	GAMEMASTER_ID  = 0x00,
+	EXPLOITABLE_ID = 0x01,
+
+	INVALID_ID     = 0xFF,
+} GameId;
+
 typedef enum
 {
 	GAME_INIT = 0x00,
