@@ -19,6 +19,7 @@
 
 #include "./ble.h"
 #include "./game_master.h"
+#include "./ota.h"
 
 /*
  This code displays some fancy graphics on the 320x240 LCD on an ESP-WROVER_KIT board.
@@ -396,7 +397,7 @@ static void display_pretty_colors(spi_device_handle_t spi)
 
 BluetoothTask BTTask("BluetoothTask");
 GameTask GameTask("GameTask");
-
+//OTATask OTATask("OTATask");
 
 #define LED_PIN GPIO_NUM_15
 static xQueueHandle gpio_evt_queue = NULL;
@@ -521,6 +522,12 @@ void app_main() {
 	GameTask.init();
 	GameTask.start();
 	BTTask.setGameTaskQueue(GameTask.getQueueHandle());
+
+	//OTATask.init();
+	//OTATask.start();
+	//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
+	//*cmd = ATTEMPT_OTA;
+	//xQueueSend(OTATask.getQueueHandle(), &cmd, (TickType_t)100);
 
 	libesp::System::get().logSystemInfo();	
 }
