@@ -26,8 +26,6 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
 
 static EventGroupHandle_t wifi_event_group;
 
-wifi_config_t wifi_config;
-esp_http_client_config_t http_config;
 
 /* Event group allows multiple bits for each event, but we only care
    about one event - are we connected to the API with an IP? */
@@ -67,6 +65,7 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 static void do_ota(void)
 {
 	esp_err_t ret;
+	esp_http_client_config_t http_config;
 
 	ESP_LOGI(OTA_LOGTAG, "Starting OTA process...");
 
@@ -110,6 +109,7 @@ static esp_err_t event_handler(void *ctxt, system_event_t *event)
 
 static void initialize_wifi(void)
 {
+	wifi_config_t wifi_config;
 	// TODO: What if already initialized?
 	tcpip_adapter_init();
 	wifi_event_group = xEventGroupCreate();

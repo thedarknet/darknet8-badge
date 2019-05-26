@@ -19,7 +19,7 @@ class OTATask : public Task {
 private:
 	QueueHandle_t gameTaskQueue = nullptr;
 
-	static const int OTA_QUEUE_SIZE = 2;
+	static const int OTA_QUEUE_SIZE = 3;
 	static const int OTA_MSG_SIZE = sizeof(OTACmd);
 	StaticQueue_t OTAQueue;
 	QueueHandle_t OTAQueueHandle = nullptr;

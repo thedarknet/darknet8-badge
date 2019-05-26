@@ -397,7 +397,7 @@ static void display_pretty_colors(spi_device_handle_t spi)
 
 BluetoothTask BTTask("BluetoothTask");
 GameTask GameTask("GameTask");
-//OTATask OTATask("OTATask");
+OTATask OTATask("OTATask");
 
 #define LED_PIN GPIO_NUM_15
 static xQueueHandle gpio_evt_queue = NULL;
@@ -515,14 +515,17 @@ void app_main() {
 	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
 	I2c.init(false);
 	I2c.scan();
-	////
-	BTTask.init();
-	BTTask.start();
 
-	GameTask.init();
-	GameTask.start();
-	BTTask.setGameTaskQueue(GameTask.getQueueHandle());
+	// Yo, libbt.a is 304kb
+	//BTTask.init();
+	//BTTask.start();
 
+	// Yo, tasks are huge :< probably need to figure out how to trim size
+	//GameTask.init();
+	//GameTask.start();
+	//BTTask.setGameTaskQueue(GameTask.getQueueHandle());
+
+	// Yo this works - configure OTA_WIFI_SSID and OTA_WIFI_PASSWORD in ota.cpp
 	//OTATask.init();
 	//OTATask.start();
 	//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
