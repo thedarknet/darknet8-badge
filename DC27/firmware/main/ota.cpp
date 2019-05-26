@@ -18,6 +18,9 @@ char OTA_WIFI_SSID[] = "FIXME\0";
 char OTA_WIFI_PASSWORD[] = "FIXME\0";
 char OTA_FIRMWARE_UPGRADE_URL[] = "https://192.168.1.170:8070/hello-world.bin\0";
 
+wifi_config_t wifi_config;
+esp_http_client_config_t http_config;
+
 const char *OTATask::LOGTAG = "OTATask";
 const char *OTA_LOGTAG = "OTATask";
 
@@ -65,7 +68,6 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 static void do_ota(void)
 {
 	esp_err_t ret;
-	esp_http_client_config_t http_config;
 
 	ESP_LOGI(OTA_LOGTAG, "Starting OTA process...");
 
@@ -109,7 +111,6 @@ static esp_err_t event_handler(void *ctxt, system_event_t *event)
 
 static void initialize_wifi(void)
 {
-	wifi_config_t wifi_config;
 	// TODO: What if already initialized?
 	tcpip_adapter_init();
 	wifi_event_group = xEventGroupCreate();
