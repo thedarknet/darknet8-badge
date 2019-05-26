@@ -14,8 +14,8 @@
 
 #include "ota.h"
 
-char OTA_WIFI_SSID[] = "replaceme\0";
-char OTA_WIFI_PASSWORD[] = "replaceme\0";
+char OTA_WIFI_SSID[] = "FIXME\0";
+char OTA_WIFI_PASSWORD[] = "FIXME\0";
 char OTA_FIRMWARE_UPGRADE_URL[] = "https://192.168.1.170:8070/hello-world.bin\0";
 
 const char *OTATask::LOGTAG = "OTATask";
@@ -160,10 +160,9 @@ cleanup:
 
 bool OTATask::init()
 {
-	return false;
-
 	this->OTAQueueHandle = xQueueCreateStatic(OTA_QUEUE_SIZE, OTA_MSG_SIZE,
 		otaQueueBuffer, &OTAQueue);
+	return true;
 }
 
 OTATask::OTATask(const std::string &tName, uint16_t stackSize, uint8_t priority)
