@@ -511,16 +511,16 @@ void app_main() {
 	TouchTask.init();
 	TouchTask.start();
 	/////
-	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
-	I2c.init(false);
-	I2c.scan();
+//	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
+//	I2c.init(false);
+//	I2c.scan();
 	////
-	BTTask.init();
-	BTTask.start();
+//	BTTask.init();
+//	BTTask.start();
 
-	GameTask.init();
-	GameTask.start();
-	BTTask.setGameTaskQueue(GameTask.getQueueHandle());
+//	GameTask.init();
+//	GameTask.start();
+//	BTTask.setGameTaskQueue(GameTask.getQueueHandle());
 
 	libesp::System::get().logSystemInfo();	
 }

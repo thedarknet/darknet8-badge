@@ -1,6 +1,7 @@
 set number tabstop=3 softtabstop=3 noexpandtab
 set nocompatible              " be iMproved, required
 set encoding=utf-8
+set hidden
 
 filetype off                  " required
 
@@ -32,3 +33,5 @@ filetype plugin indent on    " required
 " Put your non-Plugin stuff after this line
 autocmd vimenter * NERDTree
 map <C-n> :NERDTreeToggle<CR>
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
