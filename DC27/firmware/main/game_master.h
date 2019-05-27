@@ -8,20 +8,18 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "freertos/queue.h"
-#include "libesp/Task.h"
+#include "libesp/task.h"
 
 QueueHandle_t GetGameMsgQueue(void);
 
+
 typedef enum
 {
-	// Inbound
-	SGAME_RAW_INPUT,
+	GAMEMASTER_ID  = 0x00,
+	EXPLOITABLE_ID = 0x01,
 
-	// Outbound
-	SGAME_RAW_OUTPUT,
-
-	SGAME_UNKNOWN
-} GameMsgType;
+	INVALID_ID     = 0xFF,
+} GameId;
 
 typedef enum
 {
@@ -33,16 +31,8 @@ typedef enum
 
 typedef struct
 {
-	GameDataType dtype;
-	uint16_t length;
-	char* data;
-} GameData;
-
-typedef struct
-{
 	uint8_t context;
-	GameMsgType mtype;
-	uint16_t length;
+	uint8_t length;
 	char* data;
 	QueueHandle_t returnQueue;
 } GameMsg;

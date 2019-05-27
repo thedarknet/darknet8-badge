@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 # Install build dependencies (and vim + picocom for editing/debugging)
 RUN apt -qq update \
-    && apt install -y gcc git wget make libncurses-dev flex bison gperf python python-serial \
+    && apt install -y gcc git wget make libncurses-dev flex bison gperf python python-serial curl \
                           cmake ninja-build ccache vim picocom python-pip python-setuptools \
        			python-cryptography python-future python-pyparsing libusb-1.0 telnet ccache \
     && apt clean \
@@ -38,7 +38,9 @@ RUN mkdir -p /ccache
 #	&& ln -s /esp/esp-idf-3.1.2 /esp/esp-idf \
 #	&& chmod -R 775 /esp/esp-idf
 
+RUN useradd -m -u 10000 -G plugdev,dialout,root -s /bin/bash dndev
 
+#RUN su - dndev -c "cd /esp && git clone --branch v3.2 --depth 1 --recursive https://github.com/espressif/esp-idf.git && chmod -R 775 esp-idf"
 RUN cd /esp && git clone --branch v3.2 --depth 1 --recursive https://github.com/espressif/esp-idf.git && chmod -R 775 esp-idf
 ENV IDF_PATH /esp/esp-idf
 RUN python -m pip install -r $IDF_PATH/requirements.txt
@@ -46,11 +48,13 @@ RUN python -m pip install -r $IDF_PATH/requirements.txt
 # Add the toolchain binaries to PATH
 ENV PATH $ESP_TCHAIN_BASEDIR/xtensa-esp32-elf/bin:$ESP_TCHAIN_BASEDIR/openocd-esp32/bin:$IDF_PATH/tools:$PATH
 
-RUN useradd -m -u 10000 -G plugdev,dialout,root -s /bin/bash dndev
 RUN echo "#########\n# START Added by docker buid\n######" >> /home/dndev/.bashrc
 RUN echo "export PATH=$ESP_TCHAIN_BASEDIR/xtensa-esp32-elf/bin:$ESP_TCHAIN_BASEDIR/openocd-esp32/bin:$IDF_PATH/tools:$PATH" >> /home/dndev/.bashrc
 RUN echo "#########\n# END Added by docker buid\n######" >> /home/dndev/.bashrc
-COPY ./vimrc /home/dndev/.vimrc
+COPY --chown=dndev:dndev ./vimrc /home/dndev/.vimrc
+# install vundle
+RUN su - dndev -c "git clone https://github.com/VundleVim/Vundle.vim.git /home/dndev/.vim/bundle/Vundle.vim"
+RUN su - dndev -c "vim +PluginInstall +qall"
 
 COPY ./entry.sh /bin/entry.sh 
 RUN chmod +x /bin/entry.sh

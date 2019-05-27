@@ -12,11 +12,14 @@
 #include <libesp/system.h>
 #include <libesp/i2c.hpp>
 #include <esp_log.h>
+#include <libesp/spibus.h>
+#include <libesp/device/touch/XPT2046.h>
 
 #include "nvs_flash.h"
 
 #include "./ble.h"
 #include "./game_master.h"
+#include "./ota.h"
 
 /*
  This code displays some fancy graphics on the 320x240 LCD on an ESP-WROVER_KIT board.
@@ -42,6 +45,7 @@
 #define PIN_NUM_TOUCH_MOSI 33
 #define PIN_NUM_TOUCH_CLK  26
 #define PIN_NUM_TOUCH_CS   27
+#define PIN_NUM_TOUCH_IRQ GPIO_NUM_32
 
 #define LED_PIN_MOSI 16
 #define LED_PIN_CLK  2
@@ -391,203 +395,9 @@ static void display_pretty_colors(spi_device_handle_t spi)
 }
 
 
-//////////////////////////////////////////////
-// LEDS
-
-class ErrorType {
-public:
-	ErrorType(esp_err_t et) : ErrType(et) {}
-	bool ok() {return ErrType==ESP_OK;}
-	const char *toString() {return esp_err_to_name(ErrType);}
-private:
-	esp_err_t ErrType;
-};
-
-class Wiring {
-public:
-	Wiring(){}
-	bool init() {
-		return onInit();
-	}
-	ErrorType shutdown() {
-		return onShutdown();
-	}
-	virtual ErrorType sendAndReceive(uint8_t out, uint8_t &in)=0;
-	virtual ErrorType send(uint8_t *p, uint16_t len) =0;
-	virtual ErrorType onShutdown()=0;
-	virtual ~Wiring() {}
-protected:
-	virtual bool onInit()=0;
-};
-
-class ESP32SPIWiring : public Wiring {
-public:
-	static ESP32SPIWiring create(spi_host_device_t shd, int miso, int mosi, int clk, int cs, int tb, int dma) {
-		ESP32SPIWiring esp32(shd,miso,mosi,clk,cs, tb,dma);
-		return esp32;
-	}
-public:
-	virtual ErrorType sendAndReceive(uint8_t out, uint8_t &in) {
-    	spi_transaction_t t;
-    	memset(&t, 0, sizeof(t));   //Zero out the transaction
-    	t.length=8;                 //Len is in bytes, transaction length is in bits.
-		t.tx_data[0]=out;             //Data
-		t.flags = SPI_TRANS_USE_RXDATA | SPI_TRANS_USE_TXDATA;
-		t.user=(void*)1;              
-    		esp_err_t r = spi_device_transmit(spi, &t);  //Transmit!
-		in = t.rx_data[0];
-		return r;
-	}
-	virtual ErrorType send(uint8_t *p, uint16_t len) {
-    		if (len==0) return ESP_OK;       //no need to send anything
-    		spi_transaction_t t;
-    		memset(&t, 0, sizeof(t));   //Zero out the transaction
-    		t.length=len*8;                 //Len is in bytes, transaction length is in bits.
-		t.tx_buffer=p;             //Data
-		t.user=(void*)2;              
-    		esp_err_t r = spi_device_transmit(spi, &t);  //Transmit!
-		return r;
-	}
-	virtual ~ESP32SPIWiring() {
-		shutdown();
-	}
-public:
-	ErrorType onShutdown() {
-		return spi_bus_free(SpiHD);
-	}
-protected:
-	ESP32SPIWiring(spi_host_device_t spihd, int miso, int mosi, int clk, int cs, int bufSize, int dmachannel) 
-		: SpiHD(spihd), PinMiso(miso), PinMosi(mosi), PinCLK(clk), PinCS(cs), TransferBufferSize(bufSize), 
-		DMAChannel(dmachannel) { }
-	virtual bool onInit() {
-		esp_err_t ret;
-
-		spi_bus_config_t buscfg;
-		buscfg.miso_io_num=PinMiso;
-		buscfg.mosi_io_num=PinMosi;
-		buscfg.sclk_io_num=PinCLK;
-		buscfg.quadwp_io_num=-1;
-		buscfg.quadhd_io_num=-1;
-		buscfg.max_transfer_sz=TransferBufferSize;
-		buscfg.flags = SPICOMMON_BUSFLAG_MASTER;
-		buscfg.intr_flags = 0;
-
-		//Initialize the SPI bus
-		ret=spi_bus_initialize(SpiHD, &buscfg, DMAChannel);
-		ESP_ERROR_CHECK(ret);
-
-		spi_device_interface_config_t devcfg;
-		devcfg.clock_speed_hz=1*1000*1000;         //Clock out at 1 MHz
-		devcfg.mode=0;                             //SPI mode 0
-		devcfg.spics_io_num=PinCS;               	//CS pin
-		devcfg.queue_size=3;                       //We want to be able to queue 3 transactions at a time
-		devcfg.duty_cycle_pos = 0;
-		devcfg.cs_ena_pretrans = 0;
-		devcfg.cs_ena_posttrans = 0; 
-		devcfg.input_delay_ns = 0;
-		devcfg.flags = 0;
-		devcfg.pre_cb = nullptr;
-		devcfg.post_cb = nullptr;
-
-		//Attach the LED to the SPI bus
-		ret=spi_bus_add_device(SpiHD, &devcfg, &spi);
-		ESP_ERROR_CHECK(ret);
-	 	return ESP_OK==ret;
-	}
-private:
-	spi_host_device_t SpiHD;
-	int PinMiso;
-	int PinMosi;
-	int PinCLK;
-	int PinCS;
-	int TransferBufferSize;
-	int DMAChannel;
-	spi_device_handle_t spi;
-};
-
-/*
-	Brightness is a percentage
-*/
-class RGB {
-public:
-	static const RGB WHITE;
-	static const RGB BLUE;
-	static const RGB GREEN;
-	static const RGB RED;
-public:
-	RGB() : B(0), G(0), R(0), Brightness(100) {}
-	RGB(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) : B(b), G(g), R(r), Brightness(brightness) {}
-	RGB(const RGB &r) : B(r.B), G(r.G), R(r.R), Brightness(r.Brightness) {}
-	uint8_t getBlue()  {return B;}
-	uint8_t getRed()   {return R;}
-	uint8_t getGreen() {return G;}
-	uint8_t getBrightness() {return Brightness;}
-	void setBlue(uint8_t v) 	{B=v;}
-	void setRed(uint8_t v)  	{R=v;}
-	void setGreen(uint8_t v) 	{G=v;}
-	void setBrightness(uint8_t v)	{Brightness=((v>100)?100:v);}
-private:
-	uint8_t B;
-	uint8_t G;
-	uint8_t R;
-	uint8_t Brightness;
-} __attribute__((packed));;
-
-const RGB RGB::WHITE(255,255,255,100);
-const RGB RGB::BLUE(0,0,255,100);
-const RGB RGB::GREEN(0,255,0,100);
-const RGB RGB::RED(255,0,0,100);
-
-class APA102c {
-public:
-	//0xE0 because high 3 bits are always on
-	static const uint8_t BRIGHTNESS_START_BITS = 0xE0;
-	static const uint8_t MAX_BRIGHTNESS			 = 31;
-	static const char *LOG;
-public:
-	APA102c(Wiring *spiI) : SPIInterface(spiI), BufferSize(0), LedBuffer1(0) {}
-	
-	void init(uint16_t nleds, RGB *ledBuf) {
-		delete [] LedBuffer1;
-		BufferSize = (nleds*4)+8;
-		LedBuffer1 = new char [BufferSize];
-		int bufOff = 0;
-		LedBuffer1[bufOff]   = 0x0;
-		LedBuffer1[++bufOff] = 0x0;
-		LedBuffer1[++bufOff] = 0x0;
-		LedBuffer1[++bufOff] = 0x0;
-		for(int l=0;l<nleds;++l) {
-			uint8_t bright = ledBuf[l].getBrightness();
-			bright = (uint8_t)(((float)bright/100.0f)*MAX_BRIGHTNESS);
-			LedBuffer1[++bufOff] = BRIGHTNESS_START_BITS|bright;
-			LedBuffer1[++bufOff] = ledBuf[l].getBlue();
-			LedBuffer1[++bufOff] = ledBuf[l].getGreen();
-			LedBuffer1[++bufOff] = ledBuf[l].getRed();
-		}
-		LedBuffer1[++bufOff] = 0xFF;
-		LedBuffer1[++bufOff] = 0xFF;
-		LedBuffer1[++bufOff] = 0xFF;
-		LedBuffer1[++bufOff] = 0xFF;
-	}
-	void send() {
-		if(BufferSize>0) {
-			ESP_LOGI(APA102c::LOG,"sending %d leds r[0]:%d, g[0]:%d, b[0]:%d, B[0]:%d\n", (BufferSize/4)-8,
-				LedBuffer1[3], LedBuffer1[2], LedBuffer1[1], LedBuffer1[0]);
-			ESP_LOG_BUFFER_HEX(APA102c::LOG, LedBuffer1, BufferSize);
-			SPIInterface->send((uint8_t*)LedBuffer1,BufferSize);
-		}
-	}
-private:
-	Wiring *SPIInterface;
-	uint16_t BufferSize;
-	char *LedBuffer1;
-};
-
-const char *APA102c::LOG = "APA102c";
-
 BluetoothTask BTTask("BluetoothTask");
 GameTask GameTask("GameTask");
-
+//OTATask OTATask("OTATask");
 
 #define LED_PIN GPIO_NUM_15
 static xQueueHandle gpio_evt_queue = NULL;
@@ -615,10 +425,10 @@ static void gpio_task_example(void* arg) {
 
 #define ESP_INTR_FLAG_DEFAULT 0
  
-void initTouch() {
-	gpio_config_t io_conf;
+libesp::SPIDevice* initTouch() {
 
 #if 0
+	gpio_config_t io_conf;
 	//SET UP BUTTON
 	//interrupt of falling edge
 	io_conf.intr_type = GPIO_INTR_NEGEDGE;
@@ -639,37 +449,29 @@ void initTouch() {
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 	//hook isr handler for specific gpio pin
 	gpio_isr_handler_add(GPIO_NUM_0, gpio_isr_handler, (void*) GPIO_INPUT_IO_0);
-#else
-	//SET UP TOUCH
-	//interrupt of falling edge
-	io_conf.intr_type = GPIO_INTR_POSEDGE;
-	//bit mask of the pins, use GPIO0
-	#define GPIO_INPUT_IO_32 (1ULL << GPIO_NUM_32)
-	io_conf.pin_bit_mask = GPIO_INPUT_IO_32;
-	//set as input mode
-	io_conf.mode = GPIO_MODE_INPUT;
-	//io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
-	io_conf.pull_up_en = GPIO_PULLUP_DISABLE; //have hw pull up
-	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+	//set up pin for output
+	io_conf.intr_type = GPIO_INTR_DISABLE;
+	io_conf.mode = GPIO_MODE_OUTPUT;
+	#define GPIO_OUTPUT_LED_MASK (1ULL << GPIO_NUM_15)
+	io_conf.pin_bit_mask = GPIO_OUTPUT_LED_MASK;
+	io_conf.pull_down_en =GPIO_PULLDOWN_DISABLE;
+	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
 	gpio_config(&io_conf);
-	// END TOUCH SETUP
-	gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-	//start gpio task
-	xTaskCreate(gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
-	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-	//hook isr handler for specific gpio pin
-	gpio_isr_handler_add(GPIO_NUM_32, gpio_isr_handler, (void*) GPIO_INPUT_IO_32);
-	//
+#else
 	//touch bus config
 	spi_bus_config_t buscfg;
-        buscfg.miso_io_num=PIN_NUM_TOUCH_MISO;
-        buscfg.mosi_io_num=PIN_NUM_TOUCH_MOSI;
-        buscfg.sclk_io_num=PIN_NUM_TOUCH_CLK;
-        buscfg.quadwp_io_num=-1;
-        buscfg.quadhd_io_num=-1;
-        buscfg.max_transfer_sz=32;
-        buscfg.flags = SPICOMMON_BUSFLAG_MASTER;
-        buscfg.intr_flags = 0;
+   buscfg.miso_io_num=PIN_NUM_TOUCH_MISO;
+   buscfg.mosi_io_num=PIN_NUM_TOUCH_MOSI;
+   buscfg.sclk_io_num=PIN_NUM_TOUCH_CLK;
+   buscfg.quadwp_io_num=-1;
+   buscfg.quadhd_io_num=-1;
+   buscfg.max_transfer_sz=24;
+   buscfg.flags = SPICOMMON_BUSFLAG_MASTER;
+   buscfg.intr_flags = 0;
+
+	libesp::SPIBus::initializeBus(VSPI_HOST,buscfg,1);
+	libesp::SPIBus* bus = libesp::SPIBus::get(VSPI_HOST);
+
 	//touch device config
 	spi_device_interface_config_t devcfg;
 	devcfg.clock_speed_hz=1*1000*1000;         //Clock out at 1 MHz
@@ -683,18 +485,11 @@ void initTouch() {
 	devcfg.flags = 0;
 	devcfg.pre_cb = nullptr;
 	devcfg.post_cb = nullptr;
-	//create wiring
-	//ESP32SPIWiring espSPI = ESP32SPIWiring::create(VSPI_HOST,buscfg, devcfg,2);
+
+	libesp::SPIDevice *TouchDev = bus->createMasterDevice(devcfg);
+	return TouchDev;
+
 #endif
-	//
-	//set up pin for output
-	io_conf.intr_type = GPIO_INTR_DISABLE;
-	io_conf.mode = GPIO_MODE_OUTPUT;
-	#define GPIO_OUTPUT_LED_MASK (1ULL << GPIO_NUM_15)
-	io_conf.pin_bit_mask = GPIO_OUTPUT_LED_MASK;
-	io_conf.pull_down_en =GPIO_PULLDOWN_DISABLE;
-	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-	gpio_config(&io_conf);
 }
 
 
@@ -709,19 +504,32 @@ void app_main() {
 	}
 	ESP_ERROR_CHECK( ret );
 
-	ESP32_I2CMaster::doIt();
-	initTouch();
-	/////
-	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
-	I2c.init(false);
-	I2c.scan();
-	////
-	BTTask.init();
-	BTTask.start();
+	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
-	GameTask.init();
-	GameTask.start();
-	BTTask.setGameTaskQueue(GameTask.getQueueHandle());
+	ESP32_I2CMaster::doIt();
+	libesp::SPIDevice *touchDev = initTouch();
+	libesp::XPT2046 TouchTask(touchDev,10,50,PIN_NUM_TOUCH_IRQ);
+	TouchTask.init();
+	TouchTask.start();
+	/////
+//	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
+//	I2c.init(false);
+//	I2c.scan();
+	////
+	// Yo, libbt.a is 304kb
+//	BTTask.init();
+//	BTTask.start();
+
+//	GameTask.init();
+//	GameTask.start();
+//	BTTask.setGameTaskQueue(GameTask.getQueueHandle());
+
+	// Yo this works - configure OTA_WIFI_SSID and OTA_WIFI_PASSWORD in ota.cpp
+	//OTATask.init();
+	//OTATask.start();
+	//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
+	//*cmd = ATTEMPT_OTA;
+	//xQueueSend(OTATask.getQueueHandle(), &cmd, (TickType_t)100);
 
 	libesp::System::get().logSystemInfo();	
 }
@@ -760,34 +568,6 @@ void app_main() {
 	ESP_ERROR_CHECK(ret);
 	//Initialize the LCD
 	lcd_init(spi);
-	
-	//Policy,
-	const int NUM_LEDS = 100;
-	ESP32SPIWiring espSPI = ESP32SPIWiring::create(VSPI_HOST,LED_PIN_NONE,LED_PIN_MOSI, 
-			LED_PIN_CLK,LED_PIN_NONE, 1024, 2);
-	espSPI.init();
-	APA102c apa102c(&espSPI);
-	RGB ledBuf[NUM_LEDS] = {RGB::BLUE};
-	for(int i=0;i<NUM_LEDS;i++) {
-		ledBuf[i] = RGB::BLUE;
-	}
-	apa102c.init(NUM_LEDS,&ledBuf[0]);
-	apa102c.send();
-	vTaskDelay(2000 / portTICK_PERIOD_MS);
-	for(int i=0;i<NUM_LEDS;i++) {
-		ledBuf[i] = RGB::GREEN;
-	}
-	apa102c.init(NUM_LEDS,&ledBuf[0]);
-	apa102c.send();
-	vTaskDelay(2000 / portTICK_PERIOD_MS);
-	for(int kk=0;kk<101;kk+=5) {
-		for(int i=0;i<NUM_LEDS;i++) {
-			ledBuf[i].setBrightness(kk);
-		}
-		apa102c.init(NUM_LEDS,&ledBuf[0]);
-		apa102c.send();
-		vTaskDelay(300 / portTICK_PERIOD_MS);
-	}
 	
 	//Initialize the effect displayed
 	ret=pretty_effect_init();

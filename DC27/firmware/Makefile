@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := wifi-leds
+PROJECT_NAME := dc27
 
 include $(IDF_PATH)/make/project.mk
 

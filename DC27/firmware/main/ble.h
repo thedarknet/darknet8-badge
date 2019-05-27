@@ -5,7 +5,7 @@
 #include <esp_log.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-#include <libesp/Task.h>
+#include <libesp/task.h>
 
 #include "esp_bt.h"
 #include "esp_gap_ble_api.h"
@@ -44,7 +44,8 @@ typedef struct
 {
 	unsigned char size;
 	bool more;
-	char data[18];
+	unsigned char context;
+	char data[17];
 } DN8_BLE_MSG;
 
 
