@@ -58,6 +58,8 @@ public:
 	bool isGameUnlocked(uint8_t game_id);
 	bool setGameUnlocked(uint8_t game_id);
 
+	bool installGame(GameId id, bool unlocked, QueueHandle_t gameQueue);
+
 	void mainMenuSendResponse(GameMsg* msg, char* data, uint8_t size);
 	void sendBadContextError(GameMsg* msg);
 	void sendGameLockedError(GameMsg* msg);

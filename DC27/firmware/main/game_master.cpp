@@ -9,9 +9,6 @@
 
 #include "./game_master.h"
 
-// XXX: Include your game here, initialize it in GameTask.init
-#include "exploitable.h"
-
 const char* GAMEMASTER_LOGTAG = "GameMaster";
 
 typedef struct
@@ -172,13 +169,32 @@ cleanup:
 	return;
 }
 
+bool GameTask::installGame(GameId id, bool unlocked, QueueHandle_t gameQueue)
+{
+	ESP_LOGI(LOGTAG, "Installing Game: %d", id);
+	if (id > INSTALLED_GAMES)
+	{
+		ESP_LOGE(LOGTAG, "FAILED TO INSTALL, increment INSTALLED_GAMES in game_master.cpp");
+		return false;
+	}
+	else if (!gameQueue)
+	{
+		ESP_LOGE(LOGTAG, "FAILED TO INSTALL, passed in null gameQueue");
+		return false;
+	}
+	unlocked_games[id] = unlocked;
+	game_queues[id] = gameQueue;
+	ESP_LOGI(LOGTAG, "Game Installed");
+	return true;
+}
+
 #define CmdQueueTimeout ((TickType_t) 1000 / portTICK_PERIOD_MS)
 void GameTask::run(void* data)
 {
 	GameMsg* msg = nullptr;
 	while(1)
 	{
-		if (xQueueReceive(GameQueueHandle, &msg, CmdQueueTimeout))
+		if (xQueueReceive(this->GameQueueHandle, &msg, CmdQueueTimeout))
 		{
 			if (msg != nullptr)
 				this->commandHandler(msg);
@@ -186,26 +202,16 @@ void GameTask::run(void* data)
 	}
 }
 
-ExploitableGameTask ExploitTask("ExploitTask");
-
 bool GameTask::init()
 {
 	this->GameQueueHandle = xQueueCreateStatic(GAME_QUEUE_SIZE, GAME_MSG_SIZE,
 		gameQueueBuffer, &GameQueue);
 
-	memset(&unlocked_games, '\0', sizeof(unlocked_games));
+	memset(unlocked_games, '\0', sizeof(unlocked_games));
 	unlocked_games[0] = true; // GameMaster Menu is always unlocked
 
 	// Game Master
 	game_queues[GAMEMASTER_ID] = nullptr; // unused
-
-	// Initialize and start the installed games
-	// Exploitable
-	ExploitTask.init();
-	ExploitTask.start();
-	game_queues[EXPLOITABLE_ID] = ExploitTask.getQueueHandle();
-
-	// TODO: Check which games have been unlocked, stored in hardware
 
 	return true;
 }

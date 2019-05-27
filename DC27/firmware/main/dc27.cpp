@@ -21,6 +21,9 @@
 #include "./game_master.h"
 #include "./ota.h"
 
+// XXX: Games get included here and installed into the game master
+#include "./exploitable.h"
+
 /*
  This code displays some fancy graphics on the 320x240 LCD on an ESP-WROVER_KIT board.
  This example demonstrates the use of both spi_device_transmit as well as
@@ -397,6 +400,7 @@ static void display_pretty_colors(spi_device_handle_t spi)
 
 BluetoothTask BTTask("BluetoothTask");
 GameTask GameTask("GameTask");
+ExploitableGameTask ExploitTask("ExploitTask");
 //OTATask OTATask("OTATask");
 
 #define LED_PIN GPIO_NUM_15
@@ -512,19 +516,23 @@ void app_main() {
 	TouchTask.init();
 	TouchTask.start();
 	/////
-//	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
-//	I2c.init(false);
-//	I2c.scan();
+	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
+	I2c.init(false);
+	I2c.scan();
 	////
-	// Yo, libbt.a is 304kb
-//	BTTask.init();
-//	BTTask.start();
+	// libbt.a is like 300kb
+	//BTTask.init();
+	//BTTask.start();
 
-//	GameTask.init();
-//	GameTask.start();
-//	BTTask.setGameTaskQueue(GameTask.getQueueHandle());
+	//GameTask.init();
+	//GameTask.start();
+	//BTTask.setGameTaskQueue(GameTask.getQueueHandle());
 
-	// Yo this works - configure OTA_WIFI_SSID and OTA_WIFI_PASSWORD in ota.cpp
+	//ExploitTask.init();
+	//ExploitTask.start();
+	//GameTask.installGame(EXPLOITABLE_ID, false, ExploitTask.getQueueHandle());
+
+	// libwifi and friends is like 500kb
 	//OTATask.init();
 	//OTATask.start();
 	//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
