@@ -26,7 +26,7 @@
 static bool check = false;
 
 static void IRAM_ATTR touch_isr_handler(void* arg) {
-		  ets_printf("wtf");
+	ets_printf("irq");
 	check = true;
 }
 
@@ -49,6 +49,11 @@ void app_main()
         .spics_io_num=PIN_NUM_CS,               //CS pin
         .queue_size=3,                          //We want to be able to queue 7 transactions at a time
         .pre_cb=0,
+		  .post_cb=0,
+		  .input_delay_ns = 0,
+		  .cs_ena_pretrans = 0,
+		  .cs_ena_posttrans=0,
+		  .duty_cycle_pos = 0
     };
     //Initialize the SPI bus
     ret=spi_bus_initialize(VSPI_HOST, &buscfg, 2);
@@ -61,12 +66,13 @@ void app_main()
 
 	gpio_config_t io_conf;
 	io_conf.intr_type = GPIO_INTR_NEGEDGE;
-	io_conf.pin_bit_mask = (1ULL<<GPIO_NUM_27);
+#define GPIO_MASK (1ULL << PIN_NUM_IRQ)
+	io_conf.pin_bit_mask = GPIO_MASK;
 	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
 	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
 	io_conf.mode = GPIO_MODE_INPUT;
-	gpio_config(&io_conf);
-	if(ESP_OK!=gpio_isr_handler_add( PIN_NUM_CS, touch_isr_handler, (void*) 0)) {
+	ESP_ERROR_CHECK(gpio_config(&io_conf));
+	if(ESP_OK!=gpio_isr_handler_add( PIN_NUM_IRQ, touch_isr_handler, (void*) 0)) {
 		ESP_LOGE(TAG,"Failed to install isr handler");
 	}
 
@@ -74,6 +80,7 @@ void app_main()
 	while(1) {
 		if(check) {
 			check = false;
+			uint32_t xPos = 0, yPos = 0;
 			spi_transaction_t t;
 			memset(&t,0,sizeof(t));
 			t.length=16;
@@ -82,7 +89,27 @@ void app_main()
 			t.flags = SPI_TRANS_USE_RXDATA | SPI_TRANS_USE_TXDATA;
 			esp_err_t r = spi_device_transmit(spi, &t);
 			ESP_ERROR_CHECK(r);
-			ESP_LOGI(TAG,"%d %d", (int)t.rx_data[0], (int)t.rx_data[1]);
+
+
+				t.tx_data[0] = 0x91;
+				t.tx_data[1] = 0x00;
+				r = spi_device_transmit(spi, &t);
+				ESP_ERROR_CHECK(r);
+
+				xPos = t.rx_data[0];
+				xPos <<= 5;
+				xPos |= ((uint16_t)t.rx_data[1])>>4;
+
+				//xPos = t.rx_data[0]<<8|t.rx_data[1]>>8;
+				ESP_LOGI(TAG,"xPos = %d",(int)xPos);
+				t.tx_data[0] = 0xD1;
+				t.tx_data[1] = 0x00;
+				r = spi_device_transmit(spi, &t);
+				ESP_ERROR_CHECK(r);
+				//yPos = t.rx_data[0]<<5|t.rx_data[1]>>3;
+				//yPos = t.rx_data[0]<<8|t.rx_data[1]>>8;
+				ESP_LOGI(TAG,"yPos = %d",(int)yPos);
+
 			vTaskDelay(100/portTICK_PERIOD_MS);
 		}
 		vTaskDelay(1000/portTICK_PERIOD_MS);
