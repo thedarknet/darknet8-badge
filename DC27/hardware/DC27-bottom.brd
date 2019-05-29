@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.4.0">
+<eagle version="9.4.1">
 <drawing>
 <settings>
-<setting alwaysvectorfont="no"/>
+<setting alwaysvectorfont="yes"/>
 <setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
@@ -34,7 +34,7 @@
 <layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="yes"/>
 <layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
@@ -7053,37 +7053,37 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="23.134228125" y1="63.989059375" x2="23.163628125" y2="63.959659375" width="0.2" layer="16"/>
 <wire x1="24.736359375" y1="63.959659375" x2="27.134228125" y2="66.357528125" width="0.2" layer="16"/>
 <wire x1="27.134228125" y1="66.357528125" x2="27.134228125" y2="87.989059375" width="0.2" layer="16"/>
-<wire x1="27.134228125" y1="87.989059375" x2="38.134228125" y2="98.989059375" width="0.1524" layer="16"/>
-<wire x1="38.134228125" y1="98.989059375" x2="40.134228125" y2="98.989059375" width="0.1524" layer="16"/>
+<wire x1="27.134228125" y1="87.989059375" x2="38.134228125" y2="98.989059375" width="0.2" layer="16"/>
+<wire x1="38.134228125" y1="98.989059375" x2="40.134228125" y2="98.989059375" width="0.2" layer="16"/>
 <via x="40.134228125" y="98.989059375" extent="1-16" drill="0.6"/>
-<wire x1="40.134228125" y1="98.989059375" x2="42.174228125" y2="98.989059375" width="0.1524" layer="1"/>
+<wire x1="40.134228125" y1="98.989059375" x2="42.174228125" y2="98.989059375" width="0.2" layer="1"/>
 <wire x1="42.174228125" y1="98.989059375" x2="42.250228125" y2="99.065059375" width="0.254" layer="1"/>
 </signal>
 <signal name="TOUCH_DATA_IN">
-<contactref element="U2" pad="7"/>
 <contactref element="U$10" pad="12"/>
 <wire x1="11.1836" y1="34.2336" x2="24.134228125" y2="47.039059375" width="0.2" layer="1"/>
 <wire x1="24.134228125" y1="47.039059375" x2="24.134228125" y2="65.989059375" width="0.2" layer="1"/>
 <via x="24.134228125" y="65.989059375" extent="1-16" drill="0.6"/>
-<wire x1="24.134228125" y1="65.989059375" x2="24.134228125" y2="90.289059375" width="0.2" layer="16"/>
-<wire x1="24.134228125" y1="90.289059375" x2="37.934228125" y2="104.089059375" width="0.2" layer="16"/>
-<via x="37.934228125" y="104.089059375" extent="1-16" drill="0.6"/>
-<wire x1="37.934228125" y1="104.089059375" x2="39.260228125" y2="105.415059375" width="0.2" layer="1"/>
-<wire x1="39.260228125" y1="105.415059375" x2="42.250228125" y2="105.415059375" width="0.2" layer="1"/>
+<wire x1="24.134228125" y1="65.989059375" x2="24.134228125" y2="90.483590625" width="0.2" layer="16"/>
+<wire x1="24.134228125" y1="90.483590625" x2="36.4849375" y2="102.8343" width="0.2" layer="16"/>
+<via x="36.4849375" y="102.8343" extent="1-16" drill="0.6"/>
+<contactref element="U2" pad="9"/>
+<wire x1="42.250228125" y1="102.875059375" x2="36.525696875" y2="102.875059375" width="0.2" layer="1"/>
+<wire x1="36.525696875" y1="102.875059375" x2="36.4849375" y2="102.8343" width="0.2" layer="1"/>
 </signal>
 <signal name="TOUCH_DATA_OUT">
-<contactref element="U2" pad="9"/>
 <contactref element="U$10" pad="13"/>
-<wire x1="11.1836" y1="31.6936" x2="25.134228125" y2="45.499059375" width="0.1524" layer="1"/>
-<wire x1="25.134228125" y1="45.499059375" x2="25.134228125" y2="67.989059375" width="0.1524" layer="1"/>
+<wire x1="11.1836" y1="31.6936" x2="25.134228125" y2="45.499059375" width="0.2" layer="1"/>
+<wire x1="25.134228125" y1="45.499059375" x2="25.134228125" y2="67.989059375" width="0.2" layer="1"/>
 <via x="25.134228125" y="67.989059375" extent="1-16" drill="0.6"/>
-<wire x1="25.134228125" y1="67.989059375" x2="25.134228125" y2="90.089059375" width="0.1524" layer="16"/>
-<wire x1="37.534228125" y1="102.589059375" x2="37.534228125" y2="102.489059375" width="0.1524" layer="16"/>
-<wire x1="37.534228125" y1="102.489059375" x2="25.134228125" y2="90.089059375" width="0.1524" layer="16"/>
-<via x="37.534228125" y="102.589059375" extent="1-16" drill="0.6"/>
-<wire x1="37.534228125" y1="102.589059375" x2="37.634228125" y2="102.589059375" width="0.1524" layer="1"/>
-<wire x1="37.920228125" y1="102.875059375" x2="37.634228125" y2="102.589059375" width="0.1524" layer="1"/>
-<wire x1="37.920228125" y1="102.875059375" x2="42.250228125" y2="102.875059375" width="0.1524" layer="1"/>
+<wire x1="25.134228125" y1="67.989059375" x2="25.134228125" y2="90.089059375" width="0.2" layer="16"/>
+<wire x1="38.507634375" y1="104.103425" x2="38.507634375" y2="103.462465625" width="0.2" layer="16"/>
+<wire x1="38.507634375" y1="103.462465625" x2="25.134228125" y2="90.089059375" width="0.2" layer="16"/>
+<via x="38.507634375" y="104.103425" extent="1-16" drill="0.6"/>
+<contactref element="U2" pad="7"/>
+<wire x1="42.250228125" y1="105.415059375" x2="39.643671875" y2="105.415059375" width="0.2" layer="1"/>
+<wire x1="38.507634375" y1="104.279021875" x2="38.507634375" y2="104.103425" width="0.2" layer="1"/>
+<wire x1="39.643671875" y1="105.415059375" x2="38.507634375" y2="104.279021875" width="0.2" layer="1"/>
 </signal>
 <signal name="TOUCH_IRQ">
 <contactref element="U2" pad="8"/>

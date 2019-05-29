@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.4.0">
+<eagle version="9.4.1">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -14406,26 +14406,26 @@ to delay even longer</text>
 </net>
 <net name="TOUCH_DATA_IN" class="0">
 <segment>
-<pinref part="U2" gate="G$1" pin="IO35"/>
-<wire x1="86.36" y1="73.66" x2="78.74" y2="73.66" width="0.1524" layer="91"/>
-<label x="63.5" y="73.66" size="1.27" layer="95"/>
-</segment>
-<segment>
 <pinref part="U$10" gate="G$1" pin="T_DIN"/>
 <wire x1="108.966" y1="-43.18" x2="104.14" y2="-43.18" width="0.1524" layer="91"/>
 <label x="88.9" y="-43.18" size="1.016" layer="95"/>
 </segment>
-</net>
-<net name="TOUCH_DATA_OUT" class="0">
 <segment>
 <pinref part="U2" gate="G$1" pin="IO33"/>
 <wire x1="86.36" y1="68.58" x2="78.74" y2="68.58" width="0.1524" layer="91"/>
 <label x="63.5" y="68.58" size="1.27" layer="95"/>
 </segment>
+</net>
+<net name="TOUCH_DATA_OUT" class="0">
 <segment>
 <pinref part="U$10" gate="G$1" pin="T_DO"/>
 <wire x1="108.966" y1="-45.72" x2="104.14" y2="-45.72" width="0.1524" layer="91"/>
 <label x="88.9" y="-45.72" size="1.016" layer="95"/>
+</segment>
+<segment>
+<pinref part="U2" gate="G$1" pin="IO35"/>
+<wire x1="86.36" y1="73.66" x2="78.74" y2="73.66" width="0.1524" layer="91"/>
+<label x="63.5" y="73.66" size="1.27" layer="95"/>
 </segment>
 </net>
 <net name="TOUCH_IRQ" class="0">
