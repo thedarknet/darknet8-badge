@@ -8,7 +8,6 @@
 #include "soc/gpio_struct.h"
 #include "driver/gpio.h"
 
-#include "pretty_effect.h"
 #include <libesp/system.h>
 #include <libesp/i2c.hpp>
 #include <esp_log.h>
@@ -19,449 +18,34 @@
 
 #include "./ble.h"
 #include "./game_master.h"
-#include "./ota.h"
+//#include "./ota.h"
 
 // XXX: Games get included here and installed into the game master
 #include "./exploitable.h"
 
-/*
- This code displays some fancy graphics on the 320x240 LCD on an ESP-WROVER_KIT board.
- This example demonstrates the use of both spi_device_transmit as well as
- spi_device_queue_trans/spi_device_get_trans_result and pre-transmit callbacks.
-
- Some info about the ILI9341/ST7789V: It has an C/D line, which is connected to a GPIO here. It expects this
- line to be low for a command and high for data. We use a pre-transmit callback here to control that
- line: every transaction has as the user-definable argument the needed state of the D/C line and just
- before the transaction is sent, the callback will set this line to the correct state.
-*/
-
-#define PIN_NUM_MISO 19
-#define PIN_NUM_MOSI 23
-#define PIN_NUM_CLK  18
-#define PIN_NUM_CS   17
-
-#define PIN_NUM_DC   4
-#define PIN_NUM_RST  -1
-#define PIN_NUM_BCKL -1
-
 #define PIN_NUM_TOUCH_MISO 35
 #define PIN_NUM_TOUCH_MOSI 33
 #define PIN_NUM_TOUCH_CLK  26
-#define PIN_NUM_TOUCH_CS   27
+#define PIN_NUM_TOUCH_CS  GPIO_NUM_27
 #define PIN_NUM_TOUCH_IRQ GPIO_NUM_32
-
-#define LED_PIN_MOSI 16
-#define LED_PIN_CLK  2
-#define LED_PIN_NONE -1
-
 
 #define I2C_SCL GPIO_NUM_22
 #define I2C_SDA GPIO_NUM_21
-
-
-//To speed up transfers, every SPI transfer sends a bunch of lines. This define specifies how many. More means more memory use,
-//but less overhead for setting up / finishing transfers. Make sure 240 is dividable by this.
-#define PARALLEL_LINES 16
 
 extern "C" {
 	void app_main();
 }
 
-/*
- The LCD needs a bunch of command/argument values to be initialized. They are stored in this struct.
-*/
-typedef struct {
-    uint8_t cmd;
-    uint8_t data[16];
-    uint8_t databytes; //No of data in data; bit 7 = delay after set; 0xFF = end of cmds.
-} lcd_init_cmd_t;
-
-typedef enum {
-    LCD_TYPE_ILI = 1,
-    LCD_TYPE_ST,
-    LCD_TYPE_MAX,
-} type_lcd_t;
-
-//Place data into DRAM. Constant data gets placed into DROM by default, which is not accessible by DMA.
-DRAM_ATTR static const lcd_init_cmd_t st_init_cmds[]={
-    /* Memory Data Access Control, MX=MV=1, MY=ML=MH=0, RGB=0 */
-    {0x36, {(1<<5)|(1<<6)}, 1},
-    /* Interface Pixel Format, 16bits/pixel for RGB/MCU interface */
-    {0x3A, {0x55}, 1},
-    /* Porch Setting */
-    {0xB2, {0x0c, 0x0c, 0x00, 0x33, 0x33}, 5},
-    /* Gate Control, Vgh=13.65V, Vgl=-10.43V */
-    {0xB7, {0x45}, 1},
-    /* VCOM Setting, VCOM=1.175V */
-    {0xBB, {0x2B}, 1},
-    /* LCM Control, XOR: RGB, MX, MH */
-    {0xC0, {0x2C}, 1},
-    /* VDV and VRH Command Enable, enable=1 */
-    {0xC2, {0x01, 0xff}, 2},
-    /* VRH Set, Vap=4.4+... */
-    {0xC3, {0x11}, 1},
-    /* VDV Set, VDV=0 */
-    {0xC4, {0x20}, 1},
-    /* Frame Rate Control, 60Hz, inversion=0 */
-    {0xC6, {0x0f}, 1},
-    /* Power Control 1, AVDD=6.8V, AVCL=-4.8V, VDDS=2.3V */
-    {0xD0, {0xA4, 0xA1}, 1},
-    /* Positive Voltage Gamma Control */
-    {0xE0, {0xD0, 0x00, 0x05, 0x0E, 0x15, 0x0D, 0x37, 0x43, 0x47, 0x09, 0x15, 0x12, 0x16, 0x19}, 14},
-    /* Negative Voltage Gamma Control */
-    {0xE1, {0xD0, 0x00, 0x05, 0x0D, 0x0C, 0x06, 0x2D, 0x44, 0x40, 0x0E, 0x1C, 0x18, 0x16, 0x19}, 14},
-    /* Sleep Out */
-    {0x11, {0}, 0x80},
-    /* Display On */
-    {0x29, {0}, 0x80},
-    {0, {0}, 0xff}
-};
-
-DRAM_ATTR static const lcd_init_cmd_t ili_init_cmds[]={
-    /* Power contorl B, power control = 0, DC_ENA = 1 */
-    {0xCF, {0x00, 0x83, 0X30}, 3},
-    /* Power on sequence control,
-     * cp1 keeps 1 frame, 1st frame enable
-     * vcl = 0, ddvdh=3, vgh=1, vgl=2
-     * DDVDH_ENH=1
-     */
-    {0xED, {0x64, 0x03, 0X12, 0X81}, 4},
-    /* Driver timing control A,
-     * non-overlap=default +1
-     * EQ=default - 1, CR=default
-     * pre-charge=default - 1
-     */
-    {0xE8, {0x85, 0x01, 0x79}, 3},
-    /* Power control A, Vcore=1.6V, DDVDH=5.6V */
-    {0xCB, {0x39, 0x2C, 0x00, 0x34, 0x02}, 5},
-    /* Pump ratio control, DDVDH=2xVCl */
-    {0xF7, {0x20}, 1},
-    /* Driver timing control, all=0 unit */
-    {0xEA, {0x00, 0x00}, 2},
-    /* Power control 1, GVDD=4.75V */
-    {0xC0, {0x26}, 1},
-    /* Power control 2, DDVDH=VCl*2, VGH=VCl*7, VGL=-VCl*3 */
-    {0xC1, {0x11}, 1},
-    /* VCOM control 1, VCOMH=4.025V, VCOML=-0.950V */
-    {0xC5, {0x35, 0x3E}, 2},
-    /* VCOM control 2, VCOMH=VMH-2, VCOML=VML-2 */
-    {0xC7, {0xBE}, 1},
-    /* Memory access contorl, MX=MY=0, MV=1, ML=0, RGB=1, MH=0 */
-    {0x36, {0x28}, 1},
-    /* Pixel format, 16bits/pixel for RGB/MCU interface */
-    {0x3A, {0x55}, 1},
-    /* Frame rate control, f=fosc, 70Hz fps */
-    {0xB1, {0x00, 0x1B}, 2},
-    /* Enable 3G, disabled */
-    {0xF2, {0x08}, 1},
-    /* Gamma set, curve 1 */
-    {0x26, {0x01}, 1},
-    /* Positive gamma correction */
-    {0xE0, {0x1F, 0x1A, 0x18, 0x0A, 0x0F, 0x06, 0x45, 0X87, 0x32, 0x0A, 0x07, 0x02, 0x07, 0x05, 0x00}, 15},
-    /* Negative gamma correction */
-    {0XE1, {0x00, 0x25, 0x27, 0x05, 0x10, 0x09, 0x3A, 0x78, 0x4D, 0x05, 0x18, 0x0D, 0x38, 0x3A, 0x1F}, 15},
-    /* Column address set, SC=0, EC=0xEF */
-    {0x2A, {0x00, 0x00, 0x00, 0xEF}, 4},
-    /* Page address set, SP=0, EP=0x013F */
-    {0x2B, {0x00, 0x00, 0x01, 0x3f}, 4},
-    /* Memory write */
-    {0x2C, {0}, 0},
-    /* Entry mode set, Low vol detect disabled, normal display */
-    {0xB7, {0x07}, 1},
-    /* Display function control */
-    {0xB6, {0x0A, 0x82, 0x27, 0x00}, 4},
-    /* Sleep out */
-    {0x11, {0}, 0x80},
-    /* Display on */
-    {0x29, {0}, 0x80},
-    {0, {0}, 0xff},
-};
-
-//Send a command to the LCD. Uses spi_device_transmit, which waits until the transfer is complete.
-void lcd_cmd(spi_device_handle_t spi, const uint8_t cmd)
-{
-    esp_err_t ret;
-    spi_transaction_t t;
-    memset(&t, 0, sizeof(t));       //Zero out the transaction
-    t.length=8;                     //Command is 8 bits
-    t.tx_buffer=&cmd;               //The data is the cmd itself
-    t.user=(void*)0;                //D/C needs to be set to 0
-    ret=spi_device_transmit(spi, &t);  //Transmit!
-    assert(ret==ESP_OK);            //Should have had no issues.
-}
-
-//Send data to the LCD. Uses spi_device_transmit, which waits until the transfer is complete.
-void lcd_data(spi_device_handle_t spi, const uint8_t *data, int len)
-{
-    esp_err_t ret;
-    spi_transaction_t t;
-    if (len==0) return;             //no need to send anything
-    memset(&t, 0, sizeof(t));       //Zero out the transaction
-    t.length=len*8;                 //Len is in bytes, transaction length is in bits.
-    t.tx_buffer=data;               //Data
-    t.user=(void*)1;                //D/C needs to be set to 1
-    ret=spi_device_transmit(spi, &t);  //Transmit!
-    assert(ret==ESP_OK);            //Should have had no issues.
-}
-
-//This function is called (in irq context!) just before a transmission starts. It will
-//set the D/C line to the value indicated in the user field.
-void lcd_spi_pre_transfer_callback(spi_transaction_t *t)
-{
-    int dc=(int)t->user;
-    gpio_set_level((gpio_num_t)PIN_NUM_DC, dc);
-}
-
-uint32_t lcd_get_id(spi_device_handle_t spi)
-{
-    //get_id cmd
-    lcd_cmd( spi, 0x04);
-
-    spi_transaction_t t;
-    memset(&t, 0, sizeof(t));
-    t.length=8*3;
-    t.flags = SPI_TRANS_USE_RXDATA;
-    t.user = (void*)1;
-
-    esp_err_t ret = spi_device_transmit(spi, &t);
-    assert( ret == ESP_OK );
-
-    return *(uint32_t*)t.rx_data;
-}
-
-//Initialize the display
-void lcd_init(spi_device_handle_t spi)
-{
-    int cmd=0;
-    const lcd_init_cmd_t* lcd_init_cmds;
-
-    //Initialize non-SPI GPIOs
-    gpio_set_direction((gpio_num_t)PIN_NUM_DC, GPIO_MODE_OUTPUT);
-    gpio_set_direction((gpio_num_t)PIN_NUM_RST, GPIO_MODE_OUTPUT);
-    gpio_set_direction((gpio_num_t)PIN_NUM_BCKL, GPIO_MODE_OUTPUT);
-
-    //Reset the display
-    gpio_set_level((gpio_num_t)PIN_NUM_RST, 0);
-    vTaskDelay(100 / portTICK_RATE_MS);
-    gpio_set_level((gpio_num_t)PIN_NUM_RST, 1);
-    vTaskDelay(100 / portTICK_RATE_MS);
-
-    //detect LCD type
-    uint32_t lcd_id = lcd_get_id(spi);
-    int lcd_detected_type = 0;
-    int lcd_type;
-
-    printf("LCD ID: %08X\n", lcd_id);
-    if ( lcd_id == 0 ) {
-        //zero, ili
-        lcd_detected_type = LCD_TYPE_ILI;
-        printf("ILI9341 detected.\n");
-    } else {
-        // none-zero, ST
-        lcd_detected_type = LCD_TYPE_ST;
-        printf("ST7789V detected.\n");
-    }
-
-#ifdef CONFIG_LCD_TYPE_AUTO
-    lcd_type = lcd_detected_type;
-#elif defined( CONFIG_LCD_TYPE_ST7789V )
-    printf("kconfig: force CONFIG_LCD_TYPE_ST7789V.\n");
-    lcd_type = LCD_TYPE_ST;
-#elif defined( CONFIG_LCD_TYPE_ILI9341 )
-    printf("kconfig: force CONFIG_LCD_TYPE_ILI9341.\n");
-    lcd_type = LCD_TYPE_ILI;
-#endif
-    if ( lcd_type == LCD_TYPE_ST ) {
-        printf("LCD ST7789V initialization.\n");
-        lcd_init_cmds = st_init_cmds;
-    } else {
-        printf("LCD ILI9341 initialization.\n");
-        lcd_init_cmds = ili_init_cmds;
-    }
-
-    //Send all the commands
-    while (lcd_init_cmds[cmd].databytes!=0xff) {
-        lcd_cmd(spi, lcd_init_cmds[cmd].cmd);
-        lcd_data(spi, lcd_init_cmds[cmd].data, lcd_init_cmds[cmd].databytes&0x1F);
-        if (lcd_init_cmds[cmd].databytes&0x80) {
-            vTaskDelay(100 / portTICK_RATE_MS);
-        }
-        cmd++;
-    }
-
-    ///Enable backlight
-    gpio_set_level((gpio_num_t)PIN_NUM_BCKL, 0);
-}
-
-
-//To send a set of lines we have to send a command, 2 data bytes, another command, 2 more data bytes and another command
-//before sending the line data itself; a total of 6 transactions. (We can't put all of this in just one transaction
-//because the D/C line needs to be toggled in the middle.)
-//This routine queues these commands up so they get sent as quickly as possible.
-static void send_lines(spi_device_handle_t spi, int ypos, uint16_t *linedata)
-{
-    esp_err_t ret;
-    int x;
-    //Transaction descriptors. Declared static so they're not allocated on the stack; we need this memory even when this
-    //function is finished because the SPI driver needs access to it even while we're already calculating the next line.
-    static spi_transaction_t trans[6];
-
-    //In theory, it's better to initialize trans and data only once and hang on to the initialized
-    //variables. We allocate them on the stack, so we need to re-init them each call.
-    for (x=0; x<6; x++) {
-        memset(&trans[x], 0, sizeof(spi_transaction_t));
-        if ((x&1)==0) {
-            //Even transfers are commands
-            trans[x].length=8;
-            trans[x].user=(void*)0;
-        } else {
-            //Odd transfers are data
-            trans[x].length=8*4;
-            trans[x].user=(void*)1;
-        }
-        trans[x].flags=SPI_TRANS_USE_TXDATA;
-    }
-    trans[0].tx_data[0]=0x2A;           //Column Address Set
-    trans[1].tx_data[0]=0;              //Start Col High
-    trans[1].tx_data[1]=0;              //Start Col Low
-    trans[1].tx_data[2]=(320)>>8;       //End Col High
-    trans[1].tx_data[3]=(320)&0xff;     //End Col Low
-    trans[2].tx_data[0]=0x2B;           //Page address set
-    trans[3].tx_data[0]=ypos>>8;        //Start page high
-    trans[3].tx_data[1]=ypos&0xff;      //start page low
-    trans[3].tx_data[2]=(ypos+PARALLEL_LINES)>>8;    //end page high
-    trans[3].tx_data[3]=(ypos+PARALLEL_LINES)&0xff;  //end page low
-    trans[4].tx_data[0]=0x2C;           //memory write
-    trans[5].tx_buffer=linedata;        //finally send the line data
-    trans[5].length=320*2*8*PARALLEL_LINES;          //Data length, in bits
-    trans[5].flags=0; //undo SPI_TRANS_USE_TXDATA flag
-
-    //Queue all transactions.
-    for (x=0; x<6; x++) {
-        ret=spi_device_queue_trans(spi, &trans[x], portMAX_DELAY);
-        assert(ret==ESP_OK);
-    }
-
-    //When we are here, the SPI driver is busy (in the background) getting the transactions sent. That happens
-    //mostly using DMA, so the CPU doesn't have much to do here. We're not going to wait for the transaction to
-    //finish because we may as well spend the time calculating the next line. When that is done, we can call
-    //send_line_finish, which will wait for the transfers to be done and check their status.
-}
-
-
-static void send_line_finish(spi_device_handle_t spi)
-{
-    spi_transaction_t *rtrans;
-    esp_err_t ret;
-    //Wait for all 6 transactions to be done and get back the results.
-    for (int x=0; x<6; x++) {
-        ret=spi_device_get_trans_result(spi, &rtrans, portMAX_DELAY);
-        assert(ret==ESP_OK);
-        //We could inspect rtrans now if we received any info back. The LCD is treated as write-only, though.
-    }
-}
-
-
-//Simple routine to generate some patterns and send them to the LCD. Don't expect anything too
-//impressive. Because the SPI driver handles transactions in the background, we can calculate the next line
-//while the previous one is being sent.
-static void display_pretty_colors(spi_device_handle_t spi)
-{
-    uint16_t *lines[2];
-    //Allocate memory for the pixel buffers
-    for (int i=0; i<2; i++) {
-        lines[i]=(uint16_t*)heap_caps_malloc(320*PARALLEL_LINES*sizeof(uint16_t), MALLOC_CAP_DMA);
-        assert(lines[i]!=NULL);
-    }
-    int frame=0;
-    //Indexes of the line currently being sent to the LCD and the line we're calculating.
-    int sending_line=-1;
-    int calc_line=0;
-
-    while(1) {
-        frame++;
-        for (int y=0; y<240; y+=PARALLEL_LINES) {
-            //Calculate a line.
-            pretty_effect_calc_lines(lines[calc_line], y, frame, PARALLEL_LINES);
-            //Finish up the sending process of the previous line, if any
-            if (sending_line!=-1) send_line_finish(spi);
-            //Swap sending_line and calc_line
-            sending_line=calc_line;
-            calc_line=(calc_line==1)?0:1;
-            //Send the line we currently calculated.
-            send_lines(spi, y, lines[sending_line]);
-            //The line set is queued up for sending now; the actual sending happens in the
-            //background. We can go on to calculate the next line set as long as we do not
-            //touch line[sending_line]; the SPI sending process is still reading from that.
-        }
-    }
-}
-
-
 BluetoothTask BTTask("BluetoothTask");
 GameTask GameTask("GameTask");
 ExploitableGameTask ExploitTask("ExploitTask");
 //OTATask OTATask("OTATask");
-
-#define LED_PIN GPIO_NUM_15
-static xQueueHandle gpio_evt_queue = NULL;
- 
-static void IRAM_ATTR gpio_isr_handler(void* arg) {
-	uint32_t gpio_num = (uint32_t) arg;
-	static int32_t cnt = 0;
-	gpio_set_level(LED_PIN,++cnt%2);
-	xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
-}
- 
-static void gpio_task_example(void* arg) {
-	uint32_t io_num;
-	for(;;) {
-		if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
-			uint32_t level = (uint32_t) gpio_get_level((gpio_num_t)io_num);
-			printf("GPIO[%d] intr, val: %d\n", io_num, level);
-			//build test message
-			libesp::System::get().logSystemInfo();
-		}
-		vTaskDelay(1000 / portTICK_RATE_MS);
-	}
-}
-
+libesp::XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 
 #define ESP_INTR_FLAG_DEFAULT 0
  
-libesp::SPIDevice* initTouch() {
-
-#if 0
-	gpio_config_t io_conf;
-	//SET UP BUTTON
-	//interrupt of falling edge
-	io_conf.intr_type = GPIO_INTR_NEGEDGE;
-	//bit mask of the pins, use GPIO0
-	#define GPIO_INPUT_IO_0 (1ULL << GPIO_NUM_0)
-	io_conf.pin_bit_mask = GPIO_INPUT_IO_0;
-	//set as input mode
-	io_conf.mode = GPIO_MODE_INPUT;
-	//enable pull-up mode
-	//io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
-	io_conf.pull_up_en = GPIO_PULLUP_DISABLE; //have hw pull up
-	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-	gpio_config(&io_conf);
-	// END BUTTON SETUP
-	gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-	//start gpio task
-	xTaskCreate(gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
-	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-	//hook isr handler for specific gpio pin
-	gpio_isr_handler_add(GPIO_NUM_0, gpio_isr_handler, (void*) GPIO_INPUT_IO_0);
-	//set up pin for output
-	io_conf.intr_type = GPIO_INTR_DISABLE;
-	io_conf.mode = GPIO_MODE_OUTPUT;
-	#define GPIO_OUTPUT_LED_MASK (1ULL << GPIO_NUM_15)
-	io_conf.pin_bit_mask = GPIO_OUTPUT_LED_MASK;
-	io_conf.pull_down_en =GPIO_PULLDOWN_DISABLE;
-	io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-	gpio_config(&io_conf);
-#else
+void initTouch() {
+	static const char *LOGTAG = "initTouch";
 	//touch bus config
 	spi_bus_config_t buscfg;
    buscfg.miso_io_num=PIN_NUM_TOUCH_MISO;
@@ -469,33 +53,17 @@ libesp::SPIDevice* initTouch() {
    buscfg.sclk_io_num=PIN_NUM_TOUCH_CLK;
    buscfg.quadwp_io_num=-1;
    buscfg.quadhd_io_num=-1;
-   buscfg.max_transfer_sz=24;
+   buscfg.max_transfer_sz=64;
    buscfg.flags = SPICOMMON_BUSFLAG_MASTER;
    buscfg.intr_flags = 0;
 
 	libesp::SPIBus::initializeBus(VSPI_HOST,buscfg,1);
 	libesp::SPIBus* bus = libesp::SPIBus::get(VSPI_HOST);
+	if(!bus) {
+		ESP_LOGE(LOGTAG,"error initing BUS for touch");
+	}
 
-	//touch device config
-	spi_device_interface_config_t devcfg;
-	devcfg.clock_speed_hz=1*1000*1000;         //Clock out at 1 MHz
-	devcfg.mode=0;                             //SPI mode 0
-	devcfg.spics_io_num=PIN_NUM_TOUCH_CS;               	//CS pin
-	devcfg.queue_size=3;                       //We want to be able to queue 3 transactions at a time
-	devcfg.duty_cycle_pos = 0;
-	devcfg.cs_ena_pretrans = 0;
-	devcfg.cs_ena_posttrans = 0; 
-	devcfg.input_delay_ns = 0;
-	devcfg.flags = 0;
-	devcfg.pre_cb = nullptr;
-	devcfg.post_cb = nullptr;
-
-	libesp::SPIDevice *TouchDev = bus->createMasterDevice(devcfg);
-	return TouchDev;
-
-#endif
 }
-
 
 void app_main() {
 	esp_err_t ret;
@@ -510,10 +78,10 @@ void app_main() {
 
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
-	ESP32_I2CMaster::doIt();
-	libesp::SPIDevice *touchDev = initTouch();
-	libesp::XPT2046 TouchTask(touchDev,10,50,PIN_NUM_TOUCH_IRQ);
-	TouchTask.init();
+	//ESP32_I2CMaster::doIt();
+	initTouch();
+	libesp::SPIBus* bus = libesp::SPIBus::get(VSPI_HOST);
+	TouchTask.init(bus,PIN_NUM_TOUCH_CS);
 	TouchTask.start();
 	/////
 	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
@@ -521,16 +89,16 @@ void app_main() {
 	I2c.scan();
 	////
 	// libbt.a is like 300kb
-	//BTTask.init();
-	//BTTask.start();
+	BTTask.init();
+	BTTask.start();
 
-	//GameTask.init();
-	//GameTask.start();
-	//BTTask.setGameTaskQueue(GameTask.getQueueHandle());
+	GameTask.init();
+	GameTask.start();
+	BTTask.setGameTaskQueue(GameTask.getQueueHandle());
 
-	//ExploitTask.init();
-	//ExploitTask.start();
-	//GameTask.installGame(EXPLOITABLE_ID, false, ExploitTask.getQueueHandle());
+	ExploitTask.init();
+	ExploitTask.start();
+	GameTask.installGame(EXPLOITABLE_ID, false, ExploitTask.getQueueHandle());
 
 	// libwifi and friends is like 500kb
 	//OTATask.init();
@@ -542,46 +110,3 @@ void app_main() {
 	libesp::System::get().logSystemInfo();	
 }
 
-#if 0
-void app_main() {
-	esp_err_t ret;
-	
-	spi_device_handle_t spi;
-	spi_bus_config_t buscfg;
-	memset(&buscfg,0,sizeof(buscfg));
-	buscfg.miso_io_num=PIN_NUM_MISO;
-        buscfg.mosi_io_num=PIN_NUM_MOSI;
-        buscfg.sclk_io_num=PIN_NUM_CLK;
-        buscfg.quadwp_io_num=-1;
-        buscfg.quadhd_io_num=-1;
-	buscfg.max_transfer_sz=PARALLEL_LINES*320*2+8;
-
-   spi_device_interface_config_t devcfg;
-	memset(&devcfg,0,sizeof(devcfg));
-#ifdef CONFIG_LCD_OVERCLOCK
-        .clock_speed_hz=26*1000*1000,           //Clock out at 26 MHz
-#else
-        devcfg.clock_speed_hz=10*1000*1000,           //Clock out at 10 MHz
-#endif
-        devcfg.mode=0,                                //SPI mode 0
-        devcfg.spics_io_num=PIN_NUM_CS,               //CS pin
-        devcfg.queue_size=7,                          //We want to be able to queue 7 transactions at a time
-        devcfg.pre_cb=lcd_spi_pre_transfer_callback,  //Specify pre-transfer callback to handle D/C line
-
-	//Initialize the SPI bus
-	ret=spi_bus_initialize(HSPI_HOST, &buscfg, 1);
-	ESP_ERROR_CHECK(ret);
-	//Attach the LCD to the SPI bus
-	ret=spi_bus_add_device(HSPI_HOST, &devcfg, &spi);
-	ESP_ERROR_CHECK(ret);
-	//Initialize the LCD
-	lcd_init(spi);
-	
-	//Initialize the effect displayed
-	ret=pretty_effect_init();
-	ESP_ERROR_CHECK(ret);
-
-	//Go do nice stuff.
-	display_pretty_colors(spi);
-}
-#endif
