@@ -13693,6 +13693,8 @@ Touch: YES&lt;br&gt;</description>
 <part name="PWR" library="switches" deviceset="MSS3-V-T_R" device=""/>
 <part name="J4" library="connector" deviceset="M06" device="POGO-PIN" value="Program Port"/>
 <part name="J1" library="connector" deviceset="M04" device="PTH" value="PAIRING"/>
+<part name="R21" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
+<part name="R27" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
 </parts>
 <sheets>
 <sheet>
@@ -14187,6 +14189,14 @@ to delay even longer</text>
 <attribute name="VALUE" x="48.26" y="109.22" size="1.778" layer="96"/>
 <attribute name="NAME" x="48.26" y="125.222" size="1.778" layer="95"/>
 </instance>
+<instance part="R21" gate="G$1" x="124.46" y="129.54" smashed="yes" rot="R180">
+<attribute name="NAME" x="128.27" y="128.0414" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="128.27" y="132.842" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="R27" gate="G$1" x="114.3" y="127" smashed="yes" rot="R180">
+<attribute name="NAME" x="115.57" y="122.9614" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="118.11" y="130.302" size="1.778" layer="96" rot="R180"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -14252,6 +14262,17 @@ to delay even longer</text>
 <pinref part="J4" gate="G$1" pin="6"/>
 <wire x1="33.02" y1="20.32" x2="38.1" y2="20.32" width="0.1524" layer="91"/>
 <label x="38.1" y="20.32" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R21" gate="G$1" pin="2"/>
+<wire x1="119.38" y1="129.54" x2="119.38" y2="134.62" width="0.1524" layer="91"/>
+<pinref part="R27" gate="G$1" pin="2"/>
+<wire x1="109.22" y1="127" x2="109.22" y2="134.62" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="134.62" x2="114.3" y2="134.62" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="134.62" x2="109.22" y2="134.62" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="134.62" x2="114.3" y2="137.16" width="0.1524" layer="91"/>
+<junction x="114.3" y="134.62"/>
+<label x="114.3" y="137.16" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -14671,12 +14692,24 @@ to delay even longer</text>
 <wire x1="86.36" y1="81.28" x2="81.28" y2="81.28" width="0.1524" layer="91"/>
 <label x="76.2" y="81.28" size="1.27" layer="95"/>
 </segment>
+<segment>
+<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="5"/>
+<wire x1="142.24" y1="127" x2="119.38" y2="127" width="0.1524" layer="91"/>
+<pinref part="R27" gate="G$1" pin="1"/>
+<label x="129.54" y="127" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="SVN" class="0">
 <segment>
 <pinref part="U2" gate="G$1" pin="SENSOR_VN"/>
 <wire x1="86.36" y1="78.74" x2="81.28" y2="78.74" width="0.1524" layer="91"/>
 <label x="76.2" y="78.74" size="1.27" layer="95"/>
+</segment>
+<segment>
+<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="3"/>
+<wire x1="142.24" y1="129.54" x2="129.54" y2="129.54" width="0.1524" layer="91"/>
+<pinref part="R21" gate="G$1" pin="1"/>
+<label x="132.08" y="129.54" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="JTAG_CLK" class="0">
@@ -14744,7 +14777,7 @@ to delay even longer</text>
 <wire x1="195.58" y1="63.5" x2="218.44" y2="63.5" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="VBAT" class="2">
+<net name="EN" class="0">
 <segment>
 <pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="1"/>
 <wire x1="142.24" y1="132.08" x2="139.7" y2="132.08" width="0.1524" layer="91"/>
