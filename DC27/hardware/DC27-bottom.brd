@@ -7,7 +7,7 @@
 <setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.000123031496" unitdist="mil" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.1" altunitdist="mm" altunit="mm"/>
+<grid distance="0.1" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="mm" altunit="mm"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="16" fill="1" visible="no" active="no"/>
@@ -585,21 +585,25 @@
 <hole x="90.134228125" y="5.989059375" drill="3"/>
 <hole x="90.134228125" y="109.989059375" drill="3"/>
 <hole x="13.134228125" y="109.989059375" drill="3"/>
-<text x="19.281146875" y="77.747671875" size="0.6096" layer="25" font="vector">Jumper to use 
+<text x="20.181146875" y="78.247671875" size="0.6096" layer="25" font="vector">Jumper to use 
 usb to program</text>
 <text x="75.634228125" y="67.789059375" size="0.4064" layer="25" font="vector">Jumper all 4 for jtag via usb</text>
-<text x="14.434228125" y="79.564125" size="0.6096" layer="25" font="vector">Prog_RX</text>
-<text x="14.386146875" y="77.21116875" size="0.6096" layer="25" font="vector">Prog_TX</text>
-<text x="5.134228125" y="78.089059375" size="0.4064" layer="25" font="vector">TXDSPI_PROMCLK</text>
-<text x="4.934228125" y="75.589059375" size="0.4064" layer="25" font="vector">RXDSPI_PROMCLK</text>
-<text x="4.734228125" y="73.789059375" size="0.4064" layer="25" font="vector">SPI_PROM_MISO</text>
-<text x="4.234228125" y="71.689059375" size="0.4064" layer="25" font="vector">SPI_PROM_CS</text>
+<text x="14.434228125" y="79.564125" size="0.8128" layer="25" font="vector">Prog_RX</text>
+<text x="14.386146875" y="77.21116875" size="0.8128" layer="25" font="vector">Prog_TX</text>
+<text x="5.134228125" y="78.589059375" size="0.6096" layer="25" font="vector">TXD SPI
+PROMCLK</text>
+<text x="5.034228125" y="76.089059375" size="0.6096" layer="25" font="vector">RXD SPI
+PROMMOSI</text>
+<text x="4.764228125" y="73.579059375" size="0.6096" layer="25" font="vector">SPI PROM
+  MISO</text>
+<text x="4.674228125" y="70.859059375" size="0.6096" layer="25" font="vector">SPI PROM 
+   CS</text>
 <text x="14.434228125" y="68.889059375" size="0.6096" layer="25" font="vector">PWREN</text>
 <text x="14.234228125" y="71.789059375" size="0.6096" layer="25" font="vector">SUSPEND</text>
 <text x="14.534228125" y="74.289059375" size="0.4064" layer="25" font="vector">NC</text>
 <text x="14.434228125" y="81.889059375" size="0.4064" layer="25" font="vector">NC</text>
-<text x="7.034228125" y="81.889059375" size="0.6096" layer="25" font="vector">VCC</text>
-<text x="7.234228125" y="69.089059375" size="0.6096" layer="25" font="vector">GND</text>
+<text x="6.434228125" y="81.789059375" size="0.8128" layer="25" font="vector">VCC</text>
+<text x="6.734228125" y="68.989059375" size="0.8128" layer="25" font="vector">GND</text>
 <text x="39.834228125" y="21.289059375" size="0.3048" layer="25" font="vector">0 %</text>
 <text x="28.834228125" y="21.289059375" size="0.3048" layer="25" font="vector">100 %</text>
 <text x="74.434228125" y="68.589059375" size="0.4064" layer="25" font="vector">TMS</text>
@@ -857,28 +861,10 @@ usb to program</text>
 <wire x1="32.079565625" y1="10.21953125" x2="35.694140625" y2="12.30999375" width="0.1" layer="20"/>
 <wire x1="35.694140625" y1="12.30999375" x2="36.397390625" y2="12.779775" width="0.1" layer="20"/>
 <wire x1="36.397390625" y1="12.779775" x2="41.112715625" y2="16.432784375" width="0.1" layer="20"/>
-<wire x1="41.112715625" y1="16.432784375" x2="46.9718875" y2="21.6336625" width="0.1" layer="20"/>
-<wire x1="46.9718875" y1="21.6336625" x2="47.94259375" y2="22.373484375" width="0.1" layer="20"/>
-<wire x1="47.94259375" y1="22.373484375" x2="48.15055" y2="22.496646875" width="0.1" layer="20"/>
-<wire x1="48.15055" y1="22.496646875" x2="48.378465625" y2="22.615159375" width="0.1" layer="20"/>
-<wire x1="48.378465625" y1="22.615159375" x2="48.6286875" y2="22.7271875" width="0.1" layer="20"/>
-<wire x1="48.6286875" y1="22.7271875" x2="48.903603125" y2="22.830884375" width="0.1" layer="20"/>
-<wire x1="48.903603125" y1="22.830884375" x2="49.205609375" y2="22.924396875" width="0.1" layer="20"/>
-<wire x1="49.205609375" y1="22.924396875" x2="49.53709375" y2="23.005875" width="0.1" layer="20"/>
-<wire x1="49.53709375" y1="23.005875" x2="50.04718125" y2="23.092690625" width="0.1" layer="20"/>
-<wire x1="50.04718125" y1="23.092690625" x2="50.297940625" y2="23.125440625" width="0.1" layer="20"/>
-<wire x1="50.297940625" y1="23.125440625" x2="50.732065625" y2="23.159828125" width="0.1" layer="20"/>
-<wire x1="50.732065625" y1="23.159828125" x2="51.2051875" y2="23.174815625" width="0.1" layer="20"/>
-<wire x1="51.2051875" y1="23.174815625" x2="51.653890625" y2="23.17160625" width="0.1" layer="20"/>
-<wire x1="51.653890625" y1="23.17160625" x2="52.059528125" y2="23.1537125" width="0.1" layer="20"/>
-<wire x1="52.059528125" y1="23.1537125" x2="52.399040625" y2="23.124515625" width="0.1" layer="20"/>
-<wire x1="52.399040625" y1="23.124515625" x2="53.049778125" y2="23.0228625" width="0.1" layer="20"/>
-<wire x1="53.049778125" y1="23.0228625" x2="53.55278125" y2="22.882046875" width="0.1" layer="20"/>
-<wire x1="53.55278125" y1="22.882046875" x2="53.95966875" y2="22.708390625" width="0.1" layer="20"/>
-<wire x1="53.95966875" y1="22.708390625" x2="54.135003125" y2="22.61195" width="0.1" layer="20"/>
-<wire x1="54.135003125" y1="22.61195" x2="54.44525625" y2="22.4052" width="0.1" layer="20"/>
-<wire x1="54.44525625" y1="22.4052" x2="55.008140625" y2="21.96620625" width="0.1" layer="20"/>
-<wire x1="55.008140625" y1="21.96620625" x2="61.19243125" y2="16.1898625" width="0.1" layer="20"/>
+<wire x1="41.112715625" y1="16.432784375" x2="46.654646875" y2="22.100090625" width="0.1" layer="20"/>
+<wire x1="46.654646875" y1="22.100090625" x2="46.81" y2="22.1" width="0.1" layer="20"/>
+<wire x1="46.81" y1="22.1" x2="55.608140625" y2="22.1" width="0.1" layer="20"/>
+<wire x1="55.608140625" y1="22.1" x2="61.19243125" y2="16.1898625" width="0.1" layer="20"/>
 <wire x1="61.19243125" y1="16.1898625" x2="63.52579375" y2="14.249390625" width="0.1" layer="20"/>
 <wire x1="63.52579375" y1="14.249390625" x2="64.775396875" y2="13.304140625" width="0.1" layer="20"/>
 <wire x1="64.775396875" y1="13.304140625" x2="66.083090625" y2="12.39319375" width="0.1" layer="20"/>
@@ -2007,6 +1993,14 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <vertex x="45.12728125" y="29.86284375"/>
 <vertex x="45.10685" y="30.026203125"/>
 </polygon>
+<text x="43.8" y="90.6" size="0.6096" layer="25">VCC</text>
+<text x="56.6" y="90.5" size="0.6096" layer="25">GND</text>
+<text x="56.6" y="84.3" size="0.6096" layer="25">GND</text>
+<text x="46.4" y="90.6" size="0.6096" layer="25">SCL</text>
+<text x="49" y="90.6" size="0.6096" layer="25">SDA</text>
+<text x="51.7" y="90.6" size="0.6096" layer="25">IO1</text>
+<text x="54" y="90.6" size="0.6096" layer="25">IO2</text>
+<text x="43.4" y="84.1" size="0.6096" layer="25">VBAT</text>
 </plain>
 <libraries>
 <library name="voltage-regulator">
@@ -5747,7 +5741,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="NAME" x="66.272228125" y="110.214559375" size="0.4064" layer="25"/>
 </element>
 <element name="TOP-BOT-CONNECTOR" library="connector" package="2X6" value="M06X2" x="44.534228125" y="86.289059375" smashed="yes">
-<attribute name="NAME" x="43.244228125" y="83.014059375" size="1.016" layer="25" font="vector" ratio="10"/>
+<attribute name="NAME" x="44.444228125" y="79.914059375" size="1.016" layer="25" font="vector" ratio="10"/>
 </element>
 <element name="PWR" library="switches" package="MSS3VTR" value="MSS3-V-T_R" x="71.2" y="10.4" smashed="yes" rot="R324">
 <attribute name="DESCRIPTION" value="Slide Switches Slide Type 1P2T (1.4mm height)" x="71.2" y="10.4" size="0.6096" layer="27" rot="R324" display="off"/>
@@ -6040,21 +6034,21 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <vertex x="64.1076" y="13.809178125"/>
 <vertex x="63.49619375" y="14.278165625"/>
 <vertex x="61.226446875" y="16.154109375"/>
-<vertex x="54.9532375" y="22.01643125"/>
-<vertex x="54.425584375" y="22.42679375"/>
-<vertex x="53.956559375" y="22.719909375"/>
-<vertex x="53.504284375" y="22.89578125"/>
-<vertex x="53.018509375" y="23.029775"/>
-<vertex x="52.423853125" y="23.113525"/>
-<vertex x="51.946453125" y="23.163771875"/>
-<vertex x="51.6784375" y="23.180521875"/>
-<vertex x="50.95815" y="23.172146875"/>
-<vertex x="50.59800625" y="23.155396875"/>
-<vertex x="50.11223125" y="23.10515"/>
-<vertex x="49.534325" y="23.004653125"/>
-<vertex x="49.18255625" y="22.920903125"/>
-<vertex x="48.613025" y="22.728284375"/>
-<vertex x="47.942990625" y="22.376546875"/>
+<vertex x="56.98289375" y="20.119715625"/>
+<vertex x="56.051303125" y="21.051303125"/>
+<vertex x="54.497878125" y="22.1021125"/>
+<vertex x="53.304284375" y="22.1"/>
+<vertex x="52.818509375" y="22.1"/>
+<vertex x="52.223853125" y="22.1"/>
+<vertex x="51.746453125" y="22.1"/>
+<vertex x="51.4784375" y="22.1"/>
+<vertex x="50.75815" y="22.1"/>
+<vertex x="50.39800625" y="22.1"/>
+<vertex x="49.91223125" y="22.1"/>
+<vertex x="49.334325" y="22.1"/>
+<vertex x="48.98255625" y="22.1"/>
+<vertex x="47.455809375" y="22.1"/>
+<vertex x="47.513425" y="22.0499625"/>
 <vertex x="46.929559375" y="21.60606875"/>
 <vertex x="41.075121875" y="16.40535"/>
 <vertex x="36.384871875" y="12.770709375"/>
@@ -6416,22 +6410,17 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <vertex x="64.752509375" y="13.31506875"/>
 <vertex x="64.1076" y="13.809178125"/>
 <vertex x="63.49619375" y="14.278165625"/>
-<vertex x="61.226446875" y="16.154109375"/>
-<vertex x="54.9532375" y="22.01643125"/>
-<vertex x="54.425584375" y="22.42679375"/>
-<vertex x="53.956559375" y="22.719909375"/>
-<vertex x="53.504284375" y="22.89578125"/>
-<vertex x="53.018509375" y="23.029775"/>
-<vertex x="52.423853125" y="23.113525"/>
-<vertex x="51.946453125" y="23.163771875"/>
-<vertex x="51.6784375" y="23.180521875"/>
-<vertex x="50.95815" y="23.172146875"/>
-<vertex x="50.59800625" y="23.155396875"/>
-<vertex x="50.11223125" y="23.10515"/>
-<vertex x="49.534325" y="23.004653125"/>
-<vertex x="49.18255625" y="22.920903125"/>
-<vertex x="48.613025" y="22.728284375"/>
-<vertex x="47.942990625" y="22.376546875"/>
+<vertex x="61.816284375" y="15.666609375"/>
+<vertex x="59.741446875" y="17.74144375"/>
+<vertex x="55.252459375" y="21.5864875"/>
+<vertex x="52.818509375" y="22.1"/>
+<vertex x="51.7897625" y="22.1"/>
+<vertex x="51.31169375" y="22.1"/>
+<vertex x="50.75815" y="22.1"/>
+<vertex x="50.39800625" y="22.1"/>
+<vertex x="49.10721875" y="22.1"/>
+<vertex x="48.850534375" y="22.1"/>
+<vertex x="47.3691125" y="22.1"/>
 <vertex x="46.929559375" y="21.60606875"/>
 <vertex x="41.075121875" y="16.40535"/>
 <vertex x="36.384871875" y="12.770709375"/>
