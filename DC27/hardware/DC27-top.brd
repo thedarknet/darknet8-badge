@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.4.1">
+<eagle version="9.4.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -37,8 +37,8 @@
 <layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
-<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
-<layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
+<layer number="30" name="bStop" color="7" fill="6" visible="yes" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
 <layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
 <layer number="33" name="tFinish" color="6" fill="3" visible="no" active="yes"/>
@@ -2462,14 +2462,14 @@
 <text x="48.8" y="84" size="0.6096" layer="25">B2</text>
 <text x="46.3" y="84" size="0.6096" layer="25">B1</text>
 <text x="43.1" y="84" size="0.6096" layer="25">VBAT</text>
-<text x="64" y="19" size="0.8128" layer="26" rot="MR0">Solve 
+<text x="67.048" y="18.8476" size="1.016" layer="26" rot="MR0">Solve 
 my 
 puzzle</text>
 <text x="91.821" y="38.481" size="1.016" layer="26" font="vector" rot="MR0">1   15  18
 14  9    4 
 3   11  19</text>
-<text x="93.9546" y="19.7358" size="0.8128" layer="26" font="vector" rot="MR0">khtrm://cxp.ac/2CsCuG5</text>
-<text x="16.6096" y="48.9614" size="0.8128" layer="26" font="vector" rot="MR0">1929</text>
+<text x="95.7834" y="21.8694" size="1.016" layer="26" font="vector" rot="MR0">khtrm://cxp.ac/2CsCuG5</text>
+<text x="16.6096" y="48.9614" size="1.016" layer="26" font="vector" rot="MR0">1929</text>
 <rectangle x1="7.5057" y1="37.6047" x2="8.0391" y2="37.6809" layer="26"/>
 <rectangle x1="8.1153" y1="37.6047" x2="8.4201" y2="37.6809" layer="26"/>
 <rectangle x1="8.4963" y1="37.6047" x2="8.5725" y2="37.6809" layer="26"/>
@@ -3577,6 +3577,18 @@ puzzle</text>
 <rectangle x1="14.9733" y1="44.6913" x2="15.1257" y2="44.7675" layer="26"/>
 <rectangle x1="15.2019" y1="44.6913" x2="15.7353" y2="44.7675" layer="26"/>
 <text x="7.5438" y="37.2618" size="0.1524" layer="26" font="vector">E:/MyStuff/dev/darknet/hill1.bmp</text>
+<text x="15.24" y="108.712" size="0.8128" layer="25">VCC</text>
+<text x="80.1624" y="108.712" size="0.8128" layer="25">VCC</text>
+<text x="15.24" y="102.489" size="0.8128" layer="25">GND</text>
+<text x="80.1624" y="102.489" size="0.8128" layer="25">GND</text>
+<text x="17.907" y="108.712" size="0.8128" layer="25">SDA</text>
+<text x="82.7532" y="108.712" size="0.8128" layer="25">SDA</text>
+<text x="17.907" y="102.489" size="0.8128" layer="25">SCL</text>
+<text x="82.7532" y="102.489" size="0.8128" layer="25">SCL</text>
+<text x="20.6502" y="108.712" size="0.6096" layer="25">GPIO1</text>
+<text x="85.344" y="108.712" size="0.6096" layer="25">GPIO1</text>
+<text x="20.6502" y="102.489" size="0.6096" layer="25">GPIO2</text>
+<text x="85.344" y="102.489" size="0.6096" layer="25">GPIO2</text>
 </plain>
 <libraries>
 <library name="darknet_parts_library">
@@ -5627,12 +5639,8 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </autorouter>
 <elements>
 <element name="U$1" library="darknet_parts_library" package="KRUX_LOGO" value="KRUX_LOGO" x="34.248228125" y="20.110259375" smashed="yes" rot="MR0"/>
-<element name="U$3" library="defcon" package="3X2" value="DC-27-SAO" x="18.758228125" y="105.950259375" smashed="yes">
-<attribute name="NAME" x="16.091228125" y="108.998259375" size="1.016" layer="21" font="vector"/>
-</element>
-<element name="U$4" library="defcon" package="3X2" value="DC-27-SAO" x="83.758228125" y="105.950259375" smashed="yes">
-<attribute name="NAME" x="81.091228125" y="108.998259375" size="1.016" layer="21" font="vector"/>
-</element>
+<element name="U$3" library="defcon" package="3X2" value="DC-27-SAO" x="18.758228125" y="105.950259375" smashed="yes"/>
+<element name="U$4" library="defcon" package="3X2" value="DC-27-SAO" x="83.758228125" y="105.950259375" smashed="yes"/>
 <element name="C1" library="passives" package="C1206" value="0.1 uF" x="68.946340625" y="95.5" smashed="yes" rot="MR0">
 <attribute name="NAME" x="69.629140625" y="93.3458" size="0.8128" layer="26" rot="MR0"/>
 <attribute name="VALUE" x="70.643340625" y="93.179" size="0.8128" layer="28" rot="MR0"/>
@@ -5662,12 +5670,12 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <element name="LED23" library="leds" package="GULLWING_LED" value="Amber" x="76.358228125" y="73.050259375" smashed="yes" rot="MR0"/>
 <element name="LED24" library="leds" package="GULLWING_LED" value="Amber" x="66.758228125" y="73.700259375" smashed="yes" rot="MR0"/>
 <element name="U$5" library="darknet_parts_library" package="DN_LOGO_DC26" value="DN_LOGODC26" x="51.758228125" y="100.450259375" smashed="yes" rot="MR0"/>
-<element name="U$2" library="logos" package="CMD_C0DE_LOGO" value="CMD_C0DE_LOGO" x="68.758228125" y="19.950259375" smashed="yes" rot="MR0"/>
+<element name="U$2" library="logos" package="CMD_C0DE_LOGO" value="CMD_C0DE_LOGO" x="71.196628125" y="20.026459375" smashed="yes" rot="MR0"/>
 <element name="D1" library="passives" package="DIOAD1060W80L520D270" value="DIODE-SCHOTTKYDIOAD-TH" x="75.958228125" y="112.2" smashed="yes" rot="R180">
-<attribute name="NAME" x="77.236228125" y="111.057" size="0.889" layer="25" ratio="15" rot="R180"/>
+<attribute name="NAME" x="76.779028125" y="112.581" size="0.889" layer="25" ratio="15" rot="R180"/>
 </element>
 <element name="D2" library="passives" package="DIOAD1060W80L520D270" value="DIODE-SCHOTTKYDIOAD-TH" x="21.533659375" y="112.4" smashed="yes">
-<attribute name="NAME" x="20.255659375" y="113.543" size="0.889" layer="25" ratio="15"/>
+<attribute name="NAME" x="20.941459375" y="112.019" size="0.889" layer="25" ratio="15"/>
 </element>
 <element name="TOP-BOT-CONNECTOR" library="connector" package="2X6" value="M06X2" x="44.158228125" y="86.250259375" smashed="yes">
 <attribute name="VALUE" x="42.888228125" y="83.075259375" size="1.27" layer="27"/>

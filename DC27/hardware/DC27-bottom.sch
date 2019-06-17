@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.4.0">
+<eagle version="9.4.2">
 <drawing>
 <settings>
-<setting alwaysvectorfont="no"/>
+<setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
@@ -20631,10 +20631,10 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <part name="C4" library="passives" deviceset="C-US" device="C0805" value="1 uF"/>
 <part name="C5" library="passives" deviceset="C-US" device="C0805" value="1 uF"/>
 <part name="IC-IP5305" library="charging-ic" deviceset="IP5305" device="ESOP8" package3d_urn="urn:adsk.eagle:package:8974512/1"/>
-<part name="LED1" library="leds" deviceset="LED" device="1206" value="cl1"/>
-<part name="LED4" library="leds" deviceset="LED" device="1206" value="cl2"/>
-<part name="LED5" library="leds" deviceset="LED" device="1206" value="cl3"/>
-<part name="LED6" library="leds" deviceset="LED" device="1206" value="cl4"/>
+<part name="CL1" library="leds" deviceset="LED" device="1206" value="BLUE"/>
+<part name="CL2" library="leds" deviceset="LED" device="1206" value="BLUE"/>
+<part name="CL3" library="leds" deviceset="LED" device="1206" value="BLUE"/>
+<part name="CL4" library="leds" deviceset="LED" device="1206" value="BLUE"/>
 <part name="C13" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
 <part name="C22" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
 <part name="C23" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
@@ -20645,7 +20645,7 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <part name="R3" library="passives" deviceset="RESISTOR" device="0805-RES" value="1 K"/>
 <part name="R17" library="passives" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
 <part name="C25" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
-<part name="LED7" library="leds" deviceset="LED" device="1206" value="KeyLed"/>
+<part name="KEYLED" library="leds" deviceset="LED" device="1206" value="GREEN"/>
 <part name="U$5" library="switches" deviceset="SWITCH_TACTILE" device="TACTILE-2PIN-NARROW"/>
 <part name="U$4" library="ICs" deviceset="ATECC608A-SSHDA" device=""/>
 <part name="U2" library="ICs" deviceset="ESP-WROOM-32" device=""/>
@@ -20658,7 +20658,7 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <part name="C2" library="passives" deviceset="C-US" device="C0805" value="4.7 uF"/>
 <part name="R18" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="100 R"/>
 <part name="C34" library="passives" deviceset="C-US" device="C0805" value="10 uF"/>
-<part name="LED8" library="leds" deviceset="LED" device="1206" value="ESP-LED"/>
+<part name="ESP-LED" library="leds" deviceset="LED" device="1206" value="GREEN"/>
 <part name="C35" library="passives" deviceset="C-US" device="C0805" value="0.1 uF"/>
 <part name="IC3" library="ICs" deviceset="FT2232HL-REEL" device=""/>
 <part name="C6" library="passives" deviceset="C-US" device="C0805" value="18 pF"/>
@@ -20683,8 +20683,8 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <part name="IC4" library="eeprom" deviceset="93LC46BT-I_OT" device=""/>
 <part name="R9" library="passives" deviceset="RESISTOR" device="0805-RES" value="10 K"/>
 <part name="R10" library="passives" deviceset="RESISTOR" device="0805-RES" value="2.2 K"/>
-<part name="LED2" library="leds" deviceset="LED" device="1206" value="rx-led"/>
-<part name="LED3" library="leds" deviceset="LED" device="1206" value="tx-led"/>
+<part name="RX-LED" library="leds" deviceset="LED" device="1206" value="BLUE"/>
+<part name="TX-LED" library="leds" deviceset="LED" device="1206" value="GREEN"/>
 <part name="R11" library="passives" deviceset="RESISTOR" device="0805-RES" value="56 R"/>
 <part name="R12" library="passives" deviceset="RESISTOR" device="0805-RES" value="56 R"/>
 <part name="EMIFILTER1" library="passives" deviceset="MEM2012S101RT" device=""/>
@@ -20706,8 +20706,8 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <part name="R25" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="100 R"/>
 <part name="R26" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="100 R"/>
 <part name="R16" library="passives" deviceset="RESISTOR" device="0805-RES" value="4.7 K"/>
-<part name="R19" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="4.7 K"/>
-<part name="R20" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="4.7 K"/>
+<part name="R19" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="2.2 K"/>
+<part name="R20" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="2.2 K"/>
 <part name="TOP-BOT-CONNECTOR" library="connector" deviceset="M06X2" device=""/>
 <part name="PWR" library="switches" deviceset="MSS3-V-T_R" device=""/>
 <part name="J4" library="connector" deviceset="M06" device="POGO-PIN" value="Program Port"/>
@@ -20720,6 +20720,8 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <part name="U$13" library="darknet_parts_library" deviceset="DC27_PUZZLE_ELEMENT_4" device=""/>
 <part name="U$14" library="darknet_parts_library" deviceset="DC27_PUZZLE_ELEMENT_5" device=""/>
 <part name="U$15" library="darknet_parts_library" deviceset="DC27_PUZZLE_ELEMENT_6" device=""/>
+<part name="R28" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="2.2 K"/>
+<part name="R29" library="dc-26" deviceset="RESISTOR" device="0805-RES" value="2.2 K"/>
 </parts>
 <sheets>
 <sheet>
@@ -20745,16 +20747,16 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <instance part="IC-IP5305" gate="G$1" x="128.1176" y="56.896" smashed="yes">
 <attribute name="NAME" x="123.2916" y="64.77" size="1.778" layer="94"/>
 </instance>
-<instance part="LED1" gate="G$1" x="81.28" y="53.34" smashed="yes">
+<instance part="CL1" gate="G$1" x="81.28" y="53.34" smashed="yes">
 <attribute name="VALUE" x="86.995" y="48.768" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="LED4" gate="G$1" x="88.9" y="50.8" smashed="yes" rot="R180">
+<instance part="CL2" gate="G$1" x="88.9" y="50.8" smashed="yes" rot="R180">
 <attribute name="VALUE" x="83.185" y="55.372" size="1.778" layer="96" rot="R270"/>
 </instance>
-<instance part="LED5" gate="G$1" x="93.98" y="50.8" smashed="yes">
+<instance part="CL3" gate="G$1" x="93.98" y="50.8" smashed="yes">
 <attribute name="VALUE" x="99.695" y="46.228" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="LED6" gate="G$1" x="101.6" y="48.26" smashed="yes" rot="R180">
+<instance part="CL4" gate="G$1" x="101.6" y="48.26" smashed="yes" rot="R180">
 <attribute name="VALUE" x="95.885" y="52.832" size="1.778" layer="96" rot="R270"/>
 </instance>
 <instance part="C13" gate="G$1" x="104.14" y="73.66" smashed="yes">
@@ -20796,7 +20798,7 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <attribute name="NAME" x="154.305" y="34.036" size="1.016" layer="95" rot="R90"/>
 <attribute name="VALUE" x="159.131" y="34.036" size="1.016" layer="96" rot="R90"/>
 </instance>
-<instance part="LED7" gate="G$1" x="119.38" y="35.56" smashed="yes" rot="R270">
+<instance part="KEYLED" gate="G$1" x="119.38" y="35.56" smashed="yes" rot="R270">
 <attribute name="VALUE" x="114.808" y="29.845" size="1.778" layer="96"/>
 </instance>
 <instance part="U$5" gate="G$1" x="116.84" y="25.4" smashed="yes" rot="R90">
@@ -20878,7 +20880,7 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <label x="33.02" y="45.72" size="1.016" layer="95"/>
 </segment>
 <segment>
-<pinref part="LED7" gate="G$1" pin="C"/>
+<pinref part="KEYLED" gate="G$1" pin="C"/>
 <wire x1="114.3" y1="35.56" x2="109.22" y2="35.56" width="0.1524" layer="91"/>
 <label x="106.68" y="35.56" size="1.016" layer="95"/>
 </segment>
@@ -20968,8 +20970,8 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <wire x1="88.9" y1="58.42" x2="81.28" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="81.28" y1="58.42" x2="81.28" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="88.9" y1="58.42" x2="88.9" y2="55.88" width="0.1524" layer="91"/>
-<pinref part="LED1" gate="G$1" pin="A"/>
-<pinref part="LED4" gate="G$1" pin="C"/>
+<pinref part="CL1" gate="G$1" pin="A"/>
+<pinref part="CL2" gate="G$1" pin="C"/>
 <pinref part="IC-IP5305" gate="G$1" pin="2"/>
 <wire x1="88.9" y1="58.42" x2="117.7036" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="117.7036" y1="58.42" x2="117.7036" y2="58.166" width="0.1524" layer="91"/>
@@ -20981,8 +20983,8 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <wire x1="101.6" y1="55.88" x2="93.98" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="93.98" y1="55.88" x2="93.98" y2="53.34" width="0.1524" layer="91"/>
 <wire x1="101.6" y1="55.88" x2="101.6" y2="53.34" width="0.1524" layer="91"/>
-<pinref part="LED5" gate="G$1" pin="A"/>
-<pinref part="LED6" gate="G$1" pin="C"/>
+<pinref part="CL3" gate="G$1" pin="A"/>
+<pinref part="CL4" gate="G$1" pin="C"/>
 <pinref part="IC-IP5305" gate="G$1" pin="3"/>
 <wire x1="101.6" y1="55.88" x2="117.7036" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="117.7036" y1="55.88" x2="117.7036" y2="55.626" width="0.1524" layer="91"/>
@@ -20991,14 +20993,14 @@ RAP PAL GLOW CREW BASH HOLT</text>
 </net>
 <net name="N$15" class="0">
 <segment>
-<pinref part="LED1" gate="G$1" pin="C"/>
-<pinref part="LED4" gate="G$1" pin="A"/>
+<pinref part="CL1" gate="G$1" pin="C"/>
+<pinref part="CL2" gate="G$1" pin="A"/>
 <wire x1="81.28" y1="48.26" x2="88.9" y2="48.26" width="0.1524" layer="91"/>
 <wire x1="88.9" y1="48.26" x2="88.9" y2="45.72" width="0.1524" layer="91"/>
 <junction x="88.9" y="48.26"/>
-<pinref part="LED5" gate="G$1" pin="C"/>
+<pinref part="CL3" gate="G$1" pin="C"/>
 <wire x1="88.9" y1="45.72" x2="93.98" y2="45.72" width="0.1524" layer="91"/>
-<pinref part="LED6" gate="G$1" pin="A"/>
+<pinref part="CL4" gate="G$1" pin="A"/>
 <wire x1="93.98" y1="45.72" x2="101.6" y2="45.72" width="0.1524" layer="91"/>
 <junction x="93.98" y="45.72"/>
 <wire x1="101.6" y1="45.72" x2="109.22" y2="45.72" width="0.1524" layer="91"/>
@@ -21057,7 +21059,7 @@ RAP PAL GLOW CREW BASH HOLT</text>
 <net name="N$24" class="0">
 <segment>
 <pinref part="R3" gate="G$1" pin="2"/>
-<pinref part="LED7" gate="G$1" pin="A"/>
+<pinref part="KEYLED" gate="G$1" pin="A"/>
 <wire x1="124.46" y1="35.56" x2="121.92" y2="35.56" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -21169,7 +21171,7 @@ to delay even longer</text>
 <attribute name="NAME" x="77.216" y="-34.925" size="1.016" layer="95"/>
 <attribute name="VALUE" x="77.216" y="-39.751" size="1.016" layer="96"/>
 </instance>
-<instance part="LED8" gate="G$1" x="220.98" y="63.5" smashed="yes" rot="R90">
+<instance part="ESP-LED" gate="G$1" x="220.98" y="63.5" smashed="yes" rot="R90">
 <attribute name="NAME" x="225.552" y="67.056" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="225.552" y="69.215" size="1.778" layer="96" rot="R180"/>
 </instance>
@@ -21221,6 +21223,14 @@ to delay even longer</text>
 <instance part="R27" gate="G$1" x="114.3" y="127" smashed="yes" rot="R180">
 <attribute name="NAME" x="115.57" y="122.9614" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="118.11" y="130.302" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="R28" gate="G$1" x="170.18" y="129.54" smashed="yes" rot="R180">
+<attribute name="NAME" x="173.99" y="128.0414" size="1.016" layer="95" rot="R180"/>
+<attribute name="VALUE" x="173.99" y="132.842" size="1.016" layer="96" rot="R180"/>
+</instance>
+<instance part="R29" gate="G$1" x="180.34" y="127" smashed="yes" rot="R180">
+<attribute name="NAME" x="184.15" y="125.5014" size="1.016" layer="95" rot="R180"/>
+<attribute name="VALUE" x="184.15" y="130.302" size="1.016" layer="96" rot="R180"/>
 </instance>
 </instances>
 <busses>
@@ -21342,7 +21352,7 @@ to delay even longer</text>
 <label x="86.36" y="-12.7" size="1.016" layer="95" rot="R180"/>
 </segment>
 <segment>
-<pinref part="LED8" gate="G$1" pin="C"/>
+<pinref part="ESP-LED" gate="G$1" pin="C"/>
 <wire x1="226.06" y1="63.5" x2="233.68" y2="63.5" width="0.1524" layer="91"/>
 <label x="233.68" y="63.5" size="1.778" layer="95"/>
 </segment>
@@ -21544,11 +21554,6 @@ to delay even longer</text>
 <wire x1="215.9" y1="86.36" x2="220.98" y2="86.36" width="0.1524" layer="91"/>
 <label x="220.98" y="86.36" size="1.778" layer="95"/>
 </segment>
-<segment>
-<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="6"/>
-<wire x1="157.48" y1="127" x2="162.56" y2="127" width="0.1524" layer="91"/>
-<label x="162.56" y="127" size="1.778" layer="95"/>
-</segment>
 </net>
 <net name="SCL" class="0">
 <segment>
@@ -21561,11 +21566,6 @@ to delay even longer</text>
 <pinref part="U$4" gate="G$1" pin="SCL"/>
 <wire x1="215.9" y1="88.9" x2="220.98" y2="88.9" width="0.1524" layer="91"/>
 <label x="220.98" y="88.9" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="4"/>
-<wire x1="157.48" y1="129.54" x2="162.56" y2="129.54" width="0.1524" layer="91"/>
-<label x="162.56" y="129.54" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="PROG_TX" class="0">
@@ -21766,30 +21766,6 @@ to delay even longer</text>
 <label x="101.6" y="15.24" size="1.016" layer="95" rot="R270" xref="yes"/>
 </segment>
 </net>
-<net name="APA102_DATA" class="0">
-<segment>
-<pinref part="U2" gate="G$1" pin="IO16"/>
-<wire x1="134.62" y1="60.96" x2="139.7" y2="60.96" width="0.1524" layer="91"/>
-<label x="139.7" y="60.96" size="1.016" layer="95" xref="yes"/>
-</segment>
-<segment>
-<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="8"/>
-<wire x1="157.48" y1="124.46" x2="162.56" y2="124.46" width="0.1524" layer="91"/>
-<label x="162.56" y="124.46" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="APA102_CLK" class="0">
-<segment>
-<pinref part="U2" gate="G$1" pin="IO2"/>
-<wire x1="121.92" y1="45.72" x2="121.92" y2="38.1" width="0.1524" layer="91"/>
-<label x="121.92" y="38.1" size="1.016" layer="95" rot="R270" xref="yes"/>
-</segment>
-<segment>
-<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="10"/>
-<wire x1="157.48" y1="121.92" x2="162.56" y2="121.92" width="0.1524" layer="91"/>
-<label x="162.56" y="121.92" size="1.778" layer="95"/>
-</segment>
-</net>
 <net name="ESP_JTAG_TDO_LED" class="0">
 <segment>
 <pinref part="R24" gate="G$1" pin="1"/>
@@ -21798,7 +21774,7 @@ to delay even longer</text>
 </segment>
 <segment>
 <label x="193.04" y="63.5" size="1.778" layer="95"/>
-<pinref part="LED8" gate="G$1" pin="A"/>
+<pinref part="ESP-LED" gate="G$1" pin="A"/>
 <wire x1="195.58" y1="63.5" x2="218.44" y2="63.5" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -21807,6 +21783,44 @@ to delay even longer</text>
 <pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="1"/>
 <wire x1="142.24" y1="132.08" x2="139.7" y2="132.08" width="0.1524" layer="91"/>
 <label x="137.16" y="132.08" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="SCL-2" class="0">
+<segment>
+<pinref part="U2" gate="G$1" pin="IO2"/>
+<wire x1="121.92" y1="45.72" x2="121.92" y2="40.64" width="0.1524" layer="91"/>
+<label x="121.92" y="35.56" size="1.4224" layer="95" rot="R90"/>
+</segment>
+<segment>
+<pinref part="R28" gate="G$1" pin="1"/>
+<wire x1="175.26" y1="129.54" x2="187.96" y2="129.54" width="0.1524" layer="91"/>
+<label x="187.96" y="129.54" size="1.4224" layer="95"/>
+</segment>
+</net>
+<net name="SDA-2" class="0">
+<segment>
+<pinref part="U2" gate="G$1" pin="IO16"/>
+<wire x1="134.62" y1="60.96" x2="139.7" y2="60.96" width="0.1524" layer="91"/>
+<label x="139.7" y="60.96" size="1.4224" layer="95"/>
+</segment>
+<segment>
+<pinref part="R29" gate="G$1" pin="1"/>
+<wire x1="185.42" y1="127" x2="187.96" y2="127" width="0.1524" layer="91"/>
+<label x="187.96" y="127" size="1.4224" layer="95"/>
+</segment>
+</net>
+<net name="N$1" class="0">
+<segment>
+<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="4"/>
+<wire x1="157.48" y1="129.54" x2="165.1" y2="129.54" width="0.1524" layer="91"/>
+<pinref part="R28" gate="G$1" pin="2"/>
+</segment>
+</net>
+<net name="N$2" class="0">
+<segment>
+<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="6"/>
+<wire x1="157.48" y1="127" x2="175.26" y2="127" width="0.1524" layer="91"/>
+<pinref part="R29" gate="G$1" pin="2"/>
 </segment>
 </net>
 </nets>
@@ -21913,11 +21927,11 @@ turns on, if unplugged it turns off.</text>
 <attribute name="NAME" x="82.55" y="150.9014" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="82.55" y="155.702" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="LED2" gate="G$1" x="208.28" y="0" smashed="yes">
+<instance part="RX-LED" gate="G$1" x="208.28" y="0" smashed="yes">
 <attribute name="NAME" x="211.836" y="-4.572" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="213.995" y="-4.572" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="LED3" gate="G$1" x="218.44" y="0" smashed="yes">
+<instance part="TX-LED" gate="G$1" x="218.44" y="0" smashed="yes">
 <attribute name="NAME" x="221.996" y="-4.572" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="224.155" y="-4.572" size="1.778" layer="96" rot="R90"/>
 </instance>
@@ -22406,7 +22420,7 @@ turns on, if unplugged it turns off.</text>
 </net>
 <net name="RXD_LED" class="0">
 <segment>
-<pinref part="LED2" gate="G$1" pin="C"/>
+<pinref part="RX-LED" gate="G$1" pin="C"/>
 <wire x1="208.28" y1="-5.08" x2="208.28" y2="-10.16" width="0.1524" layer="91"/>
 <label x="208.28" y="-17.78" size="1.778" layer="95" rot="R90"/>
 </segment>
@@ -22418,7 +22432,7 @@ turns on, if unplugged it turns off.</text>
 </net>
 <net name="TXD_LED" class="0">
 <segment>
-<pinref part="LED3" gate="G$1" pin="C"/>
+<pinref part="TX-LED" gate="G$1" pin="C"/>
 <wire x1="218.44" y1="-5.08" x2="218.44" y2="-10.16" width="0.1524" layer="91"/>
 <label x="218.44" y="-17.78" size="1.778" layer="95" rot="R90"/>
 </segment>
@@ -22431,14 +22445,14 @@ turns on, if unplugged it turns off.</text>
 <net name="N$11" class="0">
 <segment>
 <pinref part="R11" gate="G$1" pin="1"/>
-<pinref part="LED2" gate="G$1" pin="A"/>
+<pinref part="RX-LED" gate="G$1" pin="A"/>
 <wire x1="208.28" y1="5.08" x2="208.28" y2="2.54" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$13" class="0">
 <segment>
 <pinref part="R12" gate="G$1" pin="1"/>
-<pinref part="LED3" gate="G$1" pin="A"/>
+<pinref part="TX-LED" gate="G$1" pin="A"/>
 <wire x1="218.44" y1="5.08" x2="218.44" y2="2.54" width="0.1524" layer="91"/>
 </segment>
 </net>

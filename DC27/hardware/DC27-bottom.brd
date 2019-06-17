@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.4.1">
+<eagle version="9.4.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
 <setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.003125" unitdist="mic" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="mm" altunit="mm"/>
+<grid distance="1" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="mm" altunit="mm"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="16" fill="1" visible="no" active="no"/>
@@ -13128,16 +13128,16 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="NAME" x="73.518025" y="26.36065625" size="0.6096" layer="25" font="vector"/>
 </element>
 <element name="IC-IP5305" library="charging-ic" package="SOIC127P600X165-8" package3d_urn="urn:adsk.eagle:package:8974512/1" value="IP5305ESOP8" x="27.005428125" y="20.491059375" smashed="yes" rot="R90"/>
-<element name="LED1" library="leds" package="LED-1206" value="cl1" x="38.334228125" y="21.670259375" smashed="yes" rot="R270">
+<element name="CL1" library="leds" package="LED-1206" value="BLUE" x="38.334228125" y="21.670259375" smashed="yes" rot="R270">
 <attribute name="NAME" x="38.58733125" y="16.776628125" size="0.6096" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
-<element name="LED4" library="leds" package="LED-1206" value="cl2" x="35.984228125" y="21.670259375" smashed="yes" rot="R90">
+<element name="CL2" library="leds" package="LED-1206" value="BLUE" x="35.984228125" y="21.670259375" smashed="yes" rot="R90">
 <attribute name="NAME" x="36.273228125" y="16.765259375" size="0.6096" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
-<element name="LED5" library="leds" package="LED-1206" value="cl3" x="33.634228125" y="21.670259375" smashed="yes" rot="R270">
+<element name="CL3" library="leds" package="LED-1206" value="BLUE" x="33.634228125" y="21.670259375" smashed="yes" rot="R270">
 <attribute name="NAME" x="33.835309375" y="16.751321875" size="0.6096" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
-<element name="LED6" library="leds" package="LED-1206" value="cl4" x="31.284228125" y="21.670259375" smashed="yes" rot="R90">
+<element name="CL4" library="leds" package="LED-1206" value="BLUE" x="31.284228125" y="21.670259375" smashed="yes" rot="R90">
 <attribute name="NAME" x="31.575396875" y="16.732475" size="0.6096" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="C13" library="passives" package="C0805" value="10 uF" x="22.383428125" y="15.185059375" smashed="yes">
@@ -13174,7 +13174,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <element name="C25" library="passives" package="C0805" value="10 uF" x="22.526540625" y="28.376628125" smashed="yes" rot="R270">
 <attribute name="NAME" x="20.69800625" y="28.990215625" size="0.6096" layer="25" font="vector" rot="R270"/>
 </element>
-<element name="LED7" library="leds" package="LED-1206" value="KeyLed" x="33.479028125" y="32.817059375" smashed="yes">
+<element name="KEYLED" library="leds" package="LED-1206" value="GREEN" x="33.479028125" y="32.817059375" smashed="yes">
 <attribute name="NAME" x="32.814028125" y="34.188059375" size="0.4064" layer="25" font="vector" ratio="10"/>
 <attribute name="VALUE" x="32.424028125" y="31.216059375" size="0.4064" layer="27" ratio="10"/>
 </element>
@@ -13216,7 +13216,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="NAME" x="6.918228125" y="44.500059375" size="0.6096" layer="25" font="vector" rot="R90"/>
 <attribute name="VALUE" x="9.712228125" y="44.246059375" size="0.6096" layer="27" font="vector" rot="R90"/>
 </element>
-<element name="LED8" library="leds" package="LED-1206" value="ESP-LED" x="77.481828125" y="80.894659375" smashed="yes" rot="R90">
+<element name="ESP-LED" library="leds" package="LED-1206" value="GREEN" x="77.481828125" y="80.894659375" smashed="yes" rot="R90">
 <attribute name="NAME" x="75.800828125" y="80.969659375" size="0.6096" layer="25" font="vector" ratio="10" rot="R90"/>
 </element>
 <element name="C35" library="passives" package="C0805" value="0.1 uF" x="77.041828125" y="108.983859375" smashed="yes">
@@ -13316,10 +13316,10 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="NAME" x="36.984796875" y="62.250846875" size="0.6096" layer="25" font="vector" rot="R180"/>
 <attribute name="VALUE" x="37.146628125" y="62.095259375" size="0.4064" layer="27" rot="R180"/>
 </element>
-<element name="LED2" library="leds" package="LED-1206" value="rx-led" x="36.922228125" y="67.895459375" smashed="yes" rot="R270">
+<element name="RX-LED" library="leds" package="LED-1206" value="BLUE" x="36.922228125" y="67.895459375" smashed="yes" rot="R270">
 <attribute name="VALUE" x="36.711228125" y="65.420459375" size="0.4064" layer="27" ratio="10" rot="R270"/>
 </element>
-<element name="LED3" library="leds" package="LED-1206" value="tx-led" x="34.478628125" y="67.923859375" smashed="yes" rot="R270">
+<element name="TX-LED" library="leds" package="LED-1206" value="GREEN" x="34.478628125" y="67.923859375" smashed="yes" rot="R270">
 <attribute name="VALUE" x="34.267628125" y="65.238859375" size="0.4064" layer="27" ratio="10" rot="R270"/>
 </element>
 <element name="R11" library="passives" package="0805" value="56 R" x="36.965028125" y="72.289059375" smashed="yes" rot="R90">
@@ -13398,10 +13398,10 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <element name="R16" library="passives" package="0805" value="4.7 K" x="48.523428125" y="31.745459375" smashed="yes" rot="R180">
 <attribute name="NAME" x="49.285428125" y="30.919959375" size="0.6096" layer="25" font="vector" rot="R180"/>
 </element>
-<element name="R19" library="dc-26" package="0805" value="4.7 K" x="67.034228125" y="106.389059375" smashed="yes" rot="R180">
+<element name="R19" library="dc-26" package="0805" value="2.2 K" x="67.034228125" y="106.389059375" smashed="yes" rot="R180">
 <attribute name="NAME" x="67.796228125" y="105.563559375" size="0.6096" layer="25" font="vector" rot="R180"/>
 </element>
-<element name="R20" library="dc-26" package="0805" value="4.7 K" x="67.034228125" y="109.389059375" smashed="yes">
+<element name="R20" library="dc-26" package="0805" value="2.2 K" x="67.034228125" y="109.389059375" smashed="yes">
 <attribute name="NAME" x="66.272228125" y="110.214559375" size="0.6096" layer="25" font="vector"/>
 </element>
 <element name="TOP-BOT-CONNECTOR" library="connector" package="2X6" value="M06X2" x="44.534228125" y="86.289059375" smashed="yes">
@@ -13440,6 +13440,14 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <element name="U$13" library="darknet_parts_library" package="DC27_PUZZLE_ELEMENT_4" value="DC27_PUZZLE_ELEMENT_4" x="80.86256875" y="50.9272375" smashed="yes" rot="MR0"/>
 <element name="U$14" library="darknet_parts_library" package="DC27_PUZZLE_ELEMENT_5" value="DC27_PUZZLE_ELEMENT_5" x="52.5" y="29.8" smashed="yes" rot="MR0"/>
 <element name="U$15" library="darknet_parts_library" package="DC27_PUZZLE_ELEMENT_6" value="DC27_PUZZLE_ELEMENT_6" x="50.9420875" y="38.833484375" smashed="yes" rot="MR0"/>
+<element name="R28" library="dc-26" package="0805" value="2.2 K" x="60.65" y="92.6" smashed="yes" rot="R270">
+<attribute name="NAME" x="61.4755" y="93.362" size="0.4064" layer="25" rot="R270"/>
+<attribute name="VALUE" x="59.253" y="93.616" size="0.4064" layer="27" rot="R270"/>
+</element>
+<element name="R29" library="dc-26" package="0805" value="2.2 K" x="62.92" y="92.6" smashed="yes" rot="R270">
+<attribute name="NAME" x="63.7455" y="93.362" size="0.4064" layer="25" rot="R270"/>
+<attribute name="VALUE" x="61.523" y="93.616" size="0.4064" layer="27" rot="R270"/>
+</element>
 </elements>
 <signals>
 <signal name="GND" airwireshidden="yes">
@@ -13463,7 +13471,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <contactref element="ESP-RST" pad="P$1"/>
 <contactref element="C34" pad="2"/>
 <contactref element="C2" pad="2"/>
-<contactref element="LED8" pad="C"/>
+<contactref element="ESP-LED" pad="C"/>
 <contactref element="C35" pad="2"/>
 <contactref element="U2" pad="GND"/>
 <contactref element="C6" pad="2"/>
@@ -13502,7 +13510,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <contactref element="R22" pad="1"/>
 <contactref element="U$10" pad="2"/>
 <contactref element="U$2" pad="P2"/>
-<contactref element="LED7" pad="C"/>
+<contactref element="KEYLED" pad="C"/>
 <contactref element="U$5" pad="P$1"/>
 <contactref element="ESP-PROG" pad="P$1"/>
 <contactref element="U$3" pad="GND"/>
@@ -14546,8 +14554,8 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="50.537428125" y1="29.092259375" x2="54.534228125" y2="33.089059375" width="0.1524" layer="1"/>
 </signal>
 <signal name="N$5">
-<contactref element="LED1" pad="A"/>
-<contactref element="LED4" pad="C"/>
+<contactref element="CL1" pad="A"/>
+<contactref element="CL2" pad="C"/>
 <contactref element="IC-IP5305" pad="LED1"/>
 <wire x1="40.134228125" y1="19.489059375" x2="40.134228125" y2="21.989059375" width="0.2" layer="1"/>
 <wire x1="40.134228125" y1="21.989059375" x2="38.953028125" y2="23.170259375" width="0.2" layer="1"/>
@@ -14559,8 +14567,8 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="26.78136875" y1="16.289059375" x2="36.934228125" y2="16.289059375" width="0.2" layer="1"/>
 </signal>
 <signal name="N$14">
-<contactref element="LED5" pad="A"/>
-<contactref element="LED6" pad="C"/>
+<contactref element="CL3" pad="A"/>
+<contactref element="CL4" pad="C"/>
 <contactref element="IC-IP5305" pad="LED2"/>
 <wire x1="27.640428125" y1="17.837759375" x2="27.640428125" y2="18.237759375" width="0.2" layer="1"/>
 <wire x1="31.284228125" y1="23.170259375" x2="33.634228125" y2="23.170259375" width="0.2" layer="1"/>
@@ -14570,10 +14578,10 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="29.13428125" y1="19.7316125" x2="29.13428125" y2="20.6154375" width="0.254" layer="1"/>
 </signal>
 <signal name="N$15">
-<contactref element="LED1" pad="C"/>
-<contactref element="LED4" pad="A"/>
-<contactref element="LED5" pad="C"/>
-<contactref element="LED6" pad="A"/>
+<contactref element="CL1" pad="C"/>
+<contactref element="CL2" pad="A"/>
+<contactref element="CL3" pad="C"/>
+<contactref element="CL4" pad="A"/>
 <contactref element="IC-IP5305" pad="LED3"/>
 <wire x1="31.284228125" y1="20.170259375" x2="31.3" y2="20.170259375" width="0.2" layer="1"/>
 <wire x1="31.3" y1="20.170259375" x2="33.634228125" y2="20.170259375" width="0.2" layer="1"/>
@@ -14625,7 +14633,7 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 </signal>
 <signal name="N$24">
 <contactref element="R3" pad="2"/>
-<contactref element="LED7" pad="A"/>
+<contactref element="KEYLED" pad="A"/>
 <wire x1="31.934628125" y1="29.295059375" x2="31.934628125" y2="32.772659375" width="0.2" layer="1"/>
 <wire x1="31.934628125" y1="32.772659375" x2="31.979028125" y2="32.817059375" width="0.2" layer="1"/>
 </signal>
@@ -14781,28 +14789,19 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <contactref element="U2" pad="33"/>
 <contactref element="U$4" pad="SDA"/>
 <contactref element="R19" pad="2"/>
-<contactref element="TOP-BOT-CONNECTOR" pad="6"/>
 <wire x1="60.250228125" y1="106.685059375" x2="65.838228125" y2="106.685059375" width="0.2" layer="1"/>
 <wire x1="65.838228125" y1="106.685059375" x2="66.134228125" y2="106.389059375" width="0.2" layer="1"/>
 <wire x1="71.483003125" y1="101.640284375" x2="76.663803125" y2="101.640284375" width="0.2" layer="1"/>
 <wire x1="76.672925" y1="101.63175625" x2="77.624228125" y2="102.583059375" width="0.2" layer="1"/>
 <wire x1="76.672925" y1="101.63175625" x2="76.663803125" y2="101.640284375" width="0.2" layer="1"/>
-<via x="68.434228125" y="104.589059375" extent="1-16" drill="0.4"/>
-<wire x1="64.234228125" y1="93.189059375" x2="68.434228125" y2="97.389059375" width="0.1524" layer="16"/>
-<wire x1="68.434228125" y1="97.389059375" x2="68.434228125" y2="104.589059375" width="0.1524" layer="16"/>
 <wire x1="66.134228125" y1="106.389059375" x2="67.934228125" y2="104.589059375" width="0.2" layer="1"/>
-<wire x1="67.934228125" y1="104.589059375" x2="68.434228125" y2="104.589059375" width="0.2" layer="1"/>
+<wire x1="67.934228125" y1="104.589059375" x2="68.534228125" y2="104.589059375" width="0.2" layer="1"/>
 <wire x1="71.483003125" y1="101.640284375" x2="68.534228125" y2="104.589059375" width="0.2" layer="1"/>
-<wire x1="68.534228125" y1="104.589059375" x2="68.434228125" y2="104.589059375" width="0.2" layer="1"/>
-<wire x1="49.614228125" y1="88.829059375" x2="49.614228125" y2="91.014228125" width="0.1524" layer="16"/>
-<wire x1="49.614228125" y1="91.014228125" x2="51.789059375" y2="93.189059375" width="0.1524" layer="16"/>
-<wire x1="51.789059375" y1="93.189059375" x2="64.234228125" y2="93.189059375" width="0.1524" layer="16"/>
 </signal>
 <signal name="SCL">
 <contactref element="U2" pad="36"/>
 <contactref element="U$4" pad="SCL"/>
 <contactref element="R20" pad="1"/>
-<contactref element="TOP-BOT-CONNECTOR" pad="4"/>
 <wire x1="60.250228125" y1="110.495059375" x2="65.028228125" y2="110.495059375" width="0.2" layer="1"/>
 <wire x1="65.028228125" y1="110.495059375" x2="66.134228125" y2="109.389059375" width="0.2" layer="1"/>
 <wire x1="66.134228125" y1="109.389059375" x2="67.443034375" y2="110.697865625" width="0.2" layer="1"/>
@@ -14810,14 +14809,6 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="79.0526625" y1="110.72133125" x2="78.720834375" y2="111.053159375" width="0.2" layer="1"/>
 <wire x1="78.720834375" y1="111.053159375" x2="67.679896875" y2="111.053159375" width="0.2" layer="1"/>
 <wire x1="77.624228125" y1="103.853059375" x2="78.598228125" y2="103.853059375" width="0.2" layer="1"/>
-<via x="67.679896875" y="111.053159375" extent="1-16" drill="0.4"/>
-<wire x1="62.954015625" y1="96.658459375" x2="64.234228125" y2="97.938671875" width="0.1524" layer="16"/>
-<wire x1="66.59613125" y1="111.053159375" x2="67.679896875" y2="111.053159375" width="0.1524" layer="16"/>
-<wire x1="66.59613125" y1="111.053159375" x2="64.234228125" y2="108.69125625" width="0.1524" layer="16"/>
-<wire x1="64.234228125" y1="97.938671875" x2="64.234228125" y2="108.69125625" width="0.1524" layer="16"/>
-<wire x1="47.074228125" y1="88.829059375" x2="47.074228125" y2="94.1" width="0.1524" layer="16"/>
-<wire x1="47.074228125" y1="94.1" x2="49.6326875" y2="96.658459375" width="0.1524" layer="16"/>
-<wire x1="49.6326875" y1="96.658459375" x2="62.954015625" y2="96.658459375" width="0.1524" layer="16"/>
 <wire x1="78.598228125" y1="103.853059375" x2="79.0526625" y2="104.30749375" width="0.2" layer="1"/>
 <wire x1="79.0526625" y1="104.30749375" x2="79.0526625" y2="110.72133125" width="0.2" layer="1"/>
 </signal>
@@ -14927,11 +14918,11 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <signal name="JTAG_TDO_LED1">
 <contactref element="U2" pad="23"/>
 <contactref element="R24" pad="2"/>
-<wire x1="55.695228125" y1="95.035059375" x2="55.695228125" y2="92.528059375" width="0.2" layer="1"/>
-<wire x1="55.695228125" y1="92.528059375" x2="56.234228125" y2="91.989059375" width="0.2" layer="1"/>
-<via x="56.234228125" y="91.989059375" extent="1-16" drill="0.4"/>
-<wire x1="56.234228125" y1="91.989059375" x2="56.534228125" y2="91.689059375" width="0.2" layer="16"/>
-<wire x1="56.534228125" y1="91.689059375" x2="63.834228125" y2="91.689059375" width="0.2" layer="16"/>
+<wire x1="55.695228125" y1="95.035059375" x2="55.695228125" y2="94.240059375" width="0.2" layer="1"/>
+<wire x1="55.695228125" y1="94.240059375" x2="54.664228125" y2="93.209059375" width="0.2" layer="1"/>
+<via x="54.664228125" y="93.209059375" extent="1-16" drill="0.4"/>
+<wire x1="54.664228125" y1="93.209059375" x2="56.184228125" y2="91.689059375" width="0.2" layer="16"/>
+<wire x1="56.184228125" y1="91.689059375" x2="63.834228125" y2="91.689059375" width="0.2" layer="16"/>
 <wire x1="63.834228125" y1="91.689059375" x2="75.434228125" y2="80.089059375" width="0.2" layer="16"/>
 <via x="75.434228125" y="80.089059375" extent="1-16" drill="0.4"/>
 <wire x1="75.434228125" y1="80.089059375" x2="75.934228125" y2="79.589059375" width="0.2" layer="1"/>
@@ -15205,26 +15196,26 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="37.072228125" y1="60.656659375" x2="37.030628125" y2="60.698259375" width="0.2032" layer="1"/>
 </signal>
 <signal name="RXD_LED">
-<contactref element="LED2" pad="C"/>
+<contactref element="RX-LED" pad="C"/>
 <contactref element="IC3" pad="54"/>
 <wire x1="46.798228125" y1="63.883859375" x2="39.433828125" y2="63.883859375" width="0.2032" layer="1"/>
 <wire x1="39.433828125" y1="63.883859375" x2="36.922228125" y2="66.395459375" width="0.2032" layer="1"/>
 </signal>
 <signal name="TXD_LED">
-<contactref element="LED3" pad="C"/>
+<contactref element="TX-LED" pad="C"/>
 <contactref element="IC3" pad="55"/>
 <wire x1="46.798228125" y1="63.383859375" x2="37.518628125" y2="63.383859375" width="0.2032" layer="1"/>
 <wire x1="37.518628125" y1="63.383859375" x2="34.478628125" y2="66.423859375" width="0.2032" layer="1"/>
 </signal>
 <signal name="N$11">
 <contactref element="R11" pad="1"/>
-<contactref element="LED2" pad="A"/>
+<contactref element="RX-LED" pad="A"/>
 <wire x1="36.922228125" y1="69.395459375" x2="36.922228125" y2="71.346259375" width="0.2032" layer="1"/>
 <wire x1="36.922228125" y1="71.346259375" x2="36.965028125" y2="71.389059375" width="0.2032" layer="1"/>
 </signal>
 <signal name="N$13">
 <contactref element="R12" pad="1"/>
-<contactref element="LED3" pad="A"/>
+<contactref element="TX-LED" pad="A"/>
 <wire x1="34.478628125" y1="69.423859375" x2="34.603828125" y2="69.549059375" width="0.2032" layer="1"/>
 <wire x1="34.603828125" y1="69.549059375" x2="34.603828125" y2="71.389059375" width="0.2032" layer="1"/>
 </signal>
@@ -15426,27 +15417,9 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="78.934228125" y1="77.189059375" x2="53.334228125" y2="77.189059375" width="0.2" layer="16"/>
 <wire x1="53.334228125" y1="77.189059375" x2="45.934228125" y2="84.589059375" width="0.2" layer="16"/>
 </signal>
-<signal name="APA102_DATA">
-<contactref element="U2" pad="27"/>
-<wire x1="60.250228125" y1="99.065059375" x2="60.217828125" y2="99.097459375" width="0.2" layer="1"/>
-<wire x1="60.217828125" y1="99.097459375" x2="59.695678125" y2="99.097459375" width="0.2" layer="1"/>
-<wire x1="59.695678125" y1="99.097459375" x2="59.247828125" y2="98.649609375" width="0.2" layer="1"/>
-<wire x1="59.247828125" y1="92.773834375" x2="59.247828125" y2="98.649609375" width="0.2" layer="1"/>
-<contactref element="TOP-BOT-CONNECTOR" pad="8"/>
-<wire x1="52.154228125" y1="88.829059375" x2="53.3832875" y2="87.6" width="0.2" layer="1"/>
-<wire x1="53.3832875" y1="87.6" x2="58.5" y2="87.6" width="0.2" layer="1"/>
-<wire x1="58.5" y1="87.6" x2="59.247828125" y2="88.347828125" width="0.2" layer="1"/>
-<wire x1="59.247828125" y1="88.347828125" x2="59.247828125" y2="92.773834375" width="0.2" layer="1"/>
-</signal>
-<signal name="APA102_CLK">
-<contactref element="U2" pad="24"/>
-<contactref element="TOP-BOT-CONNECTOR" pad="10"/>
-<wire x1="54.694228125" y1="88.829059375" x2="56.965228125" y2="91.100059375" width="0.2" layer="1"/>
-<wire x1="56.965228125" y1="91.100059375" x2="56.965228125" y2="95.035059375" width="0.2" layer="1"/>
-</signal>
 <signal name="ESP_JTAG_TDO_LED">
 <contactref element="R24" pad="1"/>
-<contactref element="LED8" pad="A"/>
+<contactref element="ESP-LED" pad="A"/>
 <contactref element="J2" pad="4"/>
 <wire x1="77.393028125" y1="72.829859375" x2="77.386628125" y2="72.836259375" width="0.2" layer="1"/>
 <wire x1="77.386628125" y1="72.836259375" x2="77.386628125" y2="75.089059375" width="0.2" layer="1"/>
@@ -15477,6 +15450,44 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="45.59245" y1="75.068459375" x2="44.534228125" y2="76.12668125" width="0.2" layer="16"/>
 <wire x1="44.534228125" y1="76.12668125" x2="44.534228125" y2="86.289059375" width="0.2" layer="16"/>
 <wire x1="67.441959375" y1="73.6169625" x2="65.9904625" y2="75.068459375" width="0.2" layer="16"/>
+</signal>
+<signal name="SCL-2">
+<contactref element="U2" pad="24"/>
+<contactref element="R28" pad="1"/>
+<wire x1="56.965228125" y1="95.035059375" x2="56.965228125" y2="94.184771875" width="0.2" layer="1"/>
+<wire x1="57.63" y1="93.52" x2="60.65" y2="93.5" width="0.2" layer="1"/>
+<wire x1="56.965228125" y1="94.184771875" x2="57.63" y2="93.52" width="0.2" layer="1"/>
+</signal>
+<signal name="SDA-2">
+<contactref element="U2" pad="27"/>
+<contactref element="R29" pad="1"/>
+<wire x1="60.250228125" y1="99.065059375" x2="59.075059375" y2="99.065059375" width="0.2" layer="1"/>
+<wire x1="58.44" y1="98.43" x2="58.44" y2="95.86" width="0.2" layer="1"/>
+<wire x1="58.44" y1="95.86" x2="59.24" y2="95.06" width="0.2" layer="1"/>
+<wire x1="59.24" y1="95.06" x2="61.87" y2="95.06" width="0.2" layer="1"/>
+<wire x1="61.87" y1="95.06" x2="62.92" y2="94.01" width="0.2" layer="1"/>
+<wire x1="62.92" y1="94.01" x2="62.92" y2="93.5" width="0.2" layer="1"/>
+<wire x1="59.075059375" y1="99.065059375" x2="58.44" y2="98.43" width="0.2" layer="1"/>
+</signal>
+<signal name="N$1">
+<contactref element="TOP-BOT-CONNECTOR" pad="4"/>
+<contactref element="R28" pad="2"/>
+<wire x1="60.65" y1="91.7" x2="59.77" y2="91.72" width="0.2" layer="1"/>
+<wire x1="59.77" y1="91.72" x2="59.12" y2="92.37" width="0.2" layer="1"/>
+<wire x1="59.12" y1="92.37" x2="48.51" y2="92.37" width="0.2" layer="1"/>
+<wire x1="48.51" y1="92.37" x2="47.07" y2="90.93" width="0.2" layer="1"/>
+<wire x1="47.07" y1="90.93" x2="47.07" y2="88.8332875" width="0.2" layer="1"/>
+<wire x1="47.07" y1="88.8332875" x2="47.074228125" y2="88.829059375" width="0.2" layer="1"/>
+</signal>
+<signal name="N$2">
+<contactref element="TOP-BOT-CONNECTOR" pad="6"/>
+<contactref element="R29" pad="2"/>
+<wire x1="62.92" y1="91.7" x2="62.81" y2="91.72" width="0.2" layer="1"/>
+<wire x1="62.81" y1="91.72" x2="61.87" y2="90.78" width="0.2" layer="1"/>
+<wire x1="61.87" y1="90.78" x2="50.4" y2="90.78" width="0.2" layer="1"/>
+<wire x1="50.4" y1="90.78" x2="50.37" y2="90.81" width="0.2" layer="1"/>
+<wire x1="50.37" y1="90.81" x2="49.614228125" y2="90.054228125" width="0.2" layer="1"/>
+<wire x1="49.614228125" y1="90.054228125" x2="49.614228125" y2="88.829059375" width="0.2" layer="1"/>
 </signal>
 </signals>
 <mfgpreviewcolors>
