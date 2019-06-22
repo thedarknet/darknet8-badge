@@ -21224,13 +21224,13 @@ to delay even longer</text>
 <attribute name="NAME" x="115.57" y="122.9614" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="118.11" y="130.302" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="R28" gate="G$1" x="170.18" y="129.54" smashed="yes" rot="R180">
-<attribute name="NAME" x="173.99" y="128.0414" size="1.016" layer="95" rot="R180"/>
-<attribute name="VALUE" x="173.99" y="132.842" size="1.016" layer="96" rot="R180"/>
+<instance part="R28" gate="G$1" x="177.8" y="134.62" smashed="yes" rot="R270">
+<attribute name="NAME" x="179.2986" y="138.43" size="1.016" layer="95" rot="R270"/>
+<attribute name="VALUE" x="174.498" y="138.43" size="1.016" layer="96" rot="R270"/>
 </instance>
-<instance part="R29" gate="G$1" x="180.34" y="127" smashed="yes" rot="R180">
-<attribute name="NAME" x="184.15" y="125.5014" size="1.016" layer="95" rot="R180"/>
-<attribute name="VALUE" x="184.15" y="130.302" size="1.016" layer="96" rot="R180"/>
+<instance part="R29" gate="G$1" x="187.96" y="132.08" smashed="yes" rot="R270">
+<attribute name="NAME" x="189.4586" y="135.89" size="1.016" layer="95" rot="R270"/>
+<attribute name="VALUE" x="184.658" y="135.89" size="1.016" layer="96" rot="R270"/>
 </instance>
 </instances>
 <busses>
@@ -21308,6 +21308,16 @@ to delay even longer</text>
 <wire x1="114.3" y1="134.62" x2="114.3" y2="137.16" width="0.1524" layer="91"/>
 <junction x="114.3" y="134.62"/>
 <label x="114.3" y="137.16" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R28" gate="G$1" pin="1"/>
+<wire x1="177.8" y1="139.7" x2="177.8" y2="144.78" width="0.1524" layer="91"/>
+<label x="177.8" y="144.78" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R29" gate="G$1" pin="1"/>
+<wire x1="187.96" y1="137.16" x2="187.96" y2="142.24" width="0.1524" layer="91"/>
+<label x="187.96" y="144.78" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -21792,9 +21802,12 @@ to delay even longer</text>
 <label x="121.92" y="35.56" size="1.4224" layer="95" rot="R90"/>
 </segment>
 <segment>
-<pinref part="R28" gate="G$1" pin="1"/>
-<wire x1="175.26" y1="129.54" x2="187.96" y2="129.54" width="0.1524" layer="91"/>
-<label x="187.96" y="129.54" size="1.4224" layer="95"/>
+<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="4"/>
+<wire x1="157.48" y1="129.54" x2="177.8" y2="129.54" width="0.1524" layer="91"/>
+<pinref part="R28" gate="G$1" pin="2"/>
+<wire x1="177.8" y1="129.54" x2="180.34" y2="129.54" width="0.1524" layer="91"/>
+<junction x="177.8" y="129.54"/>
+<label x="180.34" y="129.54" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="SDA-2" class="0">
@@ -21804,23 +21817,12 @@ to delay even longer</text>
 <label x="139.7" y="60.96" size="1.4224" layer="95"/>
 </segment>
 <segment>
-<pinref part="R29" gate="G$1" pin="1"/>
-<wire x1="185.42" y1="127" x2="187.96" y2="127" width="0.1524" layer="91"/>
-<label x="187.96" y="127" size="1.4224" layer="95"/>
-</segment>
-</net>
-<net name="N$1" class="0">
-<segment>
-<pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="4"/>
-<wire x1="157.48" y1="129.54" x2="165.1" y2="129.54" width="0.1524" layer="91"/>
-<pinref part="R28" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="N$2" class="0">
-<segment>
 <pinref part="TOP-BOT-CONNECTOR" gate="G$1" pin="6"/>
-<wire x1="157.48" y1="127" x2="175.26" y2="127" width="0.1524" layer="91"/>
+<wire x1="157.48" y1="127" x2="187.96" y2="127" width="0.1524" layer="91"/>
 <pinref part="R29" gate="G$1" pin="2"/>
+<wire x1="187.96" y1="127" x2="190.5" y2="127" width="0.1524" layer="91"/>
+<junction x="187.96" y="127"/>
+<label x="193.04" y="127" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
