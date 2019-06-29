@@ -1,0 +1,12 @@
+1 Program Counter - 32 bit
+	PC
+
+16 General Registers - 32 bit
+	AR# (ar0, ar1, ... ar15)
+
+Shift Amount Register - 6 bit
+	SAR
+
+
+Each instruction contains up to three 4-bit general-register specifiers,
+each of which can select one of 16 32-bit registers.
