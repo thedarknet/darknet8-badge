@@ -20,7 +20,7 @@
 
 #include "./ble.h"
 #include "./game_master.h"
-//#include "./ota.h"
+#include "./ota.h"
 
 // XXX: Games get included here and installed into the game master
 #include "./exploitable.h"
@@ -46,7 +46,7 @@ extern "C" {
 BluetoothTask BTTask("BluetoothTask");
 GameTask GameTask("GameTask");
 ExploitableGameTask ExploitTask("ExploitTask");
-//OTATask OTATask("OTATask");
+OTATask OTATask("OTATask");
 libesp::XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 
 //static const uint16_t DISPLAY_HEIGHT	= 240;
@@ -178,8 +178,8 @@ void app_main() {
 	// partition if the app has crashed x times.  (A crash defined as not
 	// living beyond 30 seconds - easy revert by resetting the badge x times).
 	// libwifi and friends is like 500kb
-	//OTATask.init();
-	//OTATask.start();
+	OTATask.init();
+	OTATask.start();
 	//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
 	//*cmd = ATTEMPT_OTA;
 	//xQueueSend(OTATask.getQueueHandle(), &cmd, (TickType_t)100);
