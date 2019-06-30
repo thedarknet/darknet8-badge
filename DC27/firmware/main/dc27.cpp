@@ -13,6 +13,7 @@
 #include <esp_log.h>
 #include <libesp/spibus.h>
 #include <libesp/device/touch/XPT2046.h>
+#include <libesp/device/display/frame_buffer.h>
 #include <libesp/device/display/display_device.h>
 #include <libesp/device/display/fonts.h>
 
@@ -35,6 +36,9 @@
 #define PIN_NUM_DISPLAY_MOSI GPIO_NUM_23
 #define PIN_NUM_DISPLAY_CLK  GPIO_NUM_18
 #define PIN_NUM_DISPLAY_CS  GPIO_NUM_17
+#define PIN_NUM_DISPLAY_DATA_CMD GPIO_NUM_4
+
+#define NOPIN ((gpio_num_t)-1) //for some reason GPIO_NUM_NC won't work
 
 #define I2C_SCL GPIO_NUM_22
 #define I2C_SDA GPIO_NUM_21
@@ -49,14 +53,19 @@ ExploitableGameTask ExploitTask("ExploitTask");
 //OTATask OTATask("OTATask");
 libesp::XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 
-//static const uint16_t DISPLAY_HEIGHT	= 240;
-//static const uint16_t DISPLAY_WIDTH		= 320;
-static const uint16_t DISPLAY_HEIGHT	= 120;
-static const uint16_t DISPLAY_WIDTH		= 160;
+static const uint16_t DISPLAY_HEIGHT		= 240;
+static const uint16_t DISPLAY_WIDTH			= 320;
+static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
+static const uint16_t FRAME_BUFFER_WIDTH	= 160;
 #define START_ROT libesp::DisplayST7735::LANDSCAPE_TOP_LEFT
-libesp::DisplayST7735 Display(DISPLAY_WIDTH,DISPLAY_HEIGHT,START_ROT);
-uint16_t SPIBuf[DISPLAY_WIDTH*DISPLAY_HEIGHT] = {0};
-libesp::DrawBuffer2D16BitColor16BitPerPixel1Buffer FrameBuf(DISPLAY_WIDTH,DISPLAY_HEIGHT,&SPIBuf[0],&Display);
+static const uint16_t PARALLEL_LINES = 10;
+
+libesp::DisplayST7735 Display(DISPLAY_WIDTH,DISPLAY_HEIGHT,START_ROT, NOPIN, NOPIN);
+
+uint16_t BackBuffer[FRAME_BUFFER_WIDTH*FRAME_BUFFER_HEIGHT] = {0};
+uint16_t ParallelLinesBuffer[DISPLAY_WIDTH*PARALLEL_LINES] = {0};
+
+libesp::ScalingBuffer FrameBuf(&Display, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, uint8_t(16), DISPLAY_WIDTH,DISPLAY_HEIGHT, PARALLEL_LINES, (uint8_t*)&BackBuffer[0],(uint8_t*)&ParallelLinesBuffer[0]);
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
@@ -183,12 +192,12 @@ void app_main() {
 	///
 	initDisplay();
 	bus = libesp::SPIBus::get(HSPI_HOST);
-	FrameBuf.createInitDevice(bus,PIN_NUM_DISPLAY_CS);
+	FrameBuf.createInitDevice(bus,PIN_NUM_DISPLAY_CS,PIN_NUM_DISPLAY_DATA_CMD);
 	ESP_LOGI(LOGTAG,"start display init");
 	libesp::ErrorType et=Display.init(libesp::DisplayST7735::FORMAT_16_BIT, &Font_6x10, &FrameBuf);
 	if(et.ok()) {
 		ESP_LOGI(LOGTAG,"display init");
-		Display.fillRec(10,10,40,40,libesp::RGBColor::BLACK);
+		Display.fillRec(10,10,40,40,libesp::RGBColor::BLUE);
 		Display.swap();
 	} else {
 		ESP_LOGE(LOGTAG,"failed display init");

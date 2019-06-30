@@ -41,7 +41,7 @@ RUN mkdir -p /ccache
 RUN useradd -m -u 10000 -G plugdev,dialout,root -s /bin/bash dndev
 
 #RUN su - dndev -c "cd /esp && git clone --branch v3.2 --depth 1 --recursive https://github.com/espressif/esp-idf.git && chmod -R 775 esp-idf"
-RUN cd /esp && git clone --branch v3.2 --depth 1 --recursive https://github.com/espressif/esp-idf.git && chmod -R 775 esp-idf
+RUN cd /esp && git clone --branch v3.2.2 --depth 1 --recursive https://github.com/espressif/esp-idf.git && chmod -R 775 esp-idf
 ENV IDF_PATH /esp/esp-idf
 RUN python -m pip install -r $IDF_PATH/requirements.txt
 
