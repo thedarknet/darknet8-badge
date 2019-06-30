@@ -172,6 +172,18 @@ void app_main() {
 	}
 	ESP_ERROR_CHECK( ret );
 
+	// XXX: In the final version, start this task first, because it monitors
+	// whether a boot was successful and will provider an interposition point
+	// for a user to select whether to revert to the last known bootable
+	// partition if the app has crashed x times.  (A crash defined as not
+	// living beyond 30 seconds - easy revert by resetting the badge x times).
+	// libwifi and friends is like 500kb
+	//OTATask.init();
+	//OTATask.start();
+	//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
+	//*cmd = ATTEMPT_OTA;
+	//xQueueSend(OTATask.getQueueHandle(), &cmd, (TickType_t)100);
+
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
 	ESP32_I2CMaster::doIt();
@@ -213,13 +225,7 @@ void app_main() {
 	ExploitTask.start();
 	GameTask.installGame(EXPLOITABLE_ID, false, ExploitTask.getQueueHandle());
 
-	// libwifi and friends is like 500kb
-	//OTATask.init();
-	//OTATask.start();
-	//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
-	//*cmd = ATTEMPT_OTA;
-	//xQueueSend(OTATask.getQueueHandle(), &cmd, (TickType_t)100);
+	libesp::System::get().logSystemInfo();
 
-	libesp::System::get().logSystemInfo();	
 }
 

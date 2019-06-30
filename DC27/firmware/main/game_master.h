@@ -49,7 +49,7 @@ private:
 
 public:
 	const char *LOGTAG;
-	GameTask(const std::string &tName, uint16_t stackSize=10000, uint8_t priority=5);
+	GameTask(const std::string &tName, uint16_t stackSize=3000, uint8_t priority=5);
 	bool init();
 	virtual void run(void* data);
 	virtual ~GameTask();
