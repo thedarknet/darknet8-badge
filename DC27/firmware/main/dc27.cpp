@@ -39,9 +39,13 @@
 #define PIN_NUM_DISPLAY_DATA_CMD GPIO_NUM_4
 
 #define NOPIN ((gpio_num_t)-1) //for some reason GPIO_NUM_NC won't work
+#define PIN_NUM_DISPLAY_BACKLIGHT NOPIN
+#define PIN_NUM_DISPLAY_RESET NOPIN
 
 #define I2C_SCL GPIO_NUM_22
 #define I2C_SDA GPIO_NUM_21
+#define I2C_SCL2 GPIO_NUM_2
+#define I2C_SDA2 GPIO_NUM_16
 
 extern "C" {
 	void app_main();
@@ -71,13 +75,14 @@ libesp::ScalingBuffer FrameBuf(&Display, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT
 
 void initDisplay() {
 	static const char *LOGTAG = "initDisplay";
+	ESP_LOGI(LOGTAG,"Start initDisplay");
 	spi_bus_config_t buscfg;
    buscfg.miso_io_num=PIN_NUM_DISPLAY_MISO;
    buscfg.mosi_io_num=PIN_NUM_DISPLAY_MOSI;
    buscfg.sclk_io_num=PIN_NUM_DISPLAY_CLK;
    buscfg.quadwp_io_num=-1;
    buscfg.quadhd_io_num=-1;
-   buscfg.max_transfer_sz=2048;
+   buscfg.max_transfer_sz=10000;
    buscfg.flags = SPICOMMON_BUSFLAG_MASTER;
    buscfg.intr_flags = 0;
 
@@ -85,6 +90,15 @@ void initDisplay() {
 	libesp::SPIBus* bus = libesp::SPIBus::get(HSPI_HOST);
 	if(!bus) {
 		ESP_LOGE(LOGTAG,"error initing BUS for touch");
+	} else {
+		ESP_LOGI(LOGTAG,"SPIBus initiatlized for display");
+	}
+   gpio_set_direction(PIN_NUM_DISPLAY_DATA_CMD, GPIO_MODE_OUTPUT);
+	if(PIN_NUM_DISPLAY_RESET!=NOPIN) {
+	  gpio_set_direction(PIN_NUM_DISPLAY_RESET, GPIO_MODE_OUTPUT);
+	}
+	if(PIN_NUM_DISPLAY_BACKLIGHT!=NOPIN) {
+		gpio_set_direction(PIN_NUM_DISPLAY_BACKLIGHT, GPIO_MODE_OUTPUT);
 	}
 }
  
@@ -196,9 +210,10 @@ void app_main() {
 	ESP_LOGI(LOGTAG,"start display init");
 	libesp::ErrorType et=Display.init(libesp::DisplayST7735::FORMAT_16_BIT, &Font_6x10, &FrameBuf);
 	if(et.ok()) {
-		ESP_LOGI(LOGTAG,"display init");
-		Display.fillRec(10,10,40,40,libesp::RGBColor::BLUE);
-		Display.swap();
+		ESP_LOGI(LOGTAG,"display init OK");
+		//Display.fillRec(0,0,100,100,libesp::RGBColor::RED);
+		//Display.swap();
+		//ESP_LOGI(LOGTAG,"swap done");
 	} else {
 		ESP_LOGE(LOGTAG,"failed display init");
 	}
@@ -206,11 +221,18 @@ void app_main() {
 	ESP_LOGI(LOGTAG,"setting up buttons");
 	initButtons();
 	/////
+	ESP_LOGI(LOGTAG,"scan I2c0");
 	ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
 	I2c.init(false);
 	I2c.scan();
+	//ESP_LOGI(LOGTAG,"scan I2c1");
+	ESP32_I2CMaster I2c1(I2C_SCL2,I2C_SDA2,1000000, I2C_NUM_1, 0, 32);
+	I2c1.init(true);
+	//I2c1.scan();
 	////
 	// libbt.a is like 300kb
+#define TEST_DISPLAY
+#ifndef TEST_DISPLAY
 	BTTask.init();
 	BTTask.start();
 
@@ -221,7 +243,7 @@ void app_main() {
 	ExploitTask.init();
 	ExploitTask.start();
 	GameTask.installGame(EXPLOITABLE_ID, false, ExploitTask.getQueueHandle());
-
+#endif
 	// libwifi and friends is like 500kb
 	//OTATask.init();
 	//OTATask.start();
