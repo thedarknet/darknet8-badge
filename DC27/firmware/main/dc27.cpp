@@ -212,8 +212,8 @@ void app_main() {
 	if(et.ok()) {
 		ESP_LOGI(LOGTAG,"display init OK");
 		Display.fillRec(0,0,FRAME_BUFFER_WIDTH,100,libesp::RGBColor::RED);
-		//Display.fillRec(0,102,FRAME_BUFFER_WIDTH,152,libesp::RGBColor::BLUE);
 		Display.swap();
+		//Display.fillRec(0,102,FRAME_BUFFER_WIDTH,152,libesp::RGBColor::BLUE);
 		ESP_LOGI(LOGTAG,"display init swap done");
 	} else {
 		ESP_LOGE(LOGTAG,"failed display init");
