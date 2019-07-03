@@ -61,10 +61,10 @@ static const uint16_t DISPLAY_HEIGHT		= 240;
 static const uint16_t DISPLAY_WIDTH			= 320;
 static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
 static const uint16_t FRAME_BUFFER_WIDTH	= 160;
-#define START_ROT libesp::DisplayST7735::LANDSCAPE_TOP_LEFT
+#define START_ROT libesp::DisplayILI9341::LANDSCAPE_TOP_LEFT
 static const uint16_t PARALLEL_LINES = 10;
 
-libesp::DisplayST7735 Display(DISPLAY_WIDTH,DISPLAY_HEIGHT,START_ROT, NOPIN, NOPIN);
+libesp::DisplayILI9341 Display(DISPLAY_WIDTH,DISPLAY_HEIGHT,START_ROT, NOPIN, NOPIN);
 
 uint16_t BackBuffer[FRAME_BUFFER_WIDTH*FRAME_BUFFER_HEIGHT] = {0};
 uint16_t ParallelLinesBuffer[DISPLAY_WIDTH*PARALLEL_LINES] = {0};
@@ -208,12 +208,13 @@ void app_main() {
 	bus = libesp::SPIBus::get(HSPI_HOST);
 	FrameBuf.createInitDevice(bus,PIN_NUM_DISPLAY_CS,PIN_NUM_DISPLAY_DATA_CMD);
 	ESP_LOGI(LOGTAG,"start display init");
-	libesp::ErrorType et=Display.init(libesp::DisplayST7735::FORMAT_16_BIT, &Font_6x10, &FrameBuf);
+	libesp::ErrorType et=Display.init(libesp::DisplayILI9341::FORMAT_16_BIT, &Font_6x10, &FrameBuf);
 	if(et.ok()) {
 		ESP_LOGI(LOGTAG,"display init OK");
-		//Display.fillRec(0,0,100,100,libesp::RGBColor::RED);
-		//Display.swap();
-		//ESP_LOGI(LOGTAG,"swap done");
+		Display.fillRec(0,0,FRAME_BUFFER_WIDTH,100,libesp::RGBColor::RED);
+		//Display.fillRec(0,102,FRAME_BUFFER_WIDTH,152,libesp::RGBColor::BLUE);
+		Display.swap();
+		ESP_LOGI(LOGTAG,"display init swap done");
 	} else {
 		ESP_LOGE(LOGTAG,"failed display init");
 	}
