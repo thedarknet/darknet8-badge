@@ -21,7 +21,7 @@
 
 #include "./ble.h"
 #include "./game_master.h"
-//#include "./ota.h"
+#include "./ota.h"
 
 // XXX: Games get included here and installed into the game master
 #include "./exploitable.h"
@@ -54,7 +54,7 @@ extern "C" {
 BluetoothTask BTTask("BluetoothTask");
 GameTask GameTask("GameTask");
 ExploitableGameTask ExploitTask("ExploitTask");
-//OTATask OTATask("OTATask");
+OTATask OTATask("OTATask");
 libesp::XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 
 static const uint16_t DISPLAY_HEIGHT		= 240;
@@ -68,7 +68,8 @@ static const uint16_t PARALLEL_LINES = 10;
 
 libesp::DisplayILI9341 Display(DISPLAY_WIDTH,DISPLAY_HEIGHT,START_ROT, NOPIN, NOPIN);
 
-uint16_t BackBuffer[FRAME_BUFFER_WIDTH*FRAME_BUFFER_HEIGHT] = {0};
+//uint16_t BackBuffer[FRAME_BUFFER_WIDTH*FRAME_BUFFER_HEIGHT] = {0};
+uint16_t *BackBuffer = new uint16_t[FRAME_BUFFER_WIDTH*FRAME_BUFFER_HEIGHT];
 uint16_t ParallelLinesBuffer[DISPLAY_WIDTH*PARALLEL_LINES] = {0};
 
 libesp::ScalingBuffer FrameBuf(&Display, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, uint8_t(16), DISPLAY_WIDTH,DISPLAY_HEIGHT, PARALLEL_LINES, (uint8_t*)&BackBuffer[0],(uint8_t*)&ParallelLinesBuffer[0]);
@@ -197,6 +198,18 @@ void app_main() {
 	}
 	ESP_ERROR_CHECK( ret );
 
+	// XXX: In the final version, start this task first, because it monitors
+	// whether a boot was successful and will provider an interposition point
+	// for a user to select whether to revert to the last known bootable
+	// partition if the app has crashed x times.  (A crash defined as not
+	// living beyond 30 seconds - easy revert by resetting the badge x times).
+	// libwifi and friends is like 500kb
+	OTATask.init();
+	OTATask.start();
+	//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
+	//*cmd = ATTEMPT_OTA;
+	//xQueueSend(OTATask.getQueueHandle(), &cmd, (TickType_t)100);
+
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
 	ESP32_I2CMaster::doIt();
@@ -260,6 +273,7 @@ void app_main() {
 	//*cmd = ATTEMPT_OTA;
 	//xQueueSend(OTATask.getQueueHandle(), &cmd, (TickType_t)100);
 
-	libesp::System::get().logSystemInfo();	
+	libesp::System::get().logSystemInfo();
+
 }
 

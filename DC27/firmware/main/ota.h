@@ -6,11 +6,15 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include <libesp/task.h>
+#include <nvs_flash.h>
+#include <nvs.h>
 
 typedef enum
 {
-	ATTEMPT_OTA = 0x00,
-	KILL_OTA    = 0x01,
+	ATTEMPT_OTA   = 0x00,
+	KILL_OTA      = 0x01,
+	FACTORY_RESET = 0x02,
+	SELECT_BOOT_PARTITION = 0x03,
 
 	DEFAULT_OTA = 0xFF
 } OTACmd;
@@ -24,6 +28,10 @@ private:
 	StaticQueue_t OTAQueue;
 	QueueHandle_t OTAQueueHandle = nullptr;
 	uint8_t otaQueueBuffer[OTA_QUEUE_SIZE * OTA_MSG_SIZE];
+
+	uint32_t my_nvs_handle;
+
+	void do_factory_reset(void);
 
 public:
 	static const char *LOGTAG;
