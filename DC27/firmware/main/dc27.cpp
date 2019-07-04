@@ -59,8 +59,10 @@ libesp::XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 
 static const uint16_t DISPLAY_HEIGHT		= 240;
 static const uint16_t DISPLAY_WIDTH			= 320;
-static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
-static const uint16_t FRAME_BUFFER_WIDTH	= 160;
+//static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
+//static const uint16_t FRAME_BUFFER_WIDTH	= 160;
+static const uint16_t FRAME_BUFFER_HEIGHT	= 156;
+static const uint16_t FRAME_BUFFER_WIDTH	= 208;
 #define START_ROT libesp::DisplayILI9341::LANDSCAPE_TOP_LEFT
 static const uint16_t PARALLEL_LINES = 10;
 
@@ -211,9 +213,17 @@ void app_main() {
 	libesp::ErrorType et=Display.init(libesp::DisplayILI9341::FORMAT_16_BIT, &Font_6x10, &FrameBuf);
 	if(et.ok()) {
 		ESP_LOGI(LOGTAG,"display init OK");
-		Display.fillRec(0,0,FRAME_BUFFER_WIDTH,100,libesp::RGBColor::RED);
+		Display.fillRec(0,0,FRAME_BUFFER_WIDTH,20,libesp::RGBColor::RED);
 		Display.swap();
-		//Display.fillRec(0,102,FRAME_BUFFER_WIDTH,152,libesp::RGBColor::BLUE);
+		Display.fillRec(0,30,FRAME_BUFFER_WIDTH,20,libesp::RGBColor::WHITE);
+		Display.swap();
+		Display.fillRec(0,60,FRAME_BUFFER_WIDTH,20,libesp::RGBColor::BLUE);
+		Display.swap();
+		Display.fillRec(0,90,FRAME_BUFFER_WIDTH,20,libesp::RGBColor::GREEN);
+		Display.drawRec(0,115,100,10, libesp::RGBColor::BLUE);
+		Display.drawString(10,130,"HELLO!",libesp::RGBColor::RED);
+		Display.drawString(50,140,"GOODBYE!",libesp::RGBColor::WHITE);
+		Display.swap();
 		ESP_LOGI(LOGTAG,"display init swap done");
 	} else {
 		ESP_LOGE(LOGTAG,"failed display init");
@@ -232,8 +242,6 @@ void app_main() {
 	//I2c1.scan();
 	////
 	// libbt.a is like 300kb
-#define TEST_DISPLAY
-#ifndef TEST_DISPLAY
 	BTTask.init();
 	BTTask.start();
 
@@ -244,7 +252,7 @@ void app_main() {
 	ExploitTask.init();
 	ExploitTask.start();
 	GameTask.installGame(EXPLOITABLE_ID, false, ExploitTask.getQueueHandle());
-#endif
+	
 	// libwifi and friends is like 500kb
 	//OTATask.init();
 	//OTATask.start();
