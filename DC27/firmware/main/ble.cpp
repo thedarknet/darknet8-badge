@@ -49,7 +49,6 @@ static struct gatts_profile_inst dn8_profile_tab[DN8_PROFILE_NUM];
 static uint16_t serial_mtu_size     = 23;
 static uint16_t serial_conn_id      = 0xffff;
 static bool serial_is_connected       = false;
-static bool serial_enable_data_notify = false;
 static esp_gatt_if_t serial_gatts_if   = 0xff;
 static esp_bd_addr_t serial_remote_bda = {0x0,};
 
@@ -84,14 +83,13 @@ static const uint16_t serial_data_notify_uuid = ESP_GATT_UUID_SERIAL_DATA_NOTIFY
 static const uint8_t  serial_data_notify_val[20] = {0x00};
 static const uint8_t  serial_data_notify_ccc[2] = {0x00, 0x00};
 
-//Serial - command characteristic, read&write without response - UNUSED
-//static const uint16_t serial_command_uuid = ESP_GATT_UUID_SERIAL_COMMAND_RECEIVE;
-//static const uint8_t  serial_command_val[10] = {0x00};
 
-//Serial - status characteristic, notify&read - UNUSED
-//static const uint16_t serial_status_uuid = ESP_GATT_UUID_SERIAL_COMMAND_NOTIFY;
-//static const uint8_t  serial_status_val[10] = {0x00};
-//static const uint8_t  serial_status_ccc[2] = {0x00, 0x00};
+// SPP - data receive and notify chars
+static const uint16_t spp_data_receive_uuid = ESP_GATT_UUID_SPP_DATA_RECEIVE;
+static const uint8_t  spp_data_receive_val[20] = {0x00};
+static const uint16_t spp_data_notify_uuid = ESP_GATT_UUID_SPP_DATA_NOTIFY;
+static const uint8_t  spp_data_notify_val[20] = {0x00};
+static const uint8_t  spp_data_notify_ccc[2] = {0x00, 0x00};
 
 static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 {
@@ -149,9 +147,8 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			sizeof(serial_data_notify_ccc),
 			(uint8_t *)serial_data_notify_ccc}},
 
-	//Serial: Command characteristic, value - UNUSED
-	/*
-	[DN8_IDX_SERIAL_COMMAND_CHAR] =
+	//SPP - Data receive characteristic, value
+	[DN8_IDX_SPP_DATA_RECV_CHAR] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
 			(uint8_t *)&character_declaration_uuid,
@@ -159,18 +156,17 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			CHAR_DECLARATION_SIZE,
 			CHAR_DECLARATION_SIZE,
 			(uint8_t *)&char_prop_read_write}},
-	[DN8_IDX_SERIAL_COMMAND_VAL] =
+	[DN8_IDX_SPP_DATA_RECV_VAL] =
 	{{ESP_GATT_AUTO_RSP},
-	{ESP_UUID_LEN_16,
-		(uint8_t *)&serial_command_uuid,
-		ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
-		SERIAL_CMD_MAX_LEN,
-		sizeof(serial_command_val),
-		(uint8_t *)serial_command_val}},
-	*/
-	//Serial: Status Characteristic, value, descriptor - UNUSED
-	/*
-	[DN8_IDX_SERIAL_STATUS_CHAR] =
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&spp_data_receive_uuid,
+			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
+			SPP_DATA_MAX_LEN,
+			sizeof(spp_data_receive_val),
+			(uint8_t *)spp_data_receive_val}},
+
+	//SPP: Data notify characteristic, value, descriptor
+	[DN8_IDX_SPP_DATA_NOTIFY_CHAR] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
 			(uint8_t *)&character_declaration_uuid,
@@ -178,23 +174,24 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			CHAR_DECLARATION_SIZE,
 			CHAR_DECLARATION_SIZE,
 			(uint8_t *)&char_prop_read_notify}},
-	[DN8_IDX_SERIAL_STATUS_VAL] =
+	[DN8_IDX_SPP_DATA_NOTIFY_VAL] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
-			(uint8_t *)&serial_status_uuid,
+			(uint8_t *)&spp_data_notify_uuid,
 			ESP_GATT_PERM_READ,
-			SERIAL_STATUS_MAX_LEN,
-			sizeof(serial_status_val),
-			(uint8_t *)serial_status_val}},
-	[DN8_IDX_SERIAL_STATUS_CFG] =
+			SPP_DATA_MAX_LEN,
+			sizeof(spp_data_notify_val),
+			(uint8_t *)spp_data_notify_val}},
+	[DN8_IDX_SPP_DATA_NOTIFY_CFG] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
 			(uint8_t *)&character_client_config_uuid,
 			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
 			sizeof(uint16_t),
-			sizeof(serial_status_ccc),
-			(uint8_t *)serial_status_ccc}},
-	*/
+			sizeof(spp_data_notify_ccc),
+			(uint8_t *)spp_data_notify_ccc}},
+
+
 };
 
 
@@ -256,53 +253,30 @@ static void print_write_buffer(void)
 	}
 }
 
-static GameMsg* buffered_msg = nullptr;
-static void send_raw_game_command(char* buffer, uint16_t length)
+static void send_raw_game_command(char* buffer, uint16_t length, uint32_t gameid,
+	uint32_t returnContext)
 {
-	DN8_BLE_MSG* raw_msg = (DN8_BLE_MSG*)buffer;
-	char* data = nullptr;
-
-	esp_log_buffer_char(LOGTAG, raw_msg->data, raw_msg->size);
+	GameMsg* msg = NULL;
 	if (gameTaskQueue_g == nullptr)
 	{
 		ESP_LOGE(LOGTAG, "ATTEMPTED TO SEND COMMAND TO NON-EXISTANT GAME QUEUE");
 		return;
 	}
 
-	// TODO: Handle communicating with multiple contexts at the same time
 
-	if (!buffered_msg) // Create a new message
-	{
-		buffered_msg = (GameMsg*)malloc(sizeof(GameMsg));
-		memset(buffered_msg, '\0', sizeof(GameMsg));
+	ESP_LOGI(LOGTAG, "Game Msg. Length:%d - Msg: %s", length, buffer);
+	msg = (GameMsg*)malloc(sizeof(GameMsg));
+	memset(msg, '\0', sizeof(GameMsg));
+	msg->context = gameid;
 
-		buffered_msg->length = raw_msg->size;
-		buffered_msg->context = raw_msg->context;
-		ESP_LOGI(LOGTAG, "Buffering Message Context: %x", raw_msg->context);
-		data = (char*)malloc(raw_msg->size);
-		memset(data, '\0', raw_msg->size);
-		buffered_msg->data = data;
-		memcpy(data, raw_msg->data, raw_msg->size);
+	msg->length = length;
+	msg->data = (char*)malloc(length);
+	memcpy(msg->data, buffer, length);
 
-		buffered_msg->returnQueue = bleGameResponseQueue_g;
-	}
-	else // add the message onto the existing message
-	{
-		data = (char*)malloc(raw_msg->size + buffered_msg->length);
-		memset(data, '\0', raw_msg->size + buffered_msg->length);
-		memcpy(data, buffered_msg->data, buffered_msg->length);
-		memcpy(&data[buffered_msg->length], raw_msg->data, raw_msg->size);
-		free(buffered_msg->data);
-		buffered_msg->data = data;
-		buffered_msg->length = raw_msg->size + buffered_msg->length;
-	}
+	msg->returnQueue = bleGameResponseQueue_g;
+	msg->returnContext = returnContext;
 
-	if (!raw_msg->more)
-	{
-		esp_log_buffer_char(LOGTAG,  buffered_msg->data, buffered_msg->length);
-		xQueueSend(gameTaskQueue_g, (void*)&buffered_msg, (TickType_t)100);
-		buffered_msg = nullptr;
-	}
+	xQueueSend(gameTaskQueue_g, (void*)&msg, (TickType_t)100);
 
 	return;
 }
@@ -325,13 +299,13 @@ void BluetoothTask::gameCommandHandler(GameMsg* msg)
 	while (msg->length > 20)
 	{
 		esp_ble_gatts_send_indicate(serial_gatts_if, serial_conn_id,
-			dn8_handle_tbl[DN8_IDX_SERIAL_DATA_NOTIFY_VAL],
+			dn8_handle_tbl[msg->returnContext],
 			20, (uint8_t*)&msg->data[curpos], false);
 			msg->length -= 20;
 			curpos += 20;
 	}
 	esp_ble_gatts_send_indicate(serial_gatts_if, serial_conn_id,
-		dn8_handle_tbl[DN8_IDX_SERIAL_DATA_NOTIFY_VAL],
+		dn8_handle_tbl[msg->returnContext],
 		msg->length, (uint8_t*)&msg->data[curpos], false);
 	return;
 }
@@ -475,7 +449,6 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 			ESP_LOGI(LOGTAG, "ESP_GATTS_DISCONNECT_EVT");
 			// Clean up serial stuff
 			serial_is_connected = false;
-			serial_enable_data_notify = false;
 			// Start advertising again
 			esp_ble_gap_start_advertising(&dn8_adv_params);
 			break;
@@ -505,43 +478,23 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 			*/
 			break;
 		case ESP_GATTS_WRITE_EVT: // TODO: SPP
+			ESP_LOGI(LOGTAG, "ESP_GATTS_WRITE_EVT");
 			res = find_char_and_desr_index(param->write.handle);
 			if (!param->write.is_prep)
 			{
-				ESP_LOGI(LOGTAG, "ESP_GATTS_WRITE_EVT : handle = %d\n", res);
-				/*
-				if (res == DN8_IDX_SERIAL_COMMAND_VAL) // UNUSED
+				if (res == DN8_IDX_SPP_DATA_RECV_VAL)
 				{
-					// TODO: send cmd to uart cmd_queue
-					uint8_t* serial_cmd_buff = NULL;
-					serial_cmd_buff = (uint8_t*)malloc((serial_mtu_size - 3) * sizeof(uint8_t));
-					if (!serial_cmd_buff)
-					{
-						ESP_LOGE(LOGTAG, "%s malloc failed\n", __func__);
-						break;
-					}
-					memset(serial_cmd_buf, 0x0, (serial_mtu_size - 3));
-					memcpy(serial_cmd_buf, param->write.value, param->write.len);
-					xQueueSend(cmd_queue, &serial_cmd_buff, 10/portTICK_PERIOD_MS);
-				}
-				else
-				*/
-				if (res == DN8_IDX_SERIAL_DATA_NOTIFY_CFG)
-				{
-					if ((param->write.len == 2) && (param->write.value[0] == 0x01) &&
-						(param->write.value[1] == 0x00))
-					{
-						serial_enable_data_notify = true;
-					}
-					else if ((param->write.len == 2)&&(param->write.value[0] == 0x00)&&
-						(param->write.value[1] == 0x00))
-					{
-						serial_enable_data_notify = false;
-					}
+					send_raw_game_command((char*)(param->write.value),
+						param->write.len,
+						GAMEMASTER_ID,
+						DN8_IDX_SPP_DATA_NOTIFY_VAL);
 				}
 				else if (res == DN8_IDX_SERIAL_DATA_RECV_VAL)
 				{
-					send_raw_game_command((char*)(param->write.value), param->write.len);
+					send_raw_game_command((char*)(param->write.value),
+						param->write.len,
+						EXPLOITABLE_ID,
+						DN8_IDX_SERIAL_DATA_NOTIFY_VAL);
 				}
 				else
 				{

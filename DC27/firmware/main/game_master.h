@@ -21,20 +21,13 @@ typedef enum
 	INVALID_ID     = 0xFF,
 } GameId;
 
-typedef enum
-{
-	GAME_INIT = 0x00,
-	GAME_ACTION = 0x01,
-
-	GAME_UNKNOWN = 0xFF
-} GameDataType;
-
 typedef struct
 {
 	uint8_t context;
 	uint8_t length;
 	char* data;
 	QueueHandle_t returnQueue;
+	uint32_t returnContext;
 } GameMsg;
 
 class GameTask : public Task {

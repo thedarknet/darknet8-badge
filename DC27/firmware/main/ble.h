@@ -26,28 +26,16 @@ enum
 	DN8_IDX_SERIAL_DATA_NOTIFY_CHAR,
 	DN8_IDX_SERIAL_DATA_NOTIFY_VAL,
 	DN8_IDX_SERIAL_DATA_NOTIFY_CFG,
-	//DN8_IDX_SERIAL_COMMAND_CHAR,
-	//DN8_IDX_SERIAL_COMMAND_VAL,
-	//DN8_IDX_SERIAL_STATUS_CHAR,
-	//DN8_IDX_SERIAL_STATUS_VAL,
-	//DN8_IDX_SERIAL_STATUS_CFG,
-#ifdef SUPPORT_HEARTBEAT
-	//DN8_IDX_SERIAL_HEARTBEAT_CHAR,
-	//DN8_IDX_SERIAL_HEARTBEAT_VAL,
-	//DN8_IDX_SERIAL_HEARTBEAT_CFG,
-#endif // SUPPORT_HEARTBEAT
+
+	// SPP
+	DN8_IDX_SPP_DATA_RECV_CHAR,
+	DN8_IDX_SPP_DATA_RECV_VAL,
+	DN8_IDX_SPP_DATA_NOTIFY_CHAR,
+	DN8_IDX_SPP_DATA_NOTIFY_VAL,
+	DN8_IDX_SPP_DATA_NOTIFY_CFG,
 
 	DN8_IDX_NB,
 };
-
-typedef struct
-{
-	unsigned char size;
-	bool more;
-	unsigned char context;
-	char data[17];
-} DN8_BLE_MSG;
-
 
 #define ESP_GATT_UUID_DN8_SVC 0x444e
 static const uint16_t dn8_svc = ESP_GATT_UUID_DN8_SVC;
@@ -56,15 +44,18 @@ static const uint16_t primary_service_uuid = ESP_GATT_UUID_PRI_SERVICE;
 static const uint16_t serial_service_uuid =   0xABF0;
 #define ESP_GATT_UUID_SERIAL_DATA_RECEIVE     0xABF1
 #define ESP_GATT_UUID_SERIAL_DATA_NOTIFY      0xABF2
-//#define ESP_GATT_UUID_SERIAL_COMMAND_RECEIVE  0xABF3
-//#define ESP_GATT_UUID_SERIAL_COMMAND_NOTIFY   0xABF4
-//#ifdef SUPPORT_HEARTBEAT
-//#define ESP_GATT_UUID_SERIAL_HEARTBEAT        0xABF5
-//#endif
+
+#define ESP_GATT_UUID_SPP_DATA_RECEIVE        0xFFE0
+#define ESP_GATT_UUID_SPP_DATA_NOTIFY         0xFFE1
 
 #define SERIAL_DATA_MAX_LEN           (512)
 #define SERIAL_CMD_MAX_LEN            (20)
 #define SERIAL_STATUS_MAX_LEN         (20)
+
+#define SPP_DATA_MAX_LEN           (512)
+#define SPP_CMD_MAX_LEN            (20)
+#define SPP_STATUS_MAX_LEN         (20)
+
 
 struct gatts_profile_inst
 {
