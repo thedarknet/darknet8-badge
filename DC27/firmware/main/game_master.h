@@ -38,6 +38,8 @@ private:
 	QueueHandle_t GameQueueHandle = nullptr;
 	uint8_t gameQueueBuffer[GAME_QUEUE_SIZE*GAME_MSG_SIZE];
 
+	uint32_t my_nvs_handle = 0;
+
 	void commandHandler(GameMsg* msg);
 
 public:

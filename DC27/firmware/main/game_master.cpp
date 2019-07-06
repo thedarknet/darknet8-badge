@@ -7,6 +7,9 @@
 #include "esp_system.h"
 #include "esp_log.h"
 
+#include <nvs.h>
+#include <nvs_flash.h>
+
 #include "./game_master.h"
 
 const char* GAMEMASTER_LOGTAG = "GameMaster";
@@ -16,11 +19,17 @@ bool unlocked_games[INSTALLED_GAMES];
 // Game Interfaces are in the form of queues
 QueueHandle_t game_queues[INSTALLED_GAMES];
 
+char base_tag[] = "game_unlocked";
+char game_tag[20];
 bool GameTask::isGameUnlocked(uint8_t gameid)
 {
+	bool unlocked = false;
+	ESP_LOGI(LOGTAG, "Game unlocked check: %d", unlocked_games[gameid]);
 	if (gameid >= INSTALLED_GAMES)
 		return false;
-	return unlocked_games[gameid];
+	snprintf(game_tag, 20, "%s%d", base_tag, gameid);
+	nvs_get_u8(this->my_nvs_handle, game_tag, (uint8_t*)&unlocked);
+	return unlocked;
 }
 
 bool GameTask::setGameUnlocked(uint8_t gameid)
@@ -28,7 +37,10 @@ bool GameTask::setGameUnlocked(uint8_t gameid)
 	if (gameid >= INSTALLED_GAMES)
 		return false;
 	unlocked_games[gameid] = true;
-	// TODO: Write to persistent storage
+
+	snprintf(game_tag, 20, "%s%d", base_tag, gameid);
+	nvs_set_u8(this->my_nvs_handle, game_tag, (uint8_t)true);
+	nvs_commit(this->my_nvs_handle);
 	return true;
 }
 
@@ -53,17 +65,17 @@ void GameTask::mainMenuSendResponse(GameMsg* msg, char* data, uint8_t size)
 
 void GameTask::sendBadContextError(GameMsg* msg)
 {
-	char* odata = (char*)malloc(28);
-	memcpy(odata, "Bad Game Context Selection\n\0", 28);
+	char* odata = (char*)malloc(27);
+	memcpy(odata, "Bad Game Context Selection\n", 27);
 	mainMenuSendResponse(msg, odata, 28);
 	return;
 }
 
 void GameTask::sendGameLockedError(GameMsg* msg)
 {
-	char* odata = (char*)malloc(13);
-	memcpy(odata, "Game Locked\n\0", 13);
-	mainMenuSendResponse(msg, odata, 13);
+	char* odata = (char*)malloc(12);
+	memcpy(odata, "Game Locked\n", 12);
+	mainMenuSendResponse(msg, odata, 12);
 	return;
 }
 
@@ -183,6 +195,8 @@ void GameTask::run(void* data)
 
 bool GameTask::init()
 {
+	int i = 0;
+	bool unlocked;
 	this->GameQueueHandle = xQueueCreateStatic(GAME_QUEUE_SIZE, GAME_MSG_SIZE,
 		gameQueueBuffer, &GameQueue);
 
@@ -191,6 +205,31 @@ bool GameTask::init()
 
 	// Game Master
 	game_queues[GAMEMASTER_ID] = nullptr; // unused
+
+	// retrieve locked status
+	if (nvs_open("storage", NVS_READWRITE, &this->my_nvs_handle) != ESP_OK)
+	{
+		ESP_LOGE(LOGTAG, "FAILED TO OPEN NVS");
+		return false;
+	}
+
+	for (i = 0; i < INSTALLED_GAMES; i++)
+	{
+		if (i == 0) continue; // ignore game-master, always unlocked
+		unlocked = false;
+		snprintf(game_tag, 20, "%s%d", base_tag, i);
+		if (nvs_get_u8(this->my_nvs_handle, game_tag, (uint8_t*)&unlocked) == ESP_OK)
+		{
+			ESP_LOGI(LOGTAG, "game_tag: %s. unlocked %d", game_tag, unlocked);
+			unlocked_games[i] = unlocked;
+		}
+		else
+		{
+			unlocked_games[i] = false;
+			nvs_set_u8(this->my_nvs_handle, game_tag, (uint8_t)unlocked);
+			nvs_commit(this->my_nvs_handle);
+		}
+	}
 
 	return true;
 }
