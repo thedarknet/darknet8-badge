@@ -103,7 +103,13 @@ void app_main() {
 	ESP_ERROR_CHECK( ret );
 
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
-	DN8App::get().init();
+
+	libesp::ErrorType et;
+	et = DN8App::get().init();
+
+	if(!et.ok()) {
+		ESP_LOGE(LOGTAG,"init error: %s", et.toString());
+	}
 
 
 	ESP32_I2CMaster::doIt();
@@ -123,5 +129,8 @@ void app_main() {
 	
 
 	libesp::System::get().logSystemInfo();
+
+	vTaskDelay(3000 / portTICK_RATE_MS);
+	DN8App::get().run();
 }
 

@@ -8,3 +8,5 @@
 #COMPONENT_EMBED_FILES := image.jpg
 
 COMPONENT_EMBED_TXTFILES := $(PROJECT_PATH)/server_certs/ca_cert.pem
+
+COMPONENT_SRCDIRS := . menus

@@ -11,16 +11,19 @@
 #include <libesp/device/display/frame_buffer.h>
 #include <libesp/device/display/display_device.h>
 #include <libesp/device/display/fonts.h>
+#include <libesp/device/display/gui.h>
 #include <libesp/device/touch/XPT2046.h>
 #include "./ble.h"
 #include "./game_master.h"
 #include "./ota.h"
 // XXX: Games get included here and installed into the game master
 #include "./exploitable.h"
+#include "menus/menu_state.h"
 
 using libesp::ErrorType;
 using libesp::DisplayILI9341;
 using libesp::XPT2046;
+using libesp::GUI;
 
 const char *DN8App::LOGTAG = "AppTask";
 static StaticQueue_t InCommingQueue;
@@ -56,16 +59,17 @@ uint16_t ParallelLinesBuffer[DISPLAY_WIDTH*PARALLEL_LINES] = {0};
 
 libesp::ScalingBuffer FrameBuf(&Display, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, uint8_t(16), DISPLAY_WIDTH,DISPLAY_HEIGHT, PARALLEL_LINES, (uint8_t*)&BackBuffer[0],(uint8_t*)&ParallelLinesBuffer[0]);
 
+GUI DN8Gui(&Display);
 XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
 ExploitableGameTask ExploitTask("ExploitTask");
 OTATask OtaTask("OTATask");
+MenuState DN8MenuState;
 
 const char *DN8ErrorMap::toString(uint32_t err) {
 	return "TODO";
 }
-
 
 DN8App DN8App::mSelf;
 
@@ -162,6 +166,7 @@ libesp::ErrorType DN8App::onInit() {
 	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
 	ExploitTask.start();
 	GMTask.installGame(EXPLOITABLE_ID, false, ExploitTask.getQueueHandle());
+	setCurrentMenu(&DN8MenuState);
 	return et;
 }
 
@@ -181,7 +186,35 @@ OTATask &DN8App::getOTATask() {
 	return OtaTask;
 }
 
+uint16_t DN8App::getCanvasWidth() {
+	return FrameBuf.getBufferWidth(); 
+}
+
+uint16_t DN8App::getCanvasHeight() {
+	return FrameBuf.getBufferHeight();
+}
+	
+libesp::DisplayDevice &DN8App::getDisplay() {
+	return Display;
+}
+
+libesp::GUI &DN8App::getGUI() {
+	return DN8Gui;
+}
+
 ErrorType DN8App::onRun() {
+	libesp::BaseMenu::ReturnStateContext rsc = getCurrentMenu()->run();
+	Display.swap();
+
+	if (rsc.Err.ok()) {
+		if (getCurrentMenu() != rsc.NextMenuToRun) {
+			setCurrentMenu(rsc.NextMenuToRun);
+		} else {
+		}
+	} else {
+		//setCurrentState(StateCollection::getDisplayMessageState(
+		//		StateCollection::getDisplayMenuState(), (const char *)"Run State Error....", uint16_t (2000)));
+	}
 	return ErrorType();
 }
 

@@ -9,6 +9,11 @@
 
 #include <libesp/app/app.h>
 
+namespace libesp {
+class GUI;
+class DisplayDevice;
+};
+
 enum ERRORS {
 	APP_OK = 0
 	, OTA_INIT_FAIL = 1
@@ -43,6 +48,10 @@ public:
 	GameTask &getGameTask();
 	ExploitableGameTask &getExploitTask();
 	OTATask &getOTATask();
+	uint16_t getCanvasWidth();
+	uint16_t getCanvasHeight();
+	libesp::DisplayDevice &getDisplay();
+	libesp::GUI &getGUI();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();
