@@ -10,3 +10,5 @@ Shift Amount Register - 6 bit
 
 Each instruction contains up to three 4-bit general-register specifiers,
 each of which can select one of 16 32-bit registers.
+
+AR == "Address Registers" but can hold values other than addresses.

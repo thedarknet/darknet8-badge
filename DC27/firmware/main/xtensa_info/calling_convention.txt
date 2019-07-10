@@ -1,0 +1,13 @@
+Arguments stored in a2 through a7
+Return values are stored in a2 through a5
+
+Additional registers are stored on the stack, starting at the current stack pointer (a1)
+
+
+          return addr  stack ptr       arg0, arg1, arg2, arg3, arg4, arg5
+          -----------  ---------       ----------------------------------
+            a0           a1              a2,   a3,   a4,   a5,   a6,   a7
+
+call4       a4           a5              a6,   a7,   a8,   a9,  a10,  a11
+call8       a8           a9             a10,  a11,  a12,  a13,  a14,  a15
+call12     a12          a13             a14,  a15   ---   ---   ---   ---

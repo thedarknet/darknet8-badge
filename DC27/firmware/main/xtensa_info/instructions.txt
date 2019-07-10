@@ -1,0 +1,98 @@
+Load
+	L8UI	RRI8	8-bit unsigned load (8-bit offsit)
+	L16SI	RRI8	16-bit signed load  (8-bit shifted offset)
+	L16UI	RRI8	16-bit unsigned lod (8-bit shifted offset)
+	L32I	RRI8	32-bit load (8-bit shifted offset)
+	L32R	RI16	32-bit load PC-relative (16-bit negative word offset)
+
+Store
+	S8I		RRI8	8-bit store (8-bit offset)
+	S16I	RRI8	16-bit store (8-bit shifted offset)
+	S32I	RRI8	32-bit store (8-bit shifted offset)
+
+Jump/Call
+	CALL0	Call subrouting, PC Relative
+	CALLX0	Call subrouting, address in register
+	RET		subroutine return-jump to return address.
+	J		Unconditional jump, PC Relative
+	JX		Uncondication jump, address in register
+
+Conditional Branch
+	BALL	RRI8	Branch if all of masked bits set
+	BNALL	RRI8	Branch if not all of masked bits set
+	BANY	RRI8	Branch if all of masked bits set
+	BNONE	RRI8	Branch if none of masked bits set (all clear)
+	BBC		RRI8	Branch if bit clear
+	BBCI	RRI8	Branch if bit clear immediate
+	BBS		RRI8	Branch if bit set
+	BBSI	RRI8	Branch if bit set immediate
+	BEQ		RRI8	Branch if equal
+	BEQI	BRI8	Branch if equal signed immediate
+	BEQZ	BRI12	Branch if equal to 0
+	BNE		RRI8	Branch if not equal
+	BNEI	BRI8	Branch if not equal signed immediate
+	BNEZ	BRI12	Branch if not equal to 0
+	BGE		RRI8	Branch if greater than or equal
+	BGEI	BRI8	Branch if equal signed immediate
+	BGEU	RRI8	Branch if greather than or equal unsigned
+	BGEUI	BRI8	Branch if greater than or equal unsigned immediate
+	BGEZ	BRI12	Branch if greater than or equal to 0
+	BLT		RRI8	Branch if less than
+	BLTI	BRI8	Branch if leth than signed immediate
+	BLTU	RRI8	Branch if less than unsigned
+	BLTUI	BRI8	Branch if less than unsigned immediate
+	BLTZ	BRI12	Branch if less than or equal to 0
+
+Move
+	MOVI	RRI8	Load register with 12-bit signed constant
+	MOVEQZ	RRR 	Conditional move if zero
+	MOVGEZ	RRR 	Conditional move if greater than or equal to zero
+	MOVLTZ	RRR 	Conditional move if less than zero
+	MOVNEZ	RRR 	Conditional move if non-zero
+
+Arithmetic
+	ADDI	RRI8	Add signed constant to register (t <- s + imm)
+	ADDMI	RRI8	Add signed constant shift by 8 to register (t <- s + (imm << 8)
+	ADD 	RRR 	Add two regsiters (r <- s + t)
+	ADDX2	RRR 	Add register to register shifted by 1.  (r <- (s<<1) + t)
+	ADDX4	RRR 	Add register "" by 2 (r <- (s<<2) + t)
+	ADDX8	RRR 	Add register "" by 3 (r <- (s<<3) + t)
+	SUB 	RRR 	Substract two registers (r <- s - t)
+	SUBX2	RRR 	Substract register from register shifted by 1 (r <- (s<<1) - t)
+	SUBX4	RRR 	Substract "" by 2 (r <- (s<<2) - t)
+	SUBX8	RRR 	Substract "" by 3 (r <- (s<<3) - t)
+	NEG 	RRR 	Negate   (r <- 0 - t)
+	ABS 	RRR 	Absoulte (r <- if s[31] then 0 - s, else s)
+
+Bitwise Logical
+	AND 	RRR 	Bitwise AND (r <- s & t)
+	OR  	RRR 	Bitwise OR  (r <- s | t)
+	XOR 	RRR 	Bitwise XOR (r <- s ^ t)
+
+Shift
+	EXTUI
+	SRLI
+	SRAI
+	SLLI
+	SRC
+	SLL
+	SRL
+	SRA
+	SSL
+	SSR
+	SSAI
+	SSA8B
+	SSA8L
+
+Processor Control
+	RSR
+	WSR
+	XSR
+	RUR
+	WUR
+	ISYNC
+	RSYNC
+	ESYNC
+	DSYNC
+	NOP 	RRR 	No operation
+
