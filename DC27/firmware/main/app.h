@@ -20,6 +20,7 @@ enum ERRORS {
 	, BT_INIT_FAIL
 	, GAME_TASK_INIT_FAIL
 	, EXPLOIT_TASK_INIT_FAIL
+	, BUTTON_INIT_FAIL
 };
 
 class DN8ErrorMap : public libesp::IErrorDetail {
@@ -31,6 +32,7 @@ class BluetoothTask;
 class GameTask;
 class ExploitableGameTask;
 class OTATask;
+class ButtonInfo;
 
 class DN8App : public libesp::App {
 public:
@@ -52,6 +54,7 @@ public:
 	uint16_t getCanvasHeight();
 	libesp::DisplayDevice &getDisplay();
 	libesp::GUI &getGUI();
+	ButtonInfo &getButtonInfo();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();

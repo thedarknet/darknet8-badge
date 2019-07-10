@@ -18,9 +18,9 @@ MenuState::~MenuState() {
 ErrorType MenuState::onInit() {
 	Items[0].id = 0;
 	//if (DarkNet7::get().getContacts().getSettings().isNameSet()) {
-//		Items[0].text = (const char *) "Settings";
+		Items[0].text = (const char *) "Settings";
 //	} else {
-		Items[0].text = (const char *) "Settings *";
+//		Items[0].text = (const char *) "Settings *";
 //	}
 	Items[1].id = 1;
 	Items[1].text = (const char *) "Badge Pair";
@@ -31,19 +31,19 @@ ErrorType MenuState::onInit() {
 	Items[4].id = 4;
 	Items[4].text = (const char *) "Screen Saver";
 	Items[5].id = 5;
-	Items[5].text = (const char *) "STM Info";
+	Items[5].text = (const char *) "MCU Info";
 	Items[6].id = 6;
-	Items[6].text = (const char *) "ESP Info";
+	Items[6].text = (const char *) "Communications Settings";
 	Items[7].id = 7;
-	Items[7].text = (const char *) "Communications Settings";
+	Items[7].text = (const char *) "Health";
 	Items[8].id = 8;
-	Items[8].text = (const char *) "Health";
+	Items[8].text = (const char *) "Scan for NPCs";
 	Items[9].id = 9;
-	Items[9].text = (const char *) "Scan for NPCs";
+	Items[9].text = (const char *) "Test Badge";
 	Items[10].id = 10;
-	Items[10].text = (const char *) "Test Badge";
+	Items[10].text = (const char *) "Scan: Shitty Addon Badge";
 	Items[11].id = 11;
-	Items[11].text = (const char *) "Scan: Shitty Addon Badge";
+	Items[11].text = (const char *) "Calibrate Touch";
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&this->MenuList);
 	return ErrorType();

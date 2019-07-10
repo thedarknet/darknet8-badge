@@ -19,6 +19,7 @@
 // XXX: Games get included here and installed into the game master
 #include "./exploitable.h"
 #include "menus/menu_state.h"
+#include "buttons.h"
 
 using libesp::ErrorType;
 using libesp::DisplayILI9341;
@@ -65,6 +66,7 @@ BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
 ExploitableGameTask ExploitTask("ExploitTask");
 OTATask OtaTask("OTATask");
+ButtonInfo MyButtons;
 MenuState DN8MenuState;
 
 const char *DN8ErrorMap::toString(uint32_t err) {
@@ -153,6 +155,9 @@ libesp::ErrorType DN8App::onInit() {
 		if(!ExploitTask.init()) {
 			return ErrorType(ErrorType::FACILITY_APP,EXPLOIT_TASK_INIT_FAIL);
 		}
+		if(!MyButtons.init()) {
+			return ErrorType(ErrorType::FACILITY_APP,BUTTON_INIT_FAIL);
+		}
 
 	} else {
 		ESP_LOGE(LOGTAG,"failed display init");
@@ -203,6 +208,7 @@ libesp::GUI &DN8App::getGUI() {
 }
 
 ErrorType DN8App::onRun() {
+	MyButtons.process();
 	libesp::BaseMenu::ReturnStateContext rsc = getCurrentMenu()->run();
 	Display.swap();
 
