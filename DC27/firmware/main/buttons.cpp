@@ -1,8 +1,6 @@
 /*
- * DC26.cpp
  *
- *  Created on: Dec 3, 2017
- *      Author: dcomes
+ *      Author: cmdc0de
  */
 
 #include <stdint.h>
@@ -57,7 +55,9 @@ bool ButtonInfo::init() {
 	io_conf.mode = GPIO_MODE_INPUT;
 	io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
 	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-	gpio_config(&io_conf);
+	if(ESP_OK!=gpio_config(&io_conf)) {
+		return false;
+	}
 	//gpio_isr_handler_add(GPIO_NUM_39, gpio_isr_handler, (void*) GPIO_INPUT_IO_39);
 	
 	#define GPIO_INPUT_IO_36 (1ULL << GPIO_NUM_36)
@@ -65,7 +65,9 @@ bool ButtonInfo::init() {
 	io_conf.mode = GPIO_MODE_INPUT;
 	io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
 	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-	gpio_config(&io_conf);
+	if(ESP_OK!=gpio_config(&io_conf)) {
+		return false;
+	}
 	//gpio_isr_handler_add(GPIO_NUM_36, gpio_isr_handler, (void*) GPIO_INPUT_IO_36);
 	
 	#define GPIO_INPUT_IO_0 (1ULL << GPIO_NUM_0)
@@ -73,7 +75,9 @@ bool ButtonInfo::init() {
 	io_conf.mode = GPIO_MODE_INPUT;
 	io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
 	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-	gpio_config(&io_conf);
+	if(ESP_OK!=gpio_config(&io_conf)) {
+		return false;
+	}
 	//gpio_isr_handler_add(GPIO_NUM_0, gpio_isr_handler, (void*) GPIO_INPUT_IO_0);
 	return true;
 }
@@ -113,10 +117,10 @@ void ButtonInfo::process() {
 	LastButtonState = ButtonState;
 	ButtonState = 0;
 	if (gpio_get_level(GPIO_NUM_39) == 0) {
-		ButtonState|=BUTTON_RIGHT_DOWN;
+		ButtonState|=BUTTON_LEFT_UP;
 	}
 	if (gpio_get_level(GPIO_NUM_36) == 0) {
-		ButtonState|=BUTTON_LEFT_UP;
+		ButtonState|=BUTTON_RIGHT_DOWN;
 	}
 	if (gpio_get_level(GPIO_NUM_0) == 0) {
 		ButtonState|=BUTTON_FIRE1;

@@ -33,6 +33,8 @@ class GameTask;
 class ExploitableGameTask;
 class OTATask;
 class ButtonInfo;
+class MenuState;
+class CalibrationMenu;
 
 class DN8App : public libesp::App {
 public:
@@ -55,6 +57,8 @@ public:
 	libesp::DisplayDevice &getDisplay();
 	libesp::GUI &getGUI();
 	ButtonInfo &getButtonInfo();
+	MenuState *getMenuState();
+	CalibrationMenu *getCalibrationMenu();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();

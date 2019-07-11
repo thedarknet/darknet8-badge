@@ -12,12 +12,12 @@
 
 namespace libesp {
 	class GUIListData;
+}
 
 class GUIListProcessor {
 public:
-	static bool process(GUIListData *pl, uint16_t itemCount);
+	static bool process(libesp::GUIListData *pl, uint16_t itemCount);
 };
 
-}
 
 #endif /* DARKNET_MENUS_GUI_LIST_PROCESSOR_H_ */

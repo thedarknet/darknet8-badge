@@ -1,13 +1,15 @@
 #include "menu_state.h"
 #include "../app.h"
+#include "gui_list_processor.h"
+#include "../buttons.h"
+#include "calibration_menu.h"
 
 using libesp::ErrorType;
 using libesp::BaseMenu;
 using libesp::RGBColor;
 
 MenuState::MenuState() :
-		DN8BaseMenu(), MenuList("Main Menu", Items, 0, 0, DN8App::get().getCanvasWidth(),
-				DN8App::get().getCanvasHeight(), 0, (sizeof(Items) / sizeof(Items[0]))) {
+		DN8BaseMenu(), MenuList("Main Menu", Items, 0, 0, DN8App::get().getCanvasWidth()-1, DN8App::get().getCanvasHeight()-1, 0, (sizeof(Items) / sizeof(Items[0]))) {
 }
 
 MenuState::~MenuState() {
@@ -51,13 +53,13 @@ ErrorType MenuState::onInit() {
 
 libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 	BaseMenu *nextState = this;
-/*
 	if (!GUIListProcessor::process(&MenuList,(sizeof(Items) / sizeof(Items[0]))))
 	{
-		if (DarkNet7::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DarkNet7::ButtonInfo::BUTTON_FIRE1))
+		if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1))
 		{
 			switch (MenuList.selectedItem)
 			{
+					  /*
 				case 0:
 					nextState = DarkNet7::get().getSettingState();
 					break;
@@ -100,15 +102,17 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 				case 11:
 					nextState = DarkNet7::get().getSAOMenuState();
 					break;
-
+					*/
+				case 11:
+					nextState = DN8App::get().getCalibrationMenu();
+					break;
 			}
 		}
 	}
 
-	if (DarkNet7::get().getButtonInfo().wasAnyButtonReleased()) {
-		DarkNet7::get().getGUI().drawList(&this->MenuList);
+	if (DN8App::get().getButtonInfo().wasAnyButtonReleased()) {
+		DN8App::get().getGUI().drawList(&this->MenuList);
 	}
-*/
 	return BaseMenu::ReturnStateContext(nextState);
 }
 
@@ -116,3 +120,4 @@ ErrorType MenuState::onShutdown() {
 	//MenuList.selectedItem = 0;
 	return ErrorType();
 }
+

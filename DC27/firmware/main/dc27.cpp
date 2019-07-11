@@ -66,7 +66,11 @@ void app_main() {
 
 	libesp::System::get().logSystemInfo();
 
+   do {
+		et = DN8App::get().run();
+		vTaskDelay(10 / portTICK_RATE_MS);
+	} while (et.ok());
+
 	vTaskDelay(3000 / portTICK_RATE_MS);
-	DN8App::get().run();
 }
 

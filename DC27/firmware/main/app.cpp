@@ -20,6 +20,7 @@
 #include "./exploitable.h"
 #include "menus/menu_state.h"
 #include "buttons.h"
+#include "menus/calibration_menu.h"
 
 using libesp::ErrorType;
 using libesp::DisplayILI9341;
@@ -68,9 +69,18 @@ ExploitableGameTask ExploitTask("ExploitTask");
 OTATask OtaTask("OTATask");
 ButtonInfo MyButtons;
 MenuState DN8MenuState;
+CalibrationMenu DN8CalibrationMenu;
 
 const char *DN8ErrorMap::toString(uint32_t err) {
 	return "TODO";
+}
+
+MenuState *DN8App::getMenuState() {
+	return &DN8MenuState;
+}
+
+CalibrationMenu *DN8App::getCalibrationMenu() {
+	return &DN8CalibrationMenu;
 }
 
 DN8App DN8App::mSelf;
@@ -85,6 +95,10 @@ DN8App::DN8App() : AppErrors() {
 
 DN8App::~DN8App() {
 
+}
+
+ButtonInfo &DN8App::getButtonInfo() {
+	return MyButtons;
 }
 
 libesp::ErrorType DN8App::onInit() {
@@ -139,7 +153,7 @@ libesp::ErrorType DN8App::onInit() {
 			return ErrorType(ErrorType::FACILITY_APP,OTA_INIT_FAIL);
 		}
 		//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
-		//*cmd = ATTEMPT_OTA;
+		// *cmd = ATTEMPT_OTA;
 		//xQueueSend(OTATask.getQueueHandle(), &cmd, (TickType_t)100);
 	
 		////
@@ -157,11 +171,11 @@ libesp::ErrorType DN8App::onInit() {
 		}
 		if(!MyButtons.init()) {
 			return ErrorType(ErrorType::FACILITY_APP,BUTTON_INIT_FAIL);
+		} else {
+			ESP_LOGI(LOGTAG,"Button Init complete");
 		}
-
 	} else {
 		ESP_LOGE(LOGTAG,"failed display init");
-		
 	}
 	
 	TouchTask.start();
@@ -171,7 +185,8 @@ libesp::ErrorType DN8App::onInit() {
 	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
 	ExploitTask.start();
 	GMTask.installGame(EXPLOITABLE_ID, false, ExploitTask.getQueueHandle());
-	setCurrentMenu(&DN8MenuState);
+	
+	setCurrentMenu(getMenuState());
 	return et;
 }
 
@@ -208,6 +223,9 @@ libesp::GUI &DN8App::getGUI() {
 }
 
 ErrorType DN8App::onRun() {
+#if 0 
+		  return ErrorType();
+#else
 	MyButtons.process();
 	libesp::BaseMenu::ReturnStateContext rsc = getCurrentMenu()->run();
 	Display.swap();
@@ -222,5 +240,6 @@ ErrorType DN8App::onRun() {
 		//		StateCollection::getDisplayMenuState(), (const char *)"Run State Error....", uint16_t (2000)));
 	}
 	return ErrorType();
+#endif
 }
 
