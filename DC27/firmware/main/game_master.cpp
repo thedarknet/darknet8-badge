@@ -14,10 +14,46 @@
 
 const char* GAMEMASTER_LOGTAG = "GameMaster";
 
-#define INSTALLED_GAMES (2)
+#define INSTALLED_GAMES (3)
 bool unlocked_games[INSTALLED_GAMES];
 // Game Interfaces are in the form of queues
 QueueHandle_t game_queues[INSTALLED_GAMES];
+
+// Helpers for sending responses
+void SendResponse(GameMsg* msg, char* data, uint8_t size)
+{
+	// split into chunks?
+	GameMsg* omsg = nullptr;
+	if (msg->returnQueue)
+	{
+		omsg = (GameMsg*)malloc(sizeof(GameMsg));
+		memset(omsg, '\0', sizeof(GameMsg));
+		omsg->length = size;
+		omsg->data = data;
+		omsg->returnQueue = nullptr;
+		omsg->returnContext = msg->returnContext;
+		xQueueSend(msg->returnQueue, (void*)&omsg, (TickType_t)100);
+	}
+	else
+		free(data);
+	return;
+}
+void SendStringResponse(GameMsg* msg, const char* stringToCopy)
+{
+	int size = strlen(stringToCopy);
+	char* tmp = (char*)malloc(size);
+	memcpy(tmp, stringToCopy, size);
+	SendResponse(msg, tmp, size);
+	return;
+}
+void SendCopyResponse(GameMsg* msg, const char* copyme, uint8_t size)
+{
+	char* tmp = (char*)malloc(size);
+	memcpy(tmp, copyme, size);
+	SendResponse(msg, tmp, size);
+	return;
+}
+
 
 char base_tag[] = "game_unlocked";
 char game_tag[20];
@@ -29,6 +65,7 @@ bool GameTask::isGameUnlocked(uint8_t gameid)
 		return false;
 	snprintf(game_tag, 20, "%s%d", base_tag, gameid);
 	nvs_get_u8(this->my_nvs_handle, game_tag, (uint8_t*)&unlocked);
+	ESP_LOGI(LOGTAG, "Game unlocked check: %d", unlocked);
 	return unlocked;
 }
 
@@ -173,7 +210,9 @@ bool GameTask::installGame(GameId id, bool unlocked, QueueHandle_t gameQueue)
 		ESP_LOGE(LOGTAG, "FAILED TO INSTALL, passed in null gameQueue");
 		return false;
 	}
-	unlocked_games[id] = unlocked;
+	if (unlocked)
+		setGameUnlocked(id);
+
 	game_queues[id] = gameQueue;
 	ESP_LOGI(LOGTAG, "Game Installed");
 	return true;

@@ -17,6 +17,7 @@ typedef enum
 {
 	GAMEMASTER_ID  = 0x00,
 	EXPLOITABLE_ID = 0x01,
+	BRAINFUZZ_ID   = 0x02,
 
 	INVALID_ID     = 0xFF,
 } GameId;
@@ -29,6 +30,11 @@ typedef struct
 	QueueHandle_t returnQueue;
 	uint32_t returnContext;
 } GameMsg;
+
+
+void SendResponse(GameMsg* msg, char* data, uint8_t size);
+void SendStringResponse(GameMsg* msg, const char* stringToCopy);
+void SendCopyResponse(GameMsg* msg, const char* copyme, uint8_t size);
 
 class GameTask : public Task {
 private:

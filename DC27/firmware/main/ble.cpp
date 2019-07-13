@@ -52,11 +52,6 @@ static bool serial_is_connected       = false;
 static esp_gatt_if_t serial_gatts_if   = 0xff;
 static esp_bd_addr_t serial_remote_bda = {0x0,};
 
-static serial_recv_data_node_t* serial_recv_data_node = NULL;
-static serial_recv_data_node_t* serial_recv_data_node_p2 = NULL;
-static serial_recv_data_buff_t SerialRecvDataBuff;
-
-
 // Serial game connectivity
 static QueueHandle_t gameTaskQueue_g = nullptr;
 static QueueHandle_t bleGameResponseQueue_g = nullptr;
@@ -71,25 +66,33 @@ static const uint8_t char_prop_read_notify = ESP_GATT_CHAR_PROP_BIT_READ|ESP_GAT
 static const uint8_t char_prop_read_write = ESP_GATT_CHAR_PROP_BIT_WRITE_NR|ESP_GATT_CHAR_PROP_BIT_READ;
 
 /*
- * SPP Profile Attributes
+ * Profile Attributes
  ************************************
  */
-//Serial - data receive characteristic, read&write without response
-static const uint16_t serial_data_receive_uuid = ESP_GATT_UUID_SERIAL_DATA_RECEIVE;
-static const uint8_t  serial_data_receive_val[20] = {0x00};
+// EXPLOITABLE - data receive characteristic, read&write without response
+static const uint16_t exploitable_data_receive_uuid = ESP_GATT_UUID_EXPLOITABLE_DATA_RECEIVE;
+static const uint8_t  exploitable_data_receive_val[20] = {0x00};
 
-//Serial - data notify characteristic, notify&read
-static const uint16_t serial_data_notify_uuid = ESP_GATT_UUID_SERIAL_DATA_NOTIFY;
-static const uint8_t  serial_data_notify_val[20] = {0x00};
-static const uint8_t  serial_data_notify_ccc[2] = {0x00, 0x00};
+// EXPLOITABLE - data notify characteristic, notify&read
+static const uint16_t exploitable_data_notify_uuid = ESP_GATT_UUID_EXPLOITABLE_DATA_NOTIFY;
+static const uint8_t  exploitable_data_notify_val[20] = {0x00};
+static const uint8_t  exploitable_data_notify_ccc[2] = {0x00, 0x00};
 
 
-// SPP - data receive and notify chars
-static const uint16_t spp_data_receive_uuid = ESP_GATT_UUID_SPP_DATA_RECEIVE;
-static const uint8_t  spp_data_receive_val[20] = {0x00};
-static const uint16_t spp_data_notify_uuid = ESP_GATT_UUID_SPP_DATA_NOTIFY;
-static const uint8_t  spp_data_notify_val[20] = {0x00};
-static const uint8_t  spp_data_notify_ccc[2] = {0x00, 0x00};
+// GAMEMASTER - data receive and notify chars
+static const uint16_t gamemaster_data_receive_uuid = ESP_GATT_UUID_GAMEMASTER_DATA_RECEIVE;
+static const uint8_t  gamemaster_data_receive_val[20] = {0x00};
+static const uint16_t gamemaster_data_notify_uuid = ESP_GATT_UUID_GAMEMASTER_DATA_NOTIFY;
+static const uint8_t  gamemaster_data_notify_val[20] = {0x00};
+static const uint8_t  gamemaster_data_notify_ccc[2] = {0x00, 0x00};
+
+
+// BRAINFUZZ - data in and out for Brainfuzz game
+static const uint16_t brainfuzz_data_receive_uuid = ESP_GATT_UUID_BRAINFUZZ_DATA_RECEIVE;
+static const uint8_t  brainfuzz_data_receive_val[20] = {0x00};
+static const uint16_t brainfuzz_data_notify_uuid = ESP_GATT_UUID_BRAINFUZZ_DATA_NOTIFY;
+static const uint8_t  brainfuzz_data_notify_val[20] = {0x00};
+static const uint8_t  brainfuzz_data_notify_ccc[2] = {0x00, 0x00};
 
 static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 {
@@ -104,7 +107,7 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			(uint8_t *)&dn8_svc}},
 
 	//Serial - Data receive characteristic, value
-	[DN8_IDX_SERIAL_DATA_RECV_CHAR] =
+	[DN8_IDX_EXPLOITABLE_DATA_RECV_CHAR] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
 			(uint8_t *)&character_declaration_uuid,
@@ -112,17 +115,17 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			CHAR_DECLARATION_SIZE,
 			CHAR_DECLARATION_SIZE,
 			(uint8_t *)&char_prop_read_write}},
-	[DN8_IDX_SERIAL_DATA_RECV_VAL] =
+	[DN8_IDX_EXPLOITABLE_DATA_RECV_VAL] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
-			(uint8_t *)&serial_data_receive_uuid,
+			(uint8_t *)&exploitable_data_receive_uuid,
 			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
-			SERIAL_DATA_MAX_LEN,
-			sizeof(serial_data_receive_val),
-			(uint8_t *)serial_data_receive_val}},
+			EXPLOITABLE_DATA_MAX_LEN,
+			sizeof(exploitable_data_receive_val),
+			(uint8_t *)exploitable_data_receive_val}},
 
 	//Serial: Data notify characteristic, value, descriptor
-	[DN8_IDX_SERIAL_DATA_NOTIFY_CHAR] =
+	[DN8_IDX_EXPLOITABLE_DATA_NOTIFY_CHAR] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
 			(uint8_t *)&character_declaration_uuid,
@@ -130,25 +133,25 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			CHAR_DECLARATION_SIZE,
 			CHAR_DECLARATION_SIZE,
 			(uint8_t *)&char_prop_read_notify}},
-	[DN8_IDX_SERIAL_DATA_NOTIFY_VAL] =
+	[DN8_IDX_EXPLOITABLE_DATA_NOTIFY_VAL] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
-			(uint8_t *)&serial_data_notify_uuid,
+			(uint8_t *)&exploitable_data_notify_uuid,
 			ESP_GATT_PERM_READ,
-			SERIAL_DATA_MAX_LEN,
-			sizeof(serial_data_notify_val),
-			(uint8_t *)serial_data_notify_val}},
-	[DN8_IDX_SERIAL_DATA_NOTIFY_CFG] =
+			EXPLOITABLE_DATA_MAX_LEN,
+			sizeof(exploitable_data_notify_val),
+			(uint8_t *)exploitable_data_notify_val}},
+	[DN8_IDX_EXPLOITABLE_DATA_NOTIFY_CFG] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
 			(uint8_t *)&character_client_config_uuid,
 			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
 			sizeof(uint16_t),
-			sizeof(serial_data_notify_ccc),
-			(uint8_t *)serial_data_notify_ccc}},
+			sizeof(exploitable_data_notify_ccc),
+			(uint8_t *)exploitable_data_notify_ccc}},
 
-	//SPP - Data receive characteristic, value
-	[DN8_IDX_SPP_DATA_RECV_CHAR] =
+	//GAMEMASTER - Data receive characteristic, value
+	[DN8_IDX_GAMEMASTER_DATA_RECV_CHAR] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
 			(uint8_t *)&character_declaration_uuid,
@@ -156,17 +159,17 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			CHAR_DECLARATION_SIZE,
 			CHAR_DECLARATION_SIZE,
 			(uint8_t *)&char_prop_read_write}},
-	[DN8_IDX_SPP_DATA_RECV_VAL] =
+	[DN8_IDX_GAMEMASTER_DATA_RECV_VAL] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
-			(uint8_t *)&spp_data_receive_uuid,
+			(uint8_t *)&gamemaster_data_receive_uuid,
 			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
-			SPP_DATA_MAX_LEN,
-			sizeof(spp_data_receive_val),
-			(uint8_t *)spp_data_receive_val}},
+			GAMEMASTER_DATA_MAX_LEN,
+			sizeof(gamemaster_data_receive_val),
+			(uint8_t *)gamemaster_data_receive_val}},
 
-	//SPP: Data notify characteristic, value, descriptor
-	[DN8_IDX_SPP_DATA_NOTIFY_CHAR] =
+	//GAMEMASTER: Data notify characteristic, value, descriptor
+	[DN8_IDX_GAMEMASTER_DATA_NOTIFY_CHAR] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
 			(uint8_t *)&character_declaration_uuid,
@@ -174,22 +177,67 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			CHAR_DECLARATION_SIZE,
 			CHAR_DECLARATION_SIZE,
 			(uint8_t *)&char_prop_read_notify}},
-	[DN8_IDX_SPP_DATA_NOTIFY_VAL] =
+	[DN8_IDX_GAMEMASTER_DATA_NOTIFY_VAL] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
-			(uint8_t *)&spp_data_notify_uuid,
+			(uint8_t *)&gamemaster_data_notify_uuid,
 			ESP_GATT_PERM_READ,
-			SPP_DATA_MAX_LEN,
-			sizeof(spp_data_notify_val),
-			(uint8_t *)spp_data_notify_val}},
-	[DN8_IDX_SPP_DATA_NOTIFY_CFG] =
+			GAMEMASTER_DATA_MAX_LEN,
+			sizeof(gamemaster_data_notify_val),
+			(uint8_t *)gamemaster_data_notify_val}},
+	[DN8_IDX_GAMEMASTER_DATA_NOTIFY_CFG] =
 	{{ESP_GATT_AUTO_RSP},
 		{ESP_UUID_LEN_16,
 			(uint8_t *)&character_client_config_uuid,
 			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
 			sizeof(uint16_t),
-			sizeof(spp_data_notify_ccc),
-			(uint8_t *)spp_data_notify_ccc}},
+			sizeof(gamemaster_data_notify_ccc),
+			(uint8_t *)gamemaster_data_notify_ccc}},
+
+
+	//Brainfuzz - Data receive characteristic, value
+	[DN8_IDX_BRAINFUZZ_DATA_RECV_CHAR] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_declaration_uuid,
+			ESP_GATT_PERM_READ,
+			CHAR_DECLARATION_SIZE,
+			CHAR_DECLARATION_SIZE,
+			(uint8_t *)&char_prop_read_write}},
+	[DN8_IDX_BRAINFUZZ_DATA_RECV_VAL] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&brainfuzz_data_receive_uuid,
+			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
+			BRAINFUZZ_DATA_MAX_LEN,
+			sizeof(brainfuzz_data_receive_val),
+			(uint8_t *)brainfuzz_data_receive_val}},
+
+	//Brainfuzz: Data notify characteristic, value, descriptor
+	[DN8_IDX_BRAINFUZZ_DATA_NOTIFY_CHAR] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_declaration_uuid,
+			ESP_GATT_PERM_READ,
+			CHAR_DECLARATION_SIZE,
+			CHAR_DECLARATION_SIZE,
+			(uint8_t *)&char_prop_read_notify}},
+	[DN8_IDX_BRAINFUZZ_DATA_NOTIFY_VAL] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&brainfuzz_data_notify_uuid,
+			ESP_GATT_PERM_READ,
+			BRAINFUZZ_DATA_MAX_LEN,
+			sizeof(brainfuzz_data_notify_val),
+			(uint8_t *)brainfuzz_data_notify_val}},
+	[DN8_IDX_BRAINFUZZ_DATA_NOTIFY_CFG] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_client_config_uuid,
+			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
+			sizeof(uint16_t),
+			sizeof(brainfuzz_data_notify_ccc),
+			(uint8_t *)brainfuzz_data_notify_ccc}},
 
 
 };
@@ -203,54 +251,6 @@ static uint8_t find_char_and_desr_index(uint16_t handle)
 			return i;
 	}
 	return 0xff; // error
-}
-
-static void store_wr_buffer(esp_ble_gatts_cb_param_t *param)
-{
-	serial_recv_data_node = (serial_recv_data_node_t*)malloc(sizeof(serial_recv_data_node_t));
-	if (!serial_recv_data_node)
-	{
-		ESP_LOGI(LOGTAG, "malloc error %s %d\n", __func__, __LINE__);
-		return;
-	}
-	if(serial_recv_data_node_p2 != NULL)
-		serial_recv_data_node_p2->next_node = serial_recv_data_node;
-	SerialRecvDataBuff.buff_size += param->write.len;
-	serial_recv_data_node->next_node = NULL;
-	serial_recv_data_node->node_buff = (uint8_t *)malloc(param->write.len);
-	serial_recv_data_node_p2 = serial_recv_data_node;
-	if (SerialRecvDataBuff.node_num == 0)
-		SerialRecvDataBuff.first_node = serial_recv_data_node;
-	SerialRecvDataBuff.node_num++;
-	return;
-}
-
-static void free_write_buffer(void)
-{
-	serial_recv_data_node = SerialRecvDataBuff.first_node;
-	while (serial_recv_data_node != NULL)
-	{
-		serial_recv_data_node_p2 = serial_recv_data_node->next_node;
-		free(serial_recv_data_node->node_buff);
-		free(serial_recv_data_node);
-		serial_recv_data_node = serial_recv_data_node_p2;
-	}
-	SerialRecvDataBuff.node_num = 0;
-	SerialRecvDataBuff.buff_size = 0;
-	SerialRecvDataBuff.first_node = NULL;
-}
-
-static void print_write_buffer(void)
-{
-	serial_recv_data_node = SerialRecvDataBuff.first_node;
-	ESP_LOGI(LOGTAG, "print_write_buffer");
-	while(serial_recv_data_node != NULL)
-	{
-		// TODO: send data to text menu queue
-		ESP_LOG_BUFFER_HEXDUMP(LOGTAG, (char *)(serial_recv_data_node->node_buff),
-			serial_recv_data_node->len, ESP_LOG_INFO);
-		serial_recv_data_node = serial_recv_data_node->next_node;
-	}
 }
 
 static void send_raw_game_command(char* buffer, uint16_t length, uint32_t gameid,
@@ -432,7 +432,6 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 		case ESP_GATTS_REG_EVT:
 			esp_ble_gap_set_device_name(DN8_DEVICE_NAME);
 			esp_ble_gap_config_local_privacy(true);
-			// TODO: SPP Conflict, adv_data raw?!
 			esp_ble_gatts_create_attr_tab(dn8_gatt_db, gatts_if, DN8_IDX_NB, DN8_SVC_INST_ID);
 			break;
 		case ESP_GATTS_CONNECT_EVT:
@@ -470,50 +469,37 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 		case ESP_GATTS_READ_EVT:
 			ESP_LOGI(LOGTAG, "ESP_GATTS_READ_EVT");
 			res = find_char_and_desr_index(param->read.handle);
-			/*
-			if(res == DN8_IDX_SERIAL_STATUS_VAL)
-			{
-				// TODO: Client read the status characteristic (not in example)
-			}
-			*/
 			break;
-		case ESP_GATTS_WRITE_EVT: // TODO: SPP
+		case ESP_GATTS_WRITE_EVT:
 			ESP_LOGI(LOGTAG, "ESP_GATTS_WRITE_EVT");
 			res = find_char_and_desr_index(param->write.handle);
 			if (!param->write.is_prep)
 			{
-				if (res == DN8_IDX_SPP_DATA_RECV_VAL)
+				if (res == DN8_IDX_GAMEMASTER_DATA_RECV_VAL)
 				{
 					send_raw_game_command((char*)(param->write.value),
 						param->write.len,
 						GAMEMASTER_ID,
-						DN8_IDX_SPP_DATA_NOTIFY_VAL);
+						DN8_IDX_GAMEMASTER_DATA_NOTIFY_VAL);
 				}
-				else if (res == DN8_IDX_SERIAL_DATA_RECV_VAL)
+				else if (res == DN8_IDX_EXPLOITABLE_DATA_RECV_VAL)
 				{
 					send_raw_game_command((char*)(param->write.value),
 						param->write.len,
 						EXPLOITABLE_ID,
-						DN8_IDX_SERIAL_DATA_NOTIFY_VAL);
+						DN8_IDX_EXPLOITABLE_DATA_NOTIFY_VAL);
 				}
-				else
+				else if (res == DN8_IDX_BRAINFUZZ_DATA_RECV_VAL)
 				{
-					// TODO (left out of example)
+					send_raw_game_command((char*)(param->write.value),
+						param->write.len,
+						BRAINFUZZ_ID,
+						DN8_IDX_BRAINFUZZ_DATA_NOTIFY_VAL);
 				}
-			}
-			else if (param->write.is_prep && (res == DN8_IDX_SERIAL_DATA_RECV_VAL))
-			{
-				ESP_LOGI(LOGTAG, "ESP_GATTS_PREP_WRITE_EVT : handle = %d\n", res);
-				store_wr_buffer(param);
 			}
 			break;
 		case ESP_GATTS_EXEC_WRITE_EVT:
 			ESP_LOGI(LOGTAG, "ESP_GATTS_EXEC_WRITE_EVT\n");
-			if (param->exec_write.exec_write_flag)
-			{
-				print_write_buffer();
-				free_write_buffer();
-			}
 			break;
 		case ESP_GATTS_MTU_EVT:
 			serial_mtu_size = param->mtu.mtu;
@@ -599,10 +585,6 @@ static void init_ble_globals(void)
 	dn8_profile_tab[DN8_PROFILE_APP_IDX].gatts_cb = gatts_profile_event_handler;
 	dn8_profile_tab[DN8_PROFILE_APP_IDX].gatts_if = ESP_GATT_IF_NONE;
 
-	// null out the Serial Receive Buffer
-	SerialRecvDataBuff.node_num = 0;
-	SerialRecvDataBuff.buff_size = 0;
-	SerialRecvDataBuff.first_node = NULL;
 }
 
 static void init_ble_security(void)
