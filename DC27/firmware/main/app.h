@@ -54,6 +54,8 @@ public:
 	OTATask &getOTATask();
 	uint16_t getCanvasWidth();
 	uint16_t getCanvasHeight();
+	uint16_t getLastCanvasWidthPixel();
+	uint16_t getLastCanvasHeight();
 	libesp::DisplayDevice &getDisplay();
 	libesp::GUI &getGUI();
 	ButtonInfo &getButtonInfo();

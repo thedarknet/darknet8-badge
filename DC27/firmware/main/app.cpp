@@ -213,6 +213,13 @@ uint16_t DN8App::getCanvasWidth() {
 uint16_t DN8App::getCanvasHeight() {
 	return FrameBuf.getBufferHeight();
 }
+uint16_t DN8App::getLastCanvasWidthPixel() {
+	return getCanvasWidth()-1;
+}
+
+uint16_t DN8App::getLastCanvasHeight() {
+	return getCanvasHeight()-1;
+}
 	
 libesp::DisplayDevice &DN8App::getDisplay() {
 	return Display;

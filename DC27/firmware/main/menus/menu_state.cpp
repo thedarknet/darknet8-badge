@@ -9,7 +9,8 @@ using libesp::BaseMenu;
 using libesp::RGBColor;
 
 MenuState::MenuState() :
-		DN8BaseMenu(), MenuList("Main Menu", Items, 0, 0, DN8App::get().getCanvasWidth()-1, DN8App::get().getCanvasHeight()-1, 0, (sizeof(Items) / sizeof(Items[0]))) {
+		DN8BaseMenu(), MenuList("Main Menu", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel()
+			, DN8App::get().getLastCanvasHeightPixel(), 0, (sizeof(Items) / sizeof(Items[0]))) {
 }
 
 MenuState::~MenuState() {
