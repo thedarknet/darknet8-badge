@@ -14,10 +14,65 @@
 
 const char* GAMEMASTER_LOGTAG = "GameMaster";
 
-#define INSTALLED_GAMES (2)
+#define INSTALLED_GAMES (3)
 bool unlocked_games[INSTALLED_GAMES];
 // Game Interfaces are in the form of queues
 QueueHandle_t game_queues[INSTALLED_GAMES];
+
+// Helpers for sending responses
+void SendResponse(GameMsg* msg, char* data, uint8_t size)
+{
+	// split into chunks?
+	GameMsg* omsg = nullptr;
+	if (msg->returnQueue)
+	{
+		omsg = (GameMsg*)malloc(sizeof(GameMsg));
+		memset(omsg, '\0', sizeof(GameMsg));
+		omsg->length = size;
+		omsg->data = data;
+		omsg->returnQueue = nullptr;
+		omsg->returnContext = msg->returnContext;
+		xQueueSend(msg->returnQueue, (void*)&omsg, (TickType_t)100);
+	}
+	else
+		free(data);
+	return;
+}
+
+void SendStringResponse(GameMsg* msg, const char* stringToCopy)
+{
+	int size = strlen(stringToCopy);
+	char* tmp = (char*)malloc(size);
+	memcpy(tmp, stringToCopy, size);
+	SendResponse(msg, tmp, size);
+	return;
+}
+
+void SendCopyResponse(GameMsg* msg, const char* copyme, uint8_t size)
+{
+	char* tmp = (char*)malloc(size);
+	memcpy(tmp, copyme, size);
+	SendResponse(msg, tmp, size);
+	return;
+}
+
+// This function does a simple encoding function on your flag
+// that way you don't store your flag in memory as plaintext
+// this can be defeated if someone dumps memory and reverses out
+// who is calling this function, but that's ok in my opinion
+void SendWinResponse(GameMsg* msg, const char* a)
+{
+	char x[] = {"GOURRY"};
+	int i = 0;
+	char* b = (char*)malloc(strlen(a)+1);
+	for (i = 0; i < strlen(a); i++)
+	{
+		b[i] = a[i] ^ x[i % 6];
+		x[i % 6] = x[i % 6] + 1;
+	}
+	b[strlen(a)] = '\n';
+	SendResponse(msg, b, strlen(a));
+}
 
 char base_tag[] = "game_unlocked";
 char game_tag[20];
@@ -29,6 +84,7 @@ bool GameTask::isGameUnlocked(uint8_t gameid)
 		return false;
 	snprintf(game_tag, 20, "%s%d", base_tag, gameid);
 	nvs_get_u8(this->my_nvs_handle, game_tag, (uint8_t*)&unlocked);
+	ESP_LOGI(LOGTAG, "Game unlocked check: %d", unlocked);
 	return unlocked;
 }
 
@@ -79,52 +135,12 @@ void GameTask::sendGameLockedError(GameMsg* msg)
 	return;
 }
 
-static char mainMenu_str[] = "I am the game master, speak and I shall echo...\n";
-static char flag[] = "Very Good! Now Echo This: ZOOP";
-static char exploit_unlocked[] = "Exploitable Game Unlocked\n";
 void GameTask::mainMenu(GameMsg* msg)
 {
-	char* tmp = nullptr;
-	char* ftmp = nullptr;
-	int tmp_length = 0;
 	ESP_LOGI(LOGTAG, "Game Master");
 
-	tmp = (char*)malloc(strlen(mainMenu_str));
-	memcpy(tmp, mainMenu_str, strlen(mainMenu_str));
-	mainMenuSendResponse(msg, tmp, strlen(mainMenu_str));
-	if (msg->length)
-	{
-		if ((msg->length >= 4) && !strncmp("ZOOP", msg->data, 4))
-		{
-			ESP_LOGI(LOGTAG, "GAME_ACTION: ZOOP - unlocking exploitable quest");
-			tmp = (char*)malloc(strlen(exploit_unlocked));
-			memcpy(tmp, exploit_unlocked, strlen(exploit_unlocked));
-			setGameUnlocked(EXPLOITABLE_ID);
-			mainMenuSendResponse(msg, tmp, strlen(exploit_unlocked));
-		} 
-		else
-		{
-			ESP_LOGI(LOGTAG, "GAME_ACTION: echo %s, length %d", msg->data, msg->length);
-			// Prevent corruption by extending the buffer to the length of the flag
-			// Technically corruption can still happen with %n... but hey that's up
-			// to them to figure it out.  They could unlock all the games this way
-			// if they wanted.  But I'm guessing it would take them way too long
-			// to actually figure it out, because string format vulns are a huge pain
-			// in the ass.
-			tmp_length = (strlen(flag) > msg->length) ? strlen(flag) : msg->length;
-			tmp = (char*)malloc(tmp_length); // add \n and null
-			snprintf(tmp, tmp_length, msg->data, flag);
-			// We've copied some amount of data, but only echo back the size of the
-			// original message.  Not as easy as passing in just %s!
-			ftmp = (char*)malloc(msg->length + 1);
-			memcpy(ftmp, tmp, msg->length);
-			ftmp[msg->length] = 0x0;
-			free(tmp);
+	// TODO: Unlock codes for games
 
-			ESP_LOGI(LOGTAG, "Echoing len %d: %s\n", msg->length+1, ftmp);
-			mainMenuSendResponse(msg, ftmp, msg->length + 1);
-		}
-	}
 	return;
 }
 
@@ -173,7 +189,9 @@ bool GameTask::installGame(GameId id, bool unlocked, QueueHandle_t gameQueue)
 		ESP_LOGE(LOGTAG, "FAILED TO INSTALL, passed in null gameQueue");
 		return false;
 	}
-	unlocked_games[id] = unlocked;
+	if (unlocked)
+		setGameUnlocked(id);
+
 	game_queues[id] = gameQueue;
 	ESP_LOGI(LOGTAG, "Game Installed");
 	return true;

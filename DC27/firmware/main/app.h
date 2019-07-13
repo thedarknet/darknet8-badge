@@ -31,6 +31,7 @@ public:
 class BluetoothTask;
 class GameTask;
 class ExploitableGameTask;
+class BrainfuzzGameTask;
 class OTATask;
 class ButtonInfo;
 class MenuState;
@@ -51,6 +52,7 @@ public:
 	BluetoothTask &getBTTask();
 	GameTask &getGameTask();
 	ExploitableGameTask &getExploitTask();
+	BrainfuzzGameTask &getBrainfuzzTask();
 	OTATask &getOTATask();
 	uint16_t getCanvasWidth();
 	uint16_t getCanvasHeight();
