@@ -190,7 +190,7 @@ libesp::ErrorType DN8App::onInit() {
 	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
 	ExploitTask.start();
 	BrainfuzzTask.start();
-	GMTask.installGame(EXPLOITABLE_ID, false, ExploitTask.getQueueHandle());
+	GMTask.installGame(EXPLOITABLE_ID, true, ExploitTask.getQueueHandle());
 	GMTask.installGame(BRAINFUZZ_ID, true, BrainfuzzTask.getQueueHandle());
 	
 	setCurrentMenu(getMenuState());

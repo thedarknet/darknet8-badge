@@ -116,52 +116,12 @@ void GameTask::sendGameLockedError(GameMsg* msg)
 	return;
 }
 
-static char mainMenu_str[] = "I am the game master, speak and I shall echo...\n";
-static char flag[] = "Very Good! Now Echo This: ZOOP";
-static char exploit_unlocked[] = "Exploitable Game Unlocked\n";
 void GameTask::mainMenu(GameMsg* msg)
 {
-	char* tmp = nullptr;
-	char* ftmp = nullptr;
-	int tmp_length = 0;
 	ESP_LOGI(LOGTAG, "Game Master");
 
-	tmp = (char*)malloc(strlen(mainMenu_str));
-	memcpy(tmp, mainMenu_str, strlen(mainMenu_str));
-	mainMenuSendResponse(msg, tmp, strlen(mainMenu_str));
-	if (msg->length)
-	{
-		if ((msg->length >= 4) && !strncmp("ZOOP", msg->data, 4))
-		{
-			ESP_LOGI(LOGTAG, "GAME_ACTION: ZOOP - unlocking exploitable quest");
-			tmp = (char*)malloc(strlen(exploit_unlocked));
-			memcpy(tmp, exploit_unlocked, strlen(exploit_unlocked));
-			setGameUnlocked(EXPLOITABLE_ID);
-			mainMenuSendResponse(msg, tmp, strlen(exploit_unlocked));
-		} 
-		else
-		{
-			ESP_LOGI(LOGTAG, "GAME_ACTION: echo %s, length %d", msg->data, msg->length);
-			// Prevent corruption by extending the buffer to the length of the flag
-			// Technically corruption can still happen with %n... but hey that's up
-			// to them to figure it out.  They could unlock all the games this way
-			// if they wanted.  But I'm guessing it would take them way too long
-			// to actually figure it out, because string format vulns are a huge pain
-			// in the ass.
-			tmp_length = (strlen(flag) > msg->length) ? strlen(flag) : msg->length;
-			tmp = (char*)malloc(tmp_length); // add \n and null
-			snprintf(tmp, tmp_length, msg->data, flag);
-			// We've copied some amount of data, but only echo back the size of the
-			// original message.  Not as easy as passing in just %s!
-			ftmp = (char*)malloc(msg->length + 1);
-			memcpy(ftmp, tmp, msg->length);
-			ftmp[msg->length] = 0x0;
-			free(tmp);
+	// TODO: Unlock codes for games
 
-			ESP_LOGI(LOGTAG, "Echoing len %d: %s\n", msg->length+1, ftmp);
-			mainMenuSendResponse(msg, ftmp, msg->length + 1);
-		}
-	}
 	return;
 }
 
