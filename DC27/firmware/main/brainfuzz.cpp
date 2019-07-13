@@ -17,7 +17,8 @@ const char* BRAINFUZZ_LOGTAG = "BrainfuzzGame";
 #define INSTRUCTION_OFFSET (512-MAX_LINE_BYTES)
 #define KEY_OFFSET         (512-MAX_LINE_BYTES-16)
 
-char brainfuzz_flag[] = "flag{MegaSqueep}\0";
+//char brainfuzz_flag[] = "flag{MegaSqueep}\0";
+char brainfuzz_flag[] = "!+& <\n\" &" "\x14" "62\"\"7:\0";
 
 void BrainfuzzGameTask::runBrainfuzz(GameMsg* msg)
 {
@@ -30,6 +31,10 @@ void BrainfuzzGameTask::runBrainfuzz(GameMsg* msg)
 	memset(this->output, '\0', 512);
 	memcpy(this->buf+KEY_OFFSET, &brainfuzz_flag[0], strlen(brainfuzz_flag));
 	memcpy(this->buf+INSTRUCTION_OFFSET, msg->data, msg->length);
+
+	for (i = 0; i < 16; i++)
+		this->buf[KEY_OFFSET+i] = this->buf[KEY_OFFSET+i] ^ 0x47;
+
 	this->output_length = 0;
 
 	// setup the interpreter
