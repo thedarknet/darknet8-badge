@@ -35,6 +35,7 @@ typedef struct
 void SendResponse(GameMsg* msg, char* data, uint8_t size);
 void SendStringResponse(GameMsg* msg, const char* stringToCopy);
 void SendCopyResponse(GameMsg* msg, const char* copyme, uint8_t size);
+void SendWinResponse(GameMsg* msg, const char* a);
 
 class GameTask : public Task {
 private:

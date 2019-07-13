@@ -121,8 +121,10 @@ void BrainfuzzGameTask::runBrainfuzz(GameMsg* msg)
 	{
 		SendStringResponse(msg, "You hear a quiet click\n");
 		SendStringResponse(msg, "A set of wheels you hadn't noticed\n");
-		SendStringResponse(msg, "set themselves to flag{SQUEEEEEEP}\n");
-		SendStringResponse(msg, "You feel satisfied.\n");
+		SendStringResponse(msg, "set themselves to\n");
+		// flag{SQUEEEEEEP}
+		SendWinResponse(msg, "<)935c\x1b\x01\x03\x16\x16\x1f\x0c\x14\x12\x04)");
+		SendStringResponse(msg, "\nYou feel satisfied.\n");
 		SendStringResponse(msg, "It feels like you could do more...\n");
 	}
 

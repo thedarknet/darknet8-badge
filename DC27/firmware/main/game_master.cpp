@@ -38,6 +38,7 @@ void SendResponse(GameMsg* msg, char* data, uint8_t size)
 		free(data);
 	return;
 }
+
 void SendStringResponse(GameMsg* msg, const char* stringToCopy)
 {
 	int size = strlen(stringToCopy);
@@ -46,6 +47,7 @@ void SendStringResponse(GameMsg* msg, const char* stringToCopy)
 	SendResponse(msg, tmp, size);
 	return;
 }
+
 void SendCopyResponse(GameMsg* msg, const char* copyme, uint8_t size)
 {
 	char* tmp = (char*)malloc(size);
@@ -54,6 +56,23 @@ void SendCopyResponse(GameMsg* msg, const char* copyme, uint8_t size)
 	return;
 }
 
+// This function does a simple encoding function on your flag
+// that way you don't store your flag in memory as plaintext
+// this can be defeated if someone dumps memory and reverses out
+// who is calling this function, but that's ok in my opinion
+void SendWinResponse(GameMsg* msg, const char* a)
+{
+	char x[] = {"GOURRY"};
+	int i = 0;
+	char* b = (char*)malloc(strlen(a)+1);
+	for (i = 0; i < strlen(a); i++)
+	{
+		b[i] = a[i] ^ x[i % 6];
+		x[i % 6] = x[i % 6] + 1;
+	}
+	b[strlen(a)] = '\n';
+	SendResponse(msg, b, strlen(a));
+}
 
 char base_tag[] = "game_unlocked";
 char game_tag[20];
