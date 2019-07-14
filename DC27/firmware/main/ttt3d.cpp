@@ -227,7 +227,7 @@ void TTT3DGameTask::commandHandler(GameMsg* msg)
 	if (!msg->data)
 	{
 		SendStringResponse(msg, "WELCOME TO TIC TAC TOE 3D\n");
-		SendStringResponse(msg, "Can you beat me 10 times?\n");
+		SendStringResponse(msg, "intput coordinates: xyz\n");
 		printBoard(msg);
 	}
 	else if (!strncmp("reset", msg->data, 5))
