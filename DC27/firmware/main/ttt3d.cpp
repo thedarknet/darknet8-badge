@@ -156,7 +156,7 @@ int TTT3DGameTask::scoreBoard(GameMsg* msg)
 }
 
 // {flag:NowWin10In100Sec}
-static char winme1[] = "<)935c\x06?!\x04:4xa\x1e:ekz\x01=6("
+static char winme1[] = "<)935c\x06?!\x04:4xa\x1e:ekz\x01=6(";
 // {flag:YEEAAAAHBABBBYY}
 static char winme10[] = "<)935c\x11\x15\x13\x12\x12\x1b\x08\x19\x15\x15\x16\x19\x08\x0b\x01(";
 
