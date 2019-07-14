@@ -3,13 +3,23 @@
 #include "gui_list_processor.h"
 #include "../buttons.h"
 #include "calibration_menu.h"
+#include "test_menu.h"
+#include "scan.h"
+#include "../KeyStore.h"
+#include "setting_state.h"
+#include <libesp/app/display_message_state.h>
+#include "game_of_life.h"
+#include "address_menu.h"
+#include "badge_info_menu.h"
+#include "communications_settings.h"
 
 using libesp::ErrorType;
 using libesp::BaseMenu;
 using libesp::RGBColor;
 
 MenuState::MenuState() :
-		DN8BaseMenu(), MenuList("Main Menu", Items, 0, 0, DN8App::get().getCanvasWidth()-1, DN8App::get().getCanvasHeight()-1, 0, (sizeof(Items) / sizeof(Items[0]))) {
+		DN8BaseMenu(), MenuList("Main Menu", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel()
+			, DN8App::get().getLastCanvasHeightPixel(), 0, (sizeof(Items) / sizeof(Items[0]))) {
 }
 
 MenuState::~MenuState() {
@@ -19,11 +29,11 @@ MenuState::~MenuState() {
 
 ErrorType MenuState::onInit() {
 	Items[0].id = 0;
-	//if (DarkNet7::get().getContacts().getSettings().isNameSet()) {
+	if (DN8App::get().getContacts().getSettings().isNameSet()) {
 		Items[0].text = (const char *) "Settings";
-//	} else {
-//		Items[0].text = (const char *) "Settings *";
-//	}
+	} else {
+		Items[0].text = (const char *) "Settings *";
+	}
 	Items[1].id = 1;
 	Items[1].text = (const char *) "Badge Pair";
 	Items[2].id = 2;
@@ -33,19 +43,17 @@ ErrorType MenuState::onInit() {
 	Items[4].id = 4;
 	Items[4].text = (const char *) "Screen Saver";
 	Items[5].id = 5;
-	Items[5].text = (const char *) "MCU Info";
+	Items[5].text = (const char *) "Badge Info";
 	Items[6].id = 6;
 	Items[6].text = (const char *) "Communications Settings";
 	Items[7].id = 7;
-	Items[7].text = (const char *) "Health";
+	Items[7].text = (const char *) "Scan for NPCs";
 	Items[8].id = 8;
-	Items[8].text = (const char *) "Scan for NPCs";
+	Items[8].text = (const char *) "Test Badge";
 	Items[9].id = 9;
-	Items[9].text = (const char *) "Test Badge";
+	Items[9].text = (const char *) "Scan: Shitty Addon Badge";
 	Items[10].id = 10;
-	Items[10].text = (const char *) "Scan: Shitty Addon Badge";
-	Items[11].id = 11;
-	Items[11].text = (const char *) "Calibrate Touch";
+	Items[10].text = (const char *) "Calibrate Touch";
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&this->MenuList);
 	return ErrorType();
@@ -59,51 +67,43 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 		{
 			switch (MenuList.selectedItem)
 			{
-					  /*
 				case 0:
-					nextState = DarkNet7::get().getSettingState();
+					nextState = DN8App::get().getSettingsMenu();
 					break;
 				case 1:
-					if (DarkNet7::get().getContacts().getSettings().getAgentName()[0] != '\0') {
-						nextState = DarkNet7::get().getPairingState();
+					if (DN8App::get().getContacts().getSettings().getAgentName()[0] != '\0') {
+						//nextState = DN8App::get().getPairingState();
 					} else {
-						nextState = DarkNet7::get().getDisplayMessageState(DarkNet7::get().getDisplayMenuState(),
+						nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(),
 								(const char *) "You must set your agent name first", 3000);
 					}
 					break;
 				case 2:
-					nextState = DarkNet7::get().getAddressBookState();
+					nextState = DN8App::get().getAddressMenu();
 					break;
 				case 3:
-					nextState = DarkNet7::get().get3DState();
+					//nextState = DN8App::get().get3DState();
 					break;
 				case 4:
-					nextState = DarkNet7::get().getGameOfLifeState();
+					nextState = DN8App::get().getGameOfLifeMenu();
 					break;
 				case 5:
-					nextState = DarkNet7::get().getBadgeInfoState();
+					nextState = DN8App::get().getBadgeInfoMenu();
 					break;
 				case 6:
-					nextState = DarkNet7::get().getMCUInfoState();
+					nextState = DN8App::get().getCommunicationSettingState();
 					break;
 				case 7:
-					nextState = DarkNet7::get().getCommunicationSettingState();
+					DN8App::get().getWifiScanMenu()->setNPCOnly(true);
+					nextState = DN8App::get().getWifiScanMenu();
 					break;
 				case 8:
-					nextState = DarkNet7::get().getHealthState();
+					nextState = DN8App::get().getTestMenu();
 					break;
 				case 9:
-					DarkNet7::get().getScanState()->setNPCOnly(true);
-					nextState = DarkNet7::get().getScanState();
+					//nextState = DN8App::get().getSAOMenuMenu();
 					break;
 				case 10:
-					nextState = DarkNet7::get().getTestState();
-					break;
-				case 11:
-					nextState = DarkNet7::get().getSAOMenuState();
-					break;
-					*/
-				case 11:
 					nextState = DN8App::get().getCalibrationMenu();
 					break;
 			}

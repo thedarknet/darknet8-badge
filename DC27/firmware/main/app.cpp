@@ -23,15 +23,29 @@
 #include "menus/menu_state.h"
 #include "buttons.h"
 #include "menus/calibration_menu.h"
+#include "KeyStore.h"
+#include <libesp/app/display_message_state.h>
+#include "menus/communications_settings.h"
+#include "menus/address_menu.h"
+#include "menus/badge_info_menu.h"
+#include "menus/game_of_life.h"
+#include "menus/scan.h"
+#include "menus/setting_state.h"
+#include "menus/test_menu.h"
 
 using libesp::ErrorType;
 using libesp::DisplayILI9341;
 using libesp::XPT2046;
 using libesp::GUI;
+using libesp::DisplayMessageState;
+using libesp::BaseMenu;
 
 const char *DN8App::LOGTAG = "AppTask";
 static StaticQueue_t InCommingQueue;
 static uint8_t CommandBuffer[DN8App::QUEUE_SIZE * DN8App::ITEM_SIZE] = { 0 };
+const char *DN8App::sYES = "Yes";
+const char *DN8App::sNO = "No";
+
 
 #define PIN_NUM_TOUCH_MISO GPIO_NUM_35
 #define PIN_NUM_TOUCH_MOSI GPIO_NUM_33
@@ -49,10 +63,10 @@ static uint8_t CommandBuffer[DN8App::QUEUE_SIZE * DN8App::ITEM_SIZE] = { 0 };
 
 static const uint16_t DISPLAY_HEIGHT		= 240;
 static const uint16_t DISPLAY_WIDTH			= 320;
-//static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
-//static const uint16_t FRAME_BUFFER_WIDTH	= 160;
-static const uint16_t FRAME_BUFFER_HEIGHT	= 156;
-static const uint16_t FRAME_BUFFER_WIDTH	= 208;
+static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
+static const uint16_t FRAME_BUFFER_WIDTH	= 160;
+//static const uint16_t FRAME_BUFFER_HEIGHT	= 132;
+//static const uint16_t FRAME_BUFFER_WIDTH	= 176;
 #define START_ROT libesp::DisplayILI9341::LANDSCAPE_TOP_LEFT
 static const uint16_t PARALLEL_LINES = 10;
 
@@ -64,6 +78,7 @@ uint16_t ParallelLinesBuffer[DISPLAY_WIDTH*PARALLEL_LINES] = {0};
 libesp::ScalingBuffer FrameBuf(&Display, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, uint8_t(16), DISPLAY_WIDTH,DISPLAY_HEIGHT, PARALLEL_LINES, (uint8_t*)&BackBuffer[0],(uint8_t*)&ParallelLinesBuffer[0]);
 
 GUI DN8Gui(&Display);
+ContactStore MyContactStore(0, 0, 0, 0,	0, 0);
 XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
@@ -72,19 +87,9 @@ BrainfuzzGameTask BrainfuzzTask("BrainfuzzTask");
 TTT3DGameTask TTT3DTask("TTT3DTask");
 OTATask OtaTask("OTATask");
 ButtonInfo MyButtons;
-MenuState DN8MenuState;
-CalibrationMenu DN8CalibrationMenu;
 
 const char *DN8ErrorMap::toString(uint32_t err) {
 	return "TODO";
-}
-
-MenuState *DN8App::getMenuState() {
-	return &DN8MenuState;
-}
-
-CalibrationMenu *DN8App::getCalibrationMenu() {
-	return &DN8CalibrationMenu;
 }
 
 DN8App DN8App::mSelf;
@@ -107,7 +112,7 @@ ButtonInfo &DN8App::getButtonInfo() {
 
 libesp::ErrorType DN8App::onInit() {
 	ErrorType et;
-	
+
 	et = XPT2046::initTouch(PIN_NUM_TOUCH_MISO, PIN_NUM_TOUCH_MOSI, PIN_NUM_TOUCH_CLK,VSPI_HOST, 1);
 
 	if(!et.ok()) {
@@ -133,16 +138,16 @@ libesp::ErrorType DN8App::onInit() {
 	et=Display.init(libesp::DisplayILI9341::FORMAT_16_BIT, &Font_6x10, &FrameBuf);
 	if(et.ok()) {
 		ESP_LOGI(LOGTAG,"display init OK");
-		Display.fillRec(0,0,FRAME_BUFFER_WIDTH,20,libesp::RGBColor::RED);
+		Display.fillRec(0,0,FRAME_BUFFER_WIDTH,10,libesp::RGBColor::RED);
 		Display.swap();
-		Display.fillRec(0,30,FRAME_BUFFER_WIDTH,20,libesp::RGBColor::WHITE);
+		Display.fillRec(0,20,FRAME_BUFFER_WIDTH,10,libesp::RGBColor::WHITE);
 		Display.swap();
-		Display.fillRec(0,60,FRAME_BUFFER_WIDTH,20,libesp::RGBColor::BLUE);
+		Display.fillRec(0,40,FRAME_BUFFER_WIDTH,10,libesp::RGBColor::BLUE);
 		Display.swap();
-		Display.fillRec(0,90,FRAME_BUFFER_WIDTH,20,libesp::RGBColor::GREEN);
-		Display.drawRec(0,115,100,10, libesp::RGBColor::BLUE);
-		Display.drawString(10,130,"HELLO!",libesp::RGBColor::RED);
-		Display.drawString(50,140,"GOODBYE!",libesp::RGBColor::WHITE);
+		Display.fillRec(0,60,FRAME_BUFFER_WIDTH,10,libesp::RGBColor::GREEN);
+		Display.drawRec(0,75,100,10, libesp::RGBColor::BLUE);
+		Display.drawString(10,100,"HELLO!",libesp::RGBColor::RED);
+		Display.drawString(50,110,"GOODBYE!",libesp::RGBColor::WHITE);
 		Display.swap();
 		ESP_LOGI(LOGTAG,"display init swap done");
 
@@ -235,6 +240,13 @@ uint16_t DN8App::getCanvasWidth() {
 uint16_t DN8App::getCanvasHeight() {
 	return FrameBuf.getBufferHeight();
 }
+uint16_t DN8App::getLastCanvasWidthPixel() {
+	return getCanvasWidth()-1;
+}
+
+uint16_t DN8App::getLastCanvasHeightPixel() {
+	return getCanvasHeight()-1;
+}
 	
 libesp::DisplayDevice &DN8App::getDisplay() {
 	return Display;
@@ -264,4 +276,69 @@ ErrorType DN8App::onRun() {
 	return ErrorType();
 #endif
 }
+
+ContactStore &DN8App::getContacts() {
+	return MyContactStore;
+}
+
+MenuState DN8MenuState;
+CalibrationMenu DN8CalibrationMenu;
+libesp::DisplayMessageState DMS;
+CommunicationSettingState MyCommunicationSettingState;
+AddressMenu MyAddressMenu;
+BadgeInfoMenu MyBadgeInfoMenu;
+GameOfLife MyGameOfLife;
+Scan MyWifiScan;
+SettingMenu MySettingMenu;
+TestMenu MyTestMenu;
+	
+AddressMenu *DN8App::getAddressMenu() {
+	return &MyAddressMenu;
+}
+
+BadgeInfoMenu *DN8App::getBadgeInfoMenu() {
+	return &MyBadgeInfoMenu;
+}
+
+GameOfLife *DN8App::getGameOfLifeMenu() {
+	return &MyGameOfLife;
+}
+
+Scan *DN8App::getWifiScanMenu() {
+	return &MyWifiScan;
+}
+
+SettingMenu *DN8App::getSettingsMenu() {
+	return &MySettingMenu;
+}
+
+TestMenu *DN8App::getTestMenu() {
+	return &MyTestMenu;
+}
+
+
+CommunicationSettingState *DN8App::getCommunicationSettingState() {
+	return &MyCommunicationSettingState;
+}
+
+
+MenuState *DN8App::getMenuState() {
+	return &DN8MenuState;
+}
+
+CalibrationMenu *DN8App::getCalibrationMenu() {
+	return &DN8CalibrationMenu;
+}
+
+DisplayMessageState *DN8App::getDisplayMessageState(BaseMenu *bm, const char *msg, uint32_t msDisplay) {
+	DMS.setMessage(msg);
+	DMS.setNextState(bm);
+	DMS.setTimeInState(msDisplay);
+	DMS.setDisplay(&Display);
+	return &DMS;
+
+}
+
+
+
 

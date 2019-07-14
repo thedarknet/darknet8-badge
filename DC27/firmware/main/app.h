@@ -12,6 +12,7 @@
 namespace libesp {
 class GUI;
 class DisplayDevice;
+class DisplayMessageState;
 };
 
 enum ERRORS {
@@ -37,6 +38,14 @@ class OTATask;
 class ButtonInfo;
 class MenuState;
 class CalibrationMenu;
+class ContactStore;
+class CommunicationSettingState;
+class AddressMenu;
+class BadgeInfoMenu;
+class GameOfLife;
+class Scan;
+class SettingMenu;
+class TestMenu;
 
 class DN8App : public libesp::App {
 public:
@@ -47,6 +56,8 @@ public:
 	static const char *LOGTAG;
 	static const int QUEUE_SIZE = 10;
 	static const int ITEM_SIZE = sizeof(DN8AppMsg);
+	static const char *sYES;
+	static const char *sNO;
 	static DN8App &get();
 public:
 	virtual ~DN8App();
@@ -58,11 +69,22 @@ public:
 	OTATask &getOTATask();
 	uint16_t getCanvasWidth();
 	uint16_t getCanvasHeight();
+	uint16_t getLastCanvasWidthPixel();
+	uint16_t getLastCanvasHeightPixel();
 	libesp::DisplayDevice &getDisplay();
 	libesp::GUI &getGUI();
 	ButtonInfo &getButtonInfo();
 	MenuState *getMenuState();
 	CalibrationMenu *getCalibrationMenu();
+	ContactStore &getContacts();
+	libesp::DisplayMessageState *getDisplayMessageState(libesp::BaseMenu *, const char *msg, uint32_t msDisplay);
+	CommunicationSettingState *getCommunicationSettingState();
+	AddressMenu *getAddressMenu();
+	BadgeInfoMenu *getBadgeInfoMenu();
+	GameOfLife *getGameOfLifeMenu();
+	Scan *getWifiScanMenu();
+	SettingMenu *getSettingsMenu();
+	TestMenu *getTestMenu();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();
