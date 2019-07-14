@@ -14,7 +14,7 @@
 
 const char* GAMEMASTER_LOGTAG = "GameMaster";
 
-#define INSTALLED_GAMES (3)
+#define INSTALLED_GAMES (4)
 bool unlocked_games[INSTALLED_GAMES];
 // Game Interfaces are in the form of queues
 QueueHandle_t game_queues[INSTALLED_GAMES];

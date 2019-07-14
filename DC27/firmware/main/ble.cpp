@@ -69,15 +69,12 @@ static const uint8_t char_prop_read_write = ESP_GATT_CHAR_PROP_BIT_WRITE_NR|ESP_
  * Profile Attributes
  ************************************
  */
-// EXPLOITABLE - data receive characteristic, read&write without response
+// EXPLOITABLE - data receive and notify characters
 static const uint16_t exploitable_data_receive_uuid = ESP_GATT_UUID_EXPLOITABLE_DATA_RECEIVE;
 static const uint8_t  exploitable_data_receive_val[20] = {0x00};
-
-// EXPLOITABLE - data notify characteristic, notify&read
 static const uint16_t exploitable_data_notify_uuid = ESP_GATT_UUID_EXPLOITABLE_DATA_NOTIFY;
 static const uint8_t  exploitable_data_notify_val[20] = {0x00};
 static const uint8_t  exploitable_data_notify_ccc[2] = {0x00, 0x00};
-
 
 // GAMEMASTER - data receive and notify chars
 static const uint16_t gamemaster_data_receive_uuid = ESP_GATT_UUID_GAMEMASTER_DATA_RECEIVE;
@@ -86,13 +83,19 @@ static const uint16_t gamemaster_data_notify_uuid = ESP_GATT_UUID_GAMEMASTER_DAT
 static const uint8_t  gamemaster_data_notify_val[20] = {0x00};
 static const uint8_t  gamemaster_data_notify_ccc[2] = {0x00, 0x00};
 
-
 // BRAINFUZZ - data in and out for Brainfuzz game
 static const uint16_t brainfuzz_data_receive_uuid = ESP_GATT_UUID_BRAINFUZZ_DATA_RECEIVE;
 static const uint8_t  brainfuzz_data_receive_val[20] = {0x00};
 static const uint16_t brainfuzz_data_notify_uuid = ESP_GATT_UUID_BRAINFUZZ_DATA_NOTIFY;
 static const uint8_t  brainfuzz_data_notify_val[20] = {0x00};
 static const uint8_t  brainfuzz_data_notify_ccc[2] = {0x00, 0x00};
+
+// TTT3D -data in and out for the TTT3D game
+static const uint16_t ttt3d_data_receive_uuid = ESP_GATT_UUID_TTT3D_DATA_RECEIVE;
+static const uint8_t  ttt3d_data_receive_val[20] = {0x00};
+static const uint16_t ttt3d_data_notify_uuid = ESP_GATT_UUID_TTT3D_DATA_NOTIFY;
+static const uint8_t  ttt3d_data_notify_val[20] = {0x00};
+static const uint8_t  ttt3d_data_notify_ccc[2] = {0x00, 0x00};
 
 static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 {
@@ -239,6 +242,50 @@ static const esp_gatts_attr_db_t dn8_gatt_db[DN8_IDX_NB] =
 			sizeof(brainfuzz_data_notify_ccc),
 			(uint8_t *)brainfuzz_data_notify_ccc}},
 
+	// TTT3D - Data receive characteristic, value
+	[DN8_IDX_TTT3D_DATA_RECV_CHAR] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_declaration_uuid,
+			ESP_GATT_PERM_READ,
+			CHAR_DECLARATION_SIZE,
+			CHAR_DECLARATION_SIZE,
+			(uint8_t *)&char_prop_read_write}},
+	[DN8_IDX_TTT3D_DATA_RECV_VAL] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&ttt3d_data_receive_uuid,
+			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
+			TTT3D_DATA_MAX_LEN,
+			sizeof(ttt3d_data_receive_val),
+			(uint8_t *)ttt3d_data_receive_val}},
+
+	// TTT3D: Data notify characteristic, value, descriptor
+	[DN8_IDX_TTT3D_DATA_NOTIFY_CHAR] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_declaration_uuid,
+			ESP_GATT_PERM_READ,
+			CHAR_DECLARATION_SIZE,
+			CHAR_DECLARATION_SIZE,
+			(uint8_t *)&char_prop_read_notify}},
+	[DN8_IDX_TTT3D_DATA_NOTIFY_VAL] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&ttt3d_data_notify_uuid,
+			ESP_GATT_PERM_READ,
+			TTT3D_DATA_MAX_LEN,
+			sizeof(ttt3d_data_notify_val),
+			(uint8_t *)ttt3d_data_notify_val}},
+	[DN8_IDX_TTT3D_DATA_NOTIFY_CFG] =
+	{{ESP_GATT_AUTO_RSP},
+		{ESP_UUID_LEN_16,
+			(uint8_t *)&character_client_config_uuid,
+			ESP_GATT_PERM_READ|ESP_GATT_PERM_WRITE,
+			sizeof(uint16_t),
+			sizeof(ttt3d_data_notify_ccc),
+			(uint8_t *)ttt3d_data_notify_ccc}},
+
 
 };
 
@@ -294,7 +341,7 @@ void BluetoothTask::gameCommandHandler(GameMsg* msg)
 	// TODO: Switch
 	uint32_t curpos = 0;
 	// msg->length
-	esp_log_buffer_char(LOGTAG, msg->data, msg->length);
+	// esp_log_buffer_char(LOGTAG, msg->data, msg->length);
 	// TODO: indicate code with MTU handling
 	while (msg->length > 20)
 	{
@@ -495,6 +542,13 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 						param->write.len,
 						BRAINFUZZ_ID,
 						DN8_IDX_BRAINFUZZ_DATA_NOTIFY_VAL);
+				}
+				else if (res == DN8_IDX_TTT3D_DATA_RECV_VAL)
+				{
+					send_raw_game_command((char*)(param->write.value),
+						param->write.len,
+						TTT3D_ID,
+						DN8_IDX_TTT3D_DATA_NOTIFY_VAL);
 				}
 			}
 			break;

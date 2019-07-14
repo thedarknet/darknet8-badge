@@ -18,6 +18,7 @@ typedef enum
 	GAMEMASTER_ID  = 0x00,
 	EXPLOITABLE_ID = 0x01,
 	BRAINFUZZ_ID   = 0x02,
+	TTT3D_ID       = 0x03,
 
 	INVALID_ID     = 0xFF,
 } GameId;

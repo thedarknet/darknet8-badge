@@ -19,6 +19,7 @@
 // XXX: Games get included here and installed into the game master
 #include "./exploitable.h"
 #include "./brainfuzz.h"
+#include "./ttt3d.h"
 #include "menus/menu_state.h"
 #include "buttons.h"
 #include "menus/calibration_menu.h"
@@ -68,6 +69,7 @@ BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
 ExploitableGameTask ExploitTask("ExploitTask");
 BrainfuzzGameTask BrainfuzzTask("BrainfuzzTask");
+TTT3DGameTask TTT3DTask("BrainfuzzTask");
 OTATask OtaTask("OTATask");
 ButtonInfo MyButtons;
 MenuState DN8MenuState;
@@ -174,6 +176,9 @@ libesp::ErrorType DN8App::onInit() {
 		if(!BrainfuzzTask.init()) {
 			return ErrorType(ErrorType::FACILITY_APP,EXPLOIT_TASK_INIT_FAIL);
 		}
+		if(!TTT3DTask.init()) {
+			return ErrorType(ErrorType::FACILITY_APP,EXPLOIT_TASK_INIT_FAIL);
+		}
 		if(!MyButtons.init()) {
 			return ErrorType(ErrorType::FACILITY_APP,BUTTON_INIT_FAIL);
 		} else {
@@ -190,8 +195,10 @@ libesp::ErrorType DN8App::onInit() {
 	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
 	ExploitTask.start();
 	BrainfuzzTask.start();
+	TTT3DTask.start();
 	GMTask.installGame(EXPLOITABLE_ID, true, ExploitTask.getQueueHandle());
 	GMTask.installGame(BRAINFUZZ_ID, true, BrainfuzzTask.getQueueHandle());
+	GMTask.installGame(TTT3D_ID, true, TTT3DTask.getQueueHandle());
 	
 	setCurrentMenu(getMenuState());
 	return et;
@@ -211,6 +218,10 @@ ExploitableGameTask &DN8App::getExploitTask() {
 
 BrainfuzzGameTask &DN8App::getBrainfuzzTask() {
 	return BrainfuzzTask;
+}
+
+TTT3DGameTask &DN8App::getTTT3DTask() {
+	return TTT3DTask;
 }
 
 OTATask &DN8App::getOTATask() {
