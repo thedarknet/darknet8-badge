@@ -71,7 +71,7 @@ void SendWinResponse(GameMsg* msg, const char* a)
 		x[i % 6] = x[i % 6] + 1;
 	}
 	b[strlen(a)] = '\n';
-	SendResponse(msg, b, strlen(a));
+	SendResponse(msg, b, strlen(a)+1);
 }
 
 char base_tag[] = "game_unlocked";
