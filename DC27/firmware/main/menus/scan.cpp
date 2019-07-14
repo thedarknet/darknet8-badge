@@ -27,7 +27,6 @@ public:
 private:
 	libesp::GUIListData DisplayList;
 	libesp::GUIListItemData Items[8];
-	char ListBuffer[8][96]; //height then width
 	INTERNAL_STATE InternalState;
 	uint32_t Timer;
 	char NPCName[32];

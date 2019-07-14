@@ -24,7 +24,6 @@ private:
 	bool NPCOnly;
 	libesp::GUIListData DisplayList;
 	libesp::GUIListItemData Items[5];
-	char ListBuffer[5][48]; //height then width
 	INTERNAL_STATE InternalState;
 };
 

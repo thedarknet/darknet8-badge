@@ -8,6 +8,12 @@ class DN8BaseMenu : public libesp::BaseMenu {
 public:
 	DN8BaseMenu() : libesp::BaseMenu() {}
 	virtual ~DN8BaseMenu(){}
+protected:
+	static void clearListBuffer();
+	static char *getRow(uint8_t row);
+private:
+	static char ListBuffer[9][32]; //height then width
+	static uint8_t NumRows;
 };
 
 #endif

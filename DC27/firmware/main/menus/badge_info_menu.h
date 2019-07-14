@@ -23,7 +23,6 @@ protected:
 private:
 	libesp::GUIListData BadgeInfoList;
 	libesp::GUIListItemData Items[9];
-	char ListBuffer[9][32]; //height then width
 	char RegCode[18];
 };
 

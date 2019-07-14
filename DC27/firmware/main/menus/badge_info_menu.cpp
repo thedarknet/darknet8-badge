@@ -45,25 +45,25 @@ const char *BadgeInfoMenu::getRegCode(ContactStore &cs) {
 static const char *VERSION = "8.dc27.1";
 
 ErrorType BadgeInfoMenu::onInit() {
-	memset(&ListBuffer[0], 0, sizeof(ListBuffer));
-	sprintf(&ListBuffer[0][0], "Name: %s", "NOT DONE"); //DN8App::get().getContacts().getSettings().getAgentName());
-	sprintf(&ListBuffer[1][0], "Num contacts: %u", 0); //DN8App::get().getContacts().getSettings().getNumContacts());
-	sprintf(&ListBuffer[2][0], "REG: %s", "NOT DONE"); //getRegCode(DN8App::get().getContacts()));
-	sprintf(&ListBuffer[3][0], "UID: %u", 0); //DN8App::get().getContacts().getMyInfo().getUniqueID());
+	clearListBuffer();
+	sprintf(getRow(0), "Name: %s", "NOT DONE"); //DN8App::get().getContacts().getSettings().getAgentName());
+	sprintf(getRow(1), "Num contacts: %u", 0); //DN8App::get().getContacts().getSettings().getNumContacts());
+	sprintf(getRow(2), "REG: %s", "NOT DONE"); //getRegCode(DN8App::get().getContacts()));
+	sprintf(getRow(3), "UID: %u", 0); //DN8App::get().getContacts().getMyInfo().getUniqueID());
 	uint8_t fake[24] = {1};
 	uint8_t *pCP =	&fake[0]; //DN8App::get().getContacts().getMyInfo().getCompressedPublicKey();
-	sprintf(&ListBuffer[4][0], "PK: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+	sprintf(getRow(4), "PK: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 			pCP[0], pCP[1], pCP[2], pCP[3], pCP[4], pCP[5], pCP[6], pCP[7],
 			pCP[8], pCP[9], pCP[10], pCP[11], pCP[12], pCP[13], pCP[14],
 			pCP[15], pCP[16], pCP[17], pCP[18], pCP[19], pCP[20], pCP[21],
 			pCP[22], pCP[23], pCP[24]);
-	sprintf(&ListBuffer[5][0], "Free HeapSize: %u\n",libesp::System::get().getFreeHeapSize());
-	sprintf(&ListBuffer[6][0], "Free Min HeapSize: %u\n",libesp::System::get().getMinimumFreeHeapSize());
-	sprintf(&ListBuffer[7][0], "HAL Version: %s", libesp::System::get().getIDFVersion());
-	sprintf(&ListBuffer[8][0], "SVer: %s", VERSION);
+	sprintf(getRow(5), "Free HeapSize: %u\n",libesp::System::get().getFreeHeapSize());
+	sprintf(getRow(6), "Free Min HeapSize: %u\n",libesp::System::get().getMinimumFreeHeapSize());
+	sprintf(getRow(7), "HAL Version: %s", libesp::System::get().getIDFVersion());
+	sprintf(getRow(8), "SVer: %s", VERSION);
 
 	for (uint32_t i = 0; i < (sizeof(Items) / sizeof(Items[0])); i++) {
-		Items[i].text = &ListBuffer[i][0];
+		Items[i].text = getRow(i);
 		Items[i].id = i;
 		Items[i].setShouldScroll();
 	}
@@ -75,11 +75,11 @@ ErrorType BadgeInfoMenu::onInit() {
 BaseMenu::ReturnStateContext BadgeInfoMenu::onRun() {
 
 	BaseMenu *nextState = this;
-	if(!GUIListProcessor::process(&BadgeInfoList,BadgeInfoList.ItemsCount)) {
-		if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN|
-						ButtonInfo::BUTTON_LEFT_UP)) {
-			nextState = DN8App::get().getMenuState();
-		}
+	if (DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN| ButtonInfo::BUTTON_LEFT_UP)) {
+	nextState = DN8App::get().getMenuState();
+	} else if(GUIListProcessor::process(&BadgeInfoList,BadgeInfoList.ItemsCount)) {
+		DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
+		DN8App::get().getGUI().drawList(&BadgeInfoList);
 	}
 	return ReturnStateContext(nextState);
 }
