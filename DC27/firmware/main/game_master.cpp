@@ -79,12 +79,10 @@ char game_tag[20];
 bool GameTask::isGameUnlocked(uint8_t gameid)
 {
 	bool unlocked = false;
-	ESP_LOGI(LOGTAG, "Game unlocked check: %d", unlocked_games[gameid]);
 	if (gameid >= INSTALLED_GAMES)
 		return false;
 	snprintf(game_tag, 20, "%s%d", base_tag, gameid);
 	nvs_get_u8(this->my_nvs_handle, game_tag, (uint8_t*)&unlocked);
-	ESP_LOGI(LOGTAG, "Game unlocked check: %d", unlocked);
 	return unlocked;
 }
 
@@ -146,7 +144,7 @@ void GameTask::mainMenu(GameMsg* msg)
 
 void GameTask::commandHandler(GameMsg* msg)
 {
-	ESP_LOGI(LOGTAG, "Message for Game: %x\n", msg->context);
+	//ESP_LOGI(LOGTAG, "Message for Game: %x\n", msg->context);
 	if ((msg->context >= INSTALLED_GAMES))
 	{
 		sendBadContextError(msg);

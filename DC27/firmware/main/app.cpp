@@ -69,7 +69,7 @@ BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
 ExploitableGameTask ExploitTask("ExploitTask");
 BrainfuzzGameTask BrainfuzzTask("BrainfuzzTask");
-TTT3DGameTask TTT3DTask("BrainfuzzTask");
+TTT3DGameTask TTT3DTask("TTT3DTask");
 OTATask OtaTask("OTATask");
 ButtonInfo MyButtons;
 MenuState DN8MenuState;

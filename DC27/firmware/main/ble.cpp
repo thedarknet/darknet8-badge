@@ -310,8 +310,7 @@ static void send_raw_game_command(char* buffer, uint16_t length, uint32_t gameid
 		return;
 	}
 
-
-	ESP_LOGI(LOGTAG, "Game Msg. Length:%d - Msg: %s", length, buffer);
+	//ESP_LOGI(LOGTAG, "Game Msg. Length:%d - Msg: %s", length, buffer);
 	msg = (GameMsg*)malloc(sizeof(GameMsg));
 	memset(msg, '\0', sizeof(GameMsg));
 	msg->context = gameid;
@@ -482,7 +481,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 			esp_ble_gatts_create_attr_tab(dn8_gatt_db, gatts_if, DN8_IDX_NB, DN8_SVC_INST_ID);
 			break;
 		case ESP_GATTS_CONNECT_EVT:
-			ESP_LOGI(LOGTAG, "ESP_GATTS_CONNECT_EVT");
+			//ESP_LOGI(LOGTAG, "ESP_GATTS_CONNECT_EVT");
 			// Get the connection details for the serial stuff
 			serial_conn_id      = param->connect.conn_id;
 			serial_gatts_if     = gatts_if;
@@ -492,7 +491,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 			esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_MITM);
 			break;
 		case ESP_GATTS_DISCONNECT_EVT:
-			ESP_LOGI(LOGTAG, "ESP_GATTS_DISCONNECT_EVT");
+			//ESP_LOGI(LOGTAG, "ESP_GATTS_DISCONNECT_EVT");
 			// Clean up serial stuff
 			serial_is_connected = false;
 			// Start advertising again
@@ -514,11 +513,11 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 				ESP_LOGE(LOGTAG, "Create attribute table failed");
 			break;
 		case ESP_GATTS_READ_EVT:
-			ESP_LOGI(LOGTAG, "ESP_GATTS_READ_EVT");
+			//ESP_LOGI(LOGTAG, "ESP_GATTS_READ_EVT");
 			res = find_char_and_desr_index(param->read.handle);
 			break;
 		case ESP_GATTS_WRITE_EVT:
-			ESP_LOGI(LOGTAG, "ESP_GATTS_WRITE_EVT");
+			//ESP_LOGI(LOGTAG, "ESP_GATTS_WRITE_EVT");
 			res = find_char_and_desr_index(param->write.handle);
 			if (!param->write.is_prep)
 			{
@@ -553,7 +552,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 			}
 			break;
 		case ESP_GATTS_EXEC_WRITE_EVT:
-			ESP_LOGI(LOGTAG, "ESP_GATTS_EXEC_WRITE_EVT\n");
+			//ESP_LOGI(LOGTAG, "ESP_GATTS_EXEC_WRITE_EVT\n");
 			break;
 		case ESP_GATTS_MTU_EVT:
 			serial_mtu_size = param->mtu.mtu;

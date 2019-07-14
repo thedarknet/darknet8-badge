@@ -60,7 +60,7 @@ void TTT3DGameTask::printBoard(GameMsg* msg)
 		sprintf(tmpline, boardline,
 			board[0][0][level], board[1][0][level], board[2][0][level],
 			board[0][1][level], board[1][1][level], board[2][1][level],
-			board[0][2][level], board[0][2][level], board[2][2][level]);
+			board[0][2][level], board[1][2][level], board[2][2][level]);
 		SendResponse(msg, tmpline, 25);
 	}
 	return;
@@ -155,43 +155,40 @@ int TTT3DGameTask::scoreBoard(GameMsg* msg)
 	return score;
 }
 
-static char winme[] = "<)935c\x11\x15\x13\x12\x12\x1b\x08\x19\x15\x15\x16\x19\x08\x0b\x01(";
+static char winme1[] = "<)935c\x06?!\x04:4xa\x1e:ekz\x01=6(";
+static char winme10[] = "<)935c\x11\x15\x13\x12\x12\x1b\x08\x19\x15\x15\x16\x19\x08\x0b\x01(";
 void TTT3DGameTask::makePlay(GameMsg* msg)
 {
-	// we already verified the input.  this->x,y,z
-
 	// make player move
 	this->board[x][y][z] = 'X';
 	this->moves++;
 	if (moves == 27)
 	{
 		if (scoreBoard(msg) > 0)
+		{
+			SendWinResponse(msg, winme1);
 			net_wins++;
-		if (net_wins >= 1)
-			SendWinResponse(msg, winme);
+		}
+		else
+			SendStringResponse(msg, "You Lost\n");
+		if (net_wins >= 10)
+			SendWinResponse(msg, winme10);
 		this->newGame(msg);
 	}
 	else
 	{
-		// ALWAYS take the center space if
-		// they don't, it's most valuable
-		if (this->board[1][1][1] == '_')
-			this->board[1][1][1] = 'O';
-		else
+		bool moved = false;
+		do
 		{
-			// generate a move for the computer
-			while (true)
+			x = rand() % 3;
+			y = rand() % 3;
+			z = rand() % 3;
+			if (this->board[x][y][z] == '_')
 			{
-				x = rand() % 3;
-				y = rand() % 3;
-				z = rand() % 3;
-				if (this->board[x][y][z] == '_')
-				{
-					this->board[x][y][z] = 'O';
-					break;
-				}
+				this->board[x][y][z] = 'O';
+				moved = true;
 			}
-		}
+		} while (!moved);
 		this->moves++;
 	}
 
@@ -226,15 +223,14 @@ void TTT3DGameTask::reset(GameMsg* msg)
 
 void TTT3DGameTask::commandHandler(GameMsg* msg)
 {
-	ESP_LOGI(LOGTAG, "TTT3D Game Received a Message : %p", msg);
-
+	//ESP_LOGI(LOGTAG, "TTT3D Game Received a Message : %p", msg);
 	if (!msg->data)
 	{
 		SendStringResponse(msg, "WELCOME TO TIC TAC TOE 3D\n");
 		SendStringResponse(msg, "Can you beat me 10 times?\n");
 		printBoard(msg);
 	}
-	else if (!strcmp("reset", msg->data))
+	else if (!strncmp("reset", msg->data, 5))
 	{
 		reset(msg);
 		printBoard(msg);
@@ -273,6 +269,11 @@ bool TTT3DGameTask::init()
 	this->GameQueueHandle = xQueueCreateStatic(GAME_QUEUE_SIZE, GAME_MSG_SIZE,
 		gameQueueBuffer, &GameQueue);
 	memset(this->board, '_', 27);
+	this->moves = 0;
+	this->x = -1;
+	this->y = -1;
+	this->z = -1;
+	this->net_wins = 0;
 	return true;
 }
 
