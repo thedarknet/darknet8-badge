@@ -23,7 +23,7 @@ public:
 		uint8_t CurrentPos;
 	};
 public:
-	typedef libesp::EventBus<1,2,2,3> VKB_EVENT_BUS_TYPE;
+	//typedef libesp::EventBus<1,2,2,3> VKB_EVENT_BUS_TYPE;
 	static const char *STDKBLowerCase;
 	static const char *STDKBNames;
 	static const char *STDCAPS;

@@ -9,6 +9,8 @@
 #include "communications_settings.h"
 #include "gui_list_processor.h"
 #include "menu_state.h"
+#include "../app.h"
+#include "../buttons.h"
 
 using libesp::ErrorType;
 using libesp::RGBColor;
@@ -33,7 +35,7 @@ protected:
 	virtual libesp::ErrorType onInit() {
 		memset(&NewDeviceName[0],0,sizeof(NewDeviceName));
 		IHC.set(&NewDeviceName[0],sizeof(NewDeviceName));
-		VKB.init(VirtualKeyBoard::STDKBLowerCase,&IHC,5,DN8App::DISPLAY_WIDTH-5,80,RGBColor::WHITE, RGBColor::BLACK,
+		VKB.init(VirtualKeyBoard::STDKBLowerCase,&IHC,5,DN8App::get().getCanvasWidth()-5,80,RGBColor::WHITE, RGBColor::BLACK,
 				RGBColor::BLUE,'_');
 		return ErrorType();
 	}
@@ -49,7 +51,7 @@ protected:
 		DN8App::get().getDisplay().drawString(0,30, (const char *)"New Name:");
 		DN8App::get().getDisplay().drawString(0,40, &NewDeviceName[0]);
 		DN8App::get().getDisplay().drawString(0,60,(const char *)"Mid button finishes");
-		if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_FIRE1)) {
+		if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
 			nextState = DN8App::get().getCommunicationSettingState();
 		}
 		return ReturnStateContext(nextState);
@@ -59,6 +61,7 @@ protected:
 		return ErrorType();
 	}
 };
+
 static BLESetDeviceNameMenu BLESetName_Menu;
 
 class BLEBoolMenu: public DN8BaseMenu {
@@ -71,9 +74,7 @@ private:
 	bool YesOrNo;
 	TYPE Type;
 public:
-	BLEBoolMenu(const char *name, TYPE t) : DN8BaseMenu(),
-		BLEList(name, Items, 0, 0, DN8App::DISPLAY_WIDTH, DN8App::DISPLAY_HEIGHT, 0, (sizeof(Items) / sizeof(Items[0])))
-		, YesOrNo(false), Type(t) {
+		BLEBoolMenu(const char *name, TYPE t) : DN8BaseMenu(),	BLEList(name, Items, 0, 0, DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel(), 0, (sizeof(Items) / sizeof(Items[0]))), YesOrNo(false), Type(t) {
 		strcpy(&ListBuffer[0][0],"Yes");
 		strcpy(&ListBuffer[1][0],"No");
 	}
@@ -99,8 +100,7 @@ protected:
 		DN8App::get().getGUI().drawList(&BLEList);
 
 		if (!GUIListProcessor::process(&BLEList,(sizeof(Items) / sizeof(Items[0])))) {
-			if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_FIRE1)) {
-				}
+			if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
 				nextState = DN8App::get().getCommunicationSettingState();
 			}
 		}
@@ -120,7 +120,6 @@ private:
 	VirtualKeyBoard VKB;
 	char SSID[17];
 	char Password[32];
-	darknet7::WifiMode SecurityType;
 	VirtualKeyBoard::InputHandleContext IHC;
 	libesp::GUIListData WifiSettingList;
 	libesp::GUIListItemData Items[5];
@@ -129,8 +128,7 @@ private:
 	//darknet7::WiFiStatus CurrentWiFiStatus;
 	static const uint16_t NO_WORKING_TIME = 0xFFFF;
 public:
-	WiFi() : Darknet7BaseState(), VKB(), SSID(), Password(), SecurityType(darknet7::WifiMode_OPEN), IHC(0,0)
-		, WifiSettingList("WiFi Settings:", Items,0,0, DN8App::getCanvasLastWidthPixel(), 70, 0
+	WiFi() : DN8BaseMenu(), VKB(), SSID(), Password(), IHC(0,0), WifiSettingList("WiFi Settings:", Items,0,0, DN8App::get().getLastCanvasWidthPixel(), 70, 0
 		, (sizeof(Items) / sizeof(Items[0]))) , ListBuffer(), WorkingItem(NO_WORKING_TIME)
 		 { //, CurrentWiFiStatus(darknet7::WiFiStatus_DOWN) {
 	}
@@ -275,9 +273,9 @@ static WiFi WiFiMenu;
 
 
 CommunicationSettingState::CommunicationSettingState() : DN8BaseMenu(), 
-	CommSettingList("Comm Info:", Items, 0, 0, DN8App::get().getCanvasLastWidthPixel()
-	, DN8App::get().getCanvasLastHeightPixel(), 0, (sizeof(Items) / sizeof(Items[0])))
-	, Items(), ListBuffer(), CurrentDeviceName(), ESPRequestID(0), InternalState(NONE)
+	CommSettingList("Comm Info:", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel()
+	, DN8App::get().getLastCanvasHeightPixel(), 0, (sizeof(Items) / sizeof(Items[0])))
+	, Items(), ListBuffer(), CurrentDeviceName(), InternalState(NONE)
 	{ //, CurrentWifiStatus(darknet7::WiFiStatus_DOWN) {
 
 }

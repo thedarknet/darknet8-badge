@@ -18,7 +18,7 @@ public:
 protected:
 	enum INTERNAL_STATE { NONE, FETCHING_DATA, DISPLAY_DATA };
 	virtual libesp::ErrorType onInit();
-	virtual libesp::StateBase::ReturnStateContext onRun();
+	virtual libesp::BaseMenu::ReturnStateContext onRun();
 	virtual libesp::ErrorType onShutdown();
 private:
 	libesp::GUIListData CommSettingList;

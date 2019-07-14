@@ -7,8 +7,12 @@
 
 #include "virtual_key_board.h"
 #include <string>
+#include "../app.h"
+#include "../buttons.h"
+#include <libesp/freertos.h>
 
 using libesp::RGBColor;
+using libesp::FreeRTOS;
 
 const char *VirtualKeyBoard::STDKBLowerCase = "abcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-";
 const char *VirtualKeyBoard::STDKBNames = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*()-_";
@@ -34,7 +38,7 @@ void VirtualKeyBoard::InputHandleContext::backspace() {
 ////////
 
 VirtualKeyBoard::VirtualKeyBoard(): VKB(0), SizeOfKeyboard(0), XDisplayPos(0)
-	, XEndDisplayPos(DN8App::DISPLAY_WIDTH), YDisplayPos(0), FontColor(RGBColor::WHITE), BackGround(RGBColor::BLACK)
+	, XEndDisplayPos(DN8App::get().getLastCanvasWidthPixel()), YDisplayPos(0), FontColor(RGBColor::WHITE), BackGround(RGBColor::BLACK)
 	, CursorColor(RGBColor::BLUE), CursorChar('_'), CursorPos(0), CharsPerRow(0), InputContext(0) {
 
 
@@ -60,17 +64,17 @@ void VirtualKeyBoard::init(const char *vkb, InputHandleContext *ic, int16_t xdis
 
 
 void VirtualKeyBoard::process() {
-	if(DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_LEFT)) {
+	if(DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP)) {
 		if(CursorPos>0)	--CursorPos;
-	} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_RIGHT)) {
+	} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN)) {
 		if(CursorPos<SizeOfKeyboard) CursorPos++;
 		else CursorPos=0;
-	} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_UP)) {
-		if(CursorPos>=CharsPerRow) CursorPos-=CharsPerRow;
-	} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_DOWN)) {
-		CursorPos+=CharsPerRow;
-		if(CursorPos>SizeOfKeyboard) CursorPos = SizeOfKeyboard-1;
-	} else if(DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_FIRE1)) {
+	//} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_UP)) {
+	//	if(CursorPos>=CharsPerRow) CursorPos-=CharsPerRow;
+	//} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_DOWN)) {
+	//	CursorPos+=CharsPerRow;
+	//	if(CursorPos>SizeOfKeyboard) CursorPos = SizeOfKeyboard-1;
+	} else if(DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
 		if(InputContext) {
 			InputContext->addChar(getSelectedChar());
 		}
@@ -81,10 +85,10 @@ void VirtualKeyBoard::process() {
 	uint8_t FontPixelWidth = DN8App::get().getDisplay().getFont()->FontWidth;
 	uint8_t cursorRow = getCursorY();
 	uint8_t curosrColumn = getCursorX();
-	for(int i=0;i<SizeOfKeyboard && y < (DN8App::DISPLAY_HEIGHT-(y*FontPixelHeight));i+=CharsPerRow, ++y) {
-		DN8App::get().getDisplay().drawString(XDisplayPos, (YDisplayPos+(y*FontPixelHeight)), ptr, FontColor, BackGround, 1, false, CharsPerRow);
+	for(int i=0;i<SizeOfKeyboard && y < (DN8App::get().getCanvasHeight()-(y*FontPixelHeight));i+=CharsPerRow, ++y) {
+		DN8App::get().getDisplay().drawString(XDisplayPos, uint16_t(YDisplayPos+(y*FontPixelHeight)), ptr, FontColor, BackGround, 1, false, CharsPerRow);
 		if(y==cursorRow) {
-			if((System::getTimeSinceStart()%1000)<500) {
+			if((FreeRTOS::getTimeSinceStart()%1000)<500) {
 				DN8App::get().getDisplay().drawString(XDisplayPos+(curosrColumn*FontPixelWidth), YDisplayPos+(y*FontPixelHeight), (const char *)"_", CursorColor, BackGround, 1, false);
 			}
 		}

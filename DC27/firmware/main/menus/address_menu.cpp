@@ -1,7 +1,8 @@
 #include "address_menu.h"
-#include "SendMsgState.h"
 #include "menu_state.h"
+#include "../app.h"
 #include "gui_list_processor.h"
+#include "../buttons.h"
 
 using libesp::ErrorType;
 using libesp::RGBColor;
@@ -10,9 +11,9 @@ using libesp::BaseMenu;
 ////////////////////////////////////////////////
 AddressMenu::AddressMenu() :
 		DN8BaseMenu(), AddressList((const char *) "Address Book", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel(), 
-		DN8App::get().getLastCanvasHeightPixel(), 0, sizeof(Items) / sizeof(Items[0])), CurrentContactList(), 
+		DN8App::get().getLastCanvasHeightPixel(), 0, sizeof(Items) / sizeof(Items[0])), CurrentContactList(),
 	ContactDetails((const char *)"Contact Details: ", DetailItems, 0, 0, DN8App::get().getLastCanvasWidthPixel()
-	, DN8App::get().getLastCanvasHeigthPixel()/2, 0, sizeof(DetailItems) / sizeof(DetailItems[0])), 
+	, DN8App::get().getLastCanvasHeightPixel()/2, 0, sizeof(DetailItems) / sizeof(DetailItems[0])),
 	Index(0), DisplayList(0) {
 
 }
@@ -56,8 +57,8 @@ void AddressMenu::setNext4Items(uint16_t startAt) {
 	}
 }
 
-StateBase::ReturnStateContext AddressMenu::onRun() {
-	StateBase *nextState = this;
+BaseMenu::ReturnStateContext AddressMenu::onRun() {
+	BaseMenu *nextState = this;
 	if (DetailItems[0].id == 0) {
 		if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP)) {
 			if (AddressList.selectedItem == 0) {
@@ -92,7 +93,7 @@ StateBase::ReturnStateContext AddressMenu::onRun() {
 				}
 			}
 		} else if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP | ButtonInfo::BUTTON_RIGHT_DOWN)) {
-			nextState = DN8App::get().getDisplayMenuState();
+			nextState = DN8App::get().getMenuState();
 		} else if (DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
 			if (Items[AddressList.selectedItem].id != 0) {
 				DisplayList = &ContactDetails;
@@ -127,7 +128,7 @@ StateBase::ReturnStateContext AddressMenu::onRun() {
 		}
 	} else {
 		if(!GUIListProcessor::process(DisplayList,DisplayList->ItemsCount)) {
-			if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_MID)) {
+			if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP | ButtonInfo::BUTTON_RIGHT_DOWN)) {
 				DetailItems[0].id = 0;
 				DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 				DisplayList = &AddressList;

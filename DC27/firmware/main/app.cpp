@@ -22,11 +22,16 @@
 #include "menus/menu_state.h"
 #include "buttons.h"
 #include "menus/calibration_menu.h"
+#include "KeyStore.h"
+#include <libesp/app/display_message_state.h>
+#include "menus/communications_settings.h"
 
 using libesp::ErrorType;
 using libesp::DisplayILI9341;
 using libesp::XPT2046;
 using libesp::GUI;
+using libesp::DisplayMessageState;
+using libesp::BaseMenu;
 
 const char *DN8App::LOGTAG = "AppTask";
 static StaticQueue_t InCommingQueue;
@@ -63,6 +68,7 @@ uint16_t ParallelLinesBuffer[DISPLAY_WIDTH*PARALLEL_LINES] = {0};
 libesp::ScalingBuffer FrameBuf(&Display, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, uint8_t(16), DISPLAY_WIDTH,DISPLAY_HEIGHT, PARALLEL_LINES, (uint8_t*)&BackBuffer[0],(uint8_t*)&ParallelLinesBuffer[0]);
 
 GUI DN8Gui(&Display);
+ContactStore MyContactStore(0, 0, 0, 0,	0, 0);
 XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
@@ -70,19 +76,9 @@ ExploitableGameTask ExploitTask("ExploitTask");
 BrainfuzzGameTask BrainfuzzTask("BrainfuzzTask");
 OTATask OtaTask("OTATask");
 ButtonInfo MyButtons;
-MenuState DN8MenuState;
-CalibrationMenu DN8CalibrationMenu;
 
 const char *DN8ErrorMap::toString(uint32_t err) {
 	return "TODO";
-}
-
-MenuState *DN8App::getMenuState() {
-	return &DN8MenuState;
-}
-
-CalibrationMenu *DN8App::getCalibrationMenu() {
-	return &DN8CalibrationMenu;
 }
 
 DN8App DN8App::mSelf;
@@ -228,7 +224,7 @@ uint16_t DN8App::getLastCanvasWidthPixel() {
 	return getCanvasWidth()-1;
 }
 
-uint16_t DN8App::getLastCanvasHeight() {
+uint16_t DN8App::getLastCanvasHeightPixel() {
 	return getCanvasHeight()-1;
 }
 	
@@ -260,4 +256,37 @@ ErrorType DN8App::onRun() {
 	return ErrorType();
 #endif
 }
+
+
+MenuState DN8MenuState;
+CalibrationMenu DN8CalibrationMenu;
+libesp::DisplayMessageState DMS;
+CommunicationSettingState MyCommunicationSettingState;
+
+
+
+CommunicationSettingState *DN8App::getCommunicationSettingState() {
+	return &MyCommunicationSettingState;
+}
+
+
+MenuState *DN8App::getMenuState() {
+	return &DN8MenuState;
+}
+
+CalibrationMenu *DN8App::getCalibrationMenu() {
+	return &DN8CalibrationMenu;
+}
+
+DisplayMessageState *DN8App::getDisplayMessageState(BaseMenu *bm, const char *msg, uint32_t msDisplay) {
+	DMS.setMessage(msg);
+	DMS.setNextState(bm);
+	DMS.setTimeInState(msDisplay);
+	DMS.setDisplay(&Display);
+	return &DMS;
+
+}
+
+
+
 

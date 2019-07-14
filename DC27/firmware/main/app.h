@@ -12,6 +12,7 @@
 namespace libesp {
 class GUI;
 class DisplayDevice;
+class DisplayMessageState;
 };
 
 enum ERRORS {
@@ -36,6 +37,8 @@ class OTATask;
 class ButtonInfo;
 class MenuState;
 class CalibrationMenu;
+class ContactStore;
+class CommunicationSettingState;
 
 class DN8App : public libesp::App {
 public:
@@ -57,12 +60,15 @@ public:
 	uint16_t getCanvasWidth();
 	uint16_t getCanvasHeight();
 	uint16_t getLastCanvasWidthPixel();
-	uint16_t getLastCanvasHeight();
+	uint16_t getLastCanvasHeightPixel();
 	libesp::DisplayDevice &getDisplay();
 	libesp::GUI &getGUI();
 	ButtonInfo &getButtonInfo();
 	MenuState *getMenuState();
 	CalibrationMenu *getCalibrationMenu();
+	ContactStore &getContacts();
+	libesp::DisplayMessageState *getDisplayMessageState(libesp::BaseMenu *, const char *msg, uint32_t msDisplay);
+	CommunicationSettingState *getCommunicationSettingState();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();

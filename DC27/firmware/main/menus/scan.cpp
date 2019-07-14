@@ -9,6 +9,7 @@
 #include "scan.h"
 #include "menu_state.h"
 #include "gui_list_processor.h"
+#include "../app.h"
 
 using libesp::RGBColor;
 using libesp::ErrorType;
@@ -31,8 +32,8 @@ private:
 	uint32_t Timer;
 	char NPCName[32];
 public:
-	NPCInteract() : DN8BaseMenu(), RequestID(0), DisplayList(NPCList, Items, 0, 0
-		, DN8App::get().getCanvasLastWidthPixel(), DN8App::get().getCanvasLastHeightPixel(), 0
+	NPCInteract() : DN8BaseMenu(), DisplayList(NPCList, Items, 0, 0
+		, DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel(), 0
 		, (sizeof(Items) / sizeof(Items[0]))), InternalState(NONE), Timer(0), NPCName() {
 
 	}

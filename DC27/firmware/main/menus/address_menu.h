@@ -4,6 +4,7 @@
 #include "dn8base_menu.h"
 #include "../KeyStore.h"
 
+
 class AddressMenu: public DN8BaseMenu {
 public:
 	AddressMenu();
@@ -11,7 +12,7 @@ public:
 	void resetSelection();
 protected:
 	virtual libesp::ErrorType onInit();
-	virtual libesp::StateBase::ReturnStateContext onRun();
+	virtual libesp::BaseMenu::ReturnStateContext onRun();
 	virtual libesp::ErrorType onShutdown();
 	void setNext4Items(uint16_t startAt);
 private:

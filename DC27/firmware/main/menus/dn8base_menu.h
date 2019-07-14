@@ -2,6 +2,7 @@
 #define DN8_BASE_MENU_H
 
 #include <libesp/app/basemenu.h>
+#include <libesp/device/display/gui.h>
 
 class DN8BaseMenu : public libesp::BaseMenu {
 public:

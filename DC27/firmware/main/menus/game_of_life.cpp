@@ -1,13 +1,17 @@
 #include "game_of_life.h"
 #include <stdlib.h>
-#include <libesp/devices/display/display_device.h>
+#include <libesp/device/display/display_device.h>
 #include "menu_state.h"
+#include "../app.h"
+#include <libesp/freertos.h>
+#include "../buttons.h"
 
 using libesp::ErrorType;
 using libesp::RGBColor;
 using libesp::BitArray;
 
 uint8_t GameOfLife::Buffer[] = {0};
+using libesp::FreeRTOS;
 
 GameOfLife::GameOfLife() : DN8BaseMenu(), Generations(0), CurrentGeneration(0), Neighborhood(0), 
 	GOL(&Buffer[0],num_slots,1), UtilityBuf(), InternalState(GameOfLife::GAME), DisplayMessageUntil(0) {
@@ -23,7 +27,7 @@ ErrorType GameOfLife::onInit() {
 }
 
 bool GameOfLife::shouldDisplayMessage() {
-	return System::getTimeSinceStart() < DisplayMessageUntil;
+	return FreeRTOS::getTimeSinceStart() < DisplayMessageUntil;
 }
 
 static uint8_t noChange = 0;
@@ -32,7 +36,7 @@ libesp::BaseMenu::ReturnStateContext GameOfLife::onRun() {
 	switch (InternalState) {
 	case INIT: {
 		DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
-		DisplayMessageUntil = System::getTimeSinceStart() + 3000;
+		DisplayMessageUntil = FreeRTOS::getTimeSinceStart() + 3000;
 		initGame();
 		noChange = 0;
 	}
@@ -52,7 +56,7 @@ libesp::BaseMenu::ReturnStateContext GameOfLife::onRun() {
 			InternalState = INIT;
 		} else {
 			uint16_t count = 0;
-			int16_t xOffSet = DN8App::get().getDisplay().getWidth()-width;
+			int16_t xOffSet = DN8App::get().getCanvasWidth()-width;
 			xOffSet = xOffSet>0? xOffSet/2 : 0;
 
 			//uint8_t bitToCheck = CurrentGeneration % 32;
@@ -70,7 +74,7 @@ libesp::BaseMenu::ReturnStateContext GameOfLife::onRun() {
 				sprintf(&UtilityBuf[0], "   ALL DEAD\n   After %d\n   generations", CurrentGeneration);
 				CurrentGeneration = Generations + 1;
 				InternalState = MESSAGE;
-				DisplayMessageUntil = System::getTimeSinceStart() + 3000;
+				DisplayMessageUntil = FreeRTOS::getTimeSinceStart() + 3000;
 				DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 			} else {
 				uint8_t tmpBuffer[sizeof(Buffer)];
@@ -89,7 +93,7 @@ libesp::BaseMenu::ReturnStateContext GameOfLife::onRun() {
 	case SLEEP:
 		break;
 	}
-	libesp::BaseMenu *next = DN8App::get().getDisplayMenuState();
+	libesp::BaseMenu *next = DN8App::get().getMenuState();
 	if (!DN8App::get().getButtonInfo().wasAnyButtonReleased()) {
 		return ReturnStateContext(this);
 	} else {
@@ -102,7 +106,7 @@ ErrorType GameOfLife::onShutdown() {
 }
 
 void GameOfLife::initGame() {
-	uint32_t start = System::getTimeSinceStart();
+	uint32_t start = FreeRTOS::getTimeSinceStart();
 	CurrentGeneration = 0;
 	Neighborhood = (start & 1) == 0 ? 'm' : 'v';
 	srand(start);

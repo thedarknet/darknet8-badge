@@ -7,13 +7,16 @@
 #include "setting_state.h"
 #include <libesp/device/display/display_device.h>
 #include "menu_state.h"
+#include "../app.h"
+#include "../buttons.h"
+#include <libesp/app/display_message_state.h>
 
 using libesp::ErrorType;
 using libesp::BaseMenu;
 using libesp::RGBColor;
 
-SettingMenu::SettingMenu() : Darknet7BaseState(), SettingList((const char *) "MENU", Items, 0, 0,
-		DN8App::get().getCanvasLastWidthPixel(), DN8App::get().getCanvasLastHeightPixel(), 0, sizeof(Items) / sizeof(Items[0])), AgentName(), SubState(0), MiscCounter(0), VKB(), IHC(&AgentName[0],sizeof(AgentName)) {
+SettingMenu::SettingMenu() : DN8BaseMenu(), SettingList((const char *) "MENU", Items, 0, 0,
+		DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel(), 0, sizeof(Items) / sizeof(Items[0])), AgentName(), SubState(0), MiscCounter(0), VKB(), IHC(&AgentName[0],sizeof(AgentName)) {
 
 	memset(&AgentName[0], 0, sizeof(AgentName));
 	Items[0].id = 0;
@@ -64,7 +67,7 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 			switch (SubState) {
 			case 100:
 				memset(&AgentName[0], 0, sizeof(AgentName));
-				VKB.init(VirtualKeyBoard::STDKBNames, &IHC, 5, DN8App::DISPLAY_WIDTH-5, 80, libesp::RGBColor::WHITE, RGBColor::BLACK, RGBColor::BLUE, '_');
+				VKB.init(VirtualKeyBoard::STDKBNames, &IHC, 5, DN8App::get().getLastCanvasWidthPixel()-5, 80, libesp::RGBColor::WHITE, RGBColor::BLACK, RGBColor::BLUE, '_');
 				DN8App::get().getDisplay().drawString(0, 10, (const char*) "Current agent name:");
 				if (*DN8App::get().getContacts().getSettings().getAgentName()	== '\0') {
 					DN8App::get().getDisplay().drawString(0, 20, (const char *) "NOT SET");
@@ -91,9 +94,9 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 			if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1) && AgentName[0] != '\0' && AgentName[0] != ' ' && AgentName[0] != '_') {
 				AgentName[ContactStore::AGENT_NAME_LENGTH - 1] = '\0';
 				if (DN8App::get().getContacts().getSettings().setAgentname(&AgentName[0])) {
-					nextState = DN8App::get().getDisplayMessageState(	DN8App::get().getDisplayMenuState(), (const char *)"Save Successful", 2000);
+					nextState = DN8App::get().getDisplayMessageState(	DN8App::get().getMenuState(), (const char *)"Save Successful", 2000);
 				} else {
-					nextState = DN8App::get().getDisplayMessageState(	DN8App::get().getDisplayMenuState(), (const char *)"Save FAILED!",	4000);
+					nextState = DN8App::get().getDisplayMessageState(	DN8App::get().getMenuState(), (const char *)"Save FAILED!",	4000);
 				}
 			} else {
 				DN8App::get().getDisplay().drawString(0, 60, &AgentName[0]);
@@ -109,23 +112,23 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 				DN8App::get().getDisplay().drawString(0, 100, (const char*) "MID Button completes", RGBColor::WHITE, RGBColor::BLACK, 1, true);
 				if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP)) {
 					MiscCounter++;
-				} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT__DOWN)) {
+				} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN)) {
 					MiscCounter--;
 				} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
 					if (DN8App::get().getContacts().getSettings().setScreenSaverTime(MiscCounter)) {
-						nextState = DN8App::get().getDisplayMessageState(DN8App::get().getDisplayMenuState(), (const char *)"Setting saved", 2000);
+						nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Setting saved", 2000);
 					} else {
-						nextState = DN8App::get().getDisplayMessageState(DN8App::get().getDisplayMenuState(), (const char *)"Save FAILED!", 4000);
+						nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Save FAILED!", 4000);
 					}
 				}
 			}
 			break;
 		case 102:
-			if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_FIRE1)) {
+			if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
 				DN8App::get().getContacts().resetToFactory();
-				nextState = DN8App::get().getDisplayMenuState();
+				nextState = DN8App::get().getMenuState();
 			} else if (DN8App::get().getButtonInfo().wasAnyButtonReleased()) {
-				nextState = DN8App::get().getDisplayMenuState();
+				nextState = DN8App::get().getMenuState();
 			}
 			break;
 		}

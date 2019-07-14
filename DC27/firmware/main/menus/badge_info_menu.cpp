@@ -6,13 +6,16 @@
 #include "badge_info_menu.h"
 #include "menu_state.h"
 #include "gui_list_processor.h"
+#include "../app.h"
+#include "../buttons.h"
+#include <libesp/system.h>
 
 using libesp::RGBColor;
 using libesp::ErrorType;
 using libesp::BaseMenu;
 
 BadgeInfoMenu::BadgeInfoMenu() : DN8BaseMenu(), 
-	BadgeInfoList("Badge Info:", Items, 0, 0, DN8App::getCanvasLastWidthPixel(), DN8App::getCanvasLastHeightPixel(),
+	BadgeInfoList("Badge Info:", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel(),
 				0, (sizeof(Items) / sizeof(Items[0]))), RegCode() {
 	memset(&RegCode, 0, sizeof(RegCode));
 }
@@ -54,9 +57,9 @@ ErrorType BadgeInfoMenu::onInit() {
 			pCP[8], pCP[9], pCP[10], pCP[11], pCP[12], pCP[13], pCP[14],
 			pCP[15], pCP[16], pCP[17], pCP[18], pCP[19], pCP[20], pCP[21],
 			pCP[22], pCP[23], pCP[24]);
-	sprintf(&ListBuffer[5][0], "Free HeapSize: %u\n",libesp::System::getFreeHeapSize());
-	sprintf(&ListBuffer[6][0], "Free Min HeapSize: %u\n",libesp::System::getMinimumFreeHeapSize());
-	sprintf(&ListBuffer[7][0], "HAL Version: %s", libesp::System::getIDFVersion());
+	sprintf(&ListBuffer[5][0], "Free HeapSize: %u\n",libesp::System::get().getFreeHeapSize());
+	sprintf(&ListBuffer[6][0], "Free Min HeapSize: %u\n",libesp::System::get().getMinimumFreeHeapSize());
+	sprintf(&ListBuffer[7][0], "HAL Version: %s", libesp::System::get().getIDFVersion());
 	sprintf(&ListBuffer[8][0], "SVer: %s", VERSION);
 
 	for (uint32_t i = 0; i < (sizeof(Items) / sizeof(Items[0])); i++) {
@@ -75,7 +78,7 @@ BaseMenu::ReturnStateContext BadgeInfoMenu::onRun() {
 	if(!GUIListProcessor::process(&BadgeInfoList,BadgeInfoList.ItemsCount)) {
 		if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN|
 						ButtonInfo::BUTTON_LEFT_UP)) {
-			nextState = DN8App::get().getDisplayMenuState();
+			nextState = DN8App::get().getMenuState();
 		}
 	}
 	return ReturnStateContext(nextState);
