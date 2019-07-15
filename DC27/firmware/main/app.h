@@ -40,7 +40,6 @@ class MenuState;
 class CalibrationMenu;
 class ContactStore;
 class CommunicationSettingState;
-class AddressMenu;
 class BadgeInfoMenu;
 class GameOfLife;
 class Scan;
@@ -58,6 +57,10 @@ public:
 	static const int ITEM_SIZE = sizeof(DN8AppMsg);
 	static const char *sYES;
 	static const char *sNO;
+	static const uint16_t DISPLAY_HEIGHT		= 240;
+	static const uint16_t DISPLAY_WIDTH			= 320;
+	static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
+	static const uint16_t FRAME_BUFFER_WIDTH	= 160;
 	static DN8App &get();
 public:
 	virtual ~DN8App();
@@ -79,7 +82,6 @@ public:
 	ContactStore &getContacts();
 	libesp::DisplayMessageState *getDisplayMessageState(libesp::BaseMenu *, const char *msg, uint32_t msDisplay);
 	CommunicationSettingState *getCommunicationSettingState();
-	AddressMenu *getAddressMenu();
 	BadgeInfoMenu *getBadgeInfoMenu();
 	GameOfLife *getGameOfLifeMenu();
 	Scan *getWifiScanMenu();

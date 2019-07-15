@@ -26,7 +26,6 @@
 #include "KeyStore.h"
 #include <libesp/app/display_message_state.h>
 #include "menus/communications_settings.h"
-#include "menus/address_menu.h"
 #include "menus/badge_info_menu.h"
 #include "menus/game_of_life.h"
 #include "menus/scan.h"
@@ -61,21 +60,17 @@ const char *DN8App::sNO = "No";
 #define PIN_NUM_DISPLAY_BACKLIGHT NOPIN
 #define PIN_NUM_DISPLAY_RESET NOPIN
 
-static const uint16_t DISPLAY_HEIGHT		= 240;
-static const uint16_t DISPLAY_WIDTH			= 320;
-static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
-static const uint16_t FRAME_BUFFER_WIDTH	= 160;
 //static const uint16_t FRAME_BUFFER_HEIGHT	= 132;
 //static const uint16_t FRAME_BUFFER_WIDTH	= 176;
 #define START_ROT libesp::DisplayILI9341::LANDSCAPE_TOP_LEFT
 static const uint16_t PARALLEL_LINES = 10;
 
-libesp::DisplayILI9341 Display(DISPLAY_WIDTH,DISPLAY_HEIGHT,START_ROT, NOPIN, NOPIN);
+libesp::DisplayILI9341 Display(DN8App::DISPLAY_WIDTH,DN8App::DISPLAY_HEIGHT,START_ROT, NOPIN, NOPIN);
 
-uint16_t *BackBuffer = new uint16_t[FRAME_BUFFER_WIDTH*FRAME_BUFFER_HEIGHT];
-uint16_t ParallelLinesBuffer[DISPLAY_WIDTH*PARALLEL_LINES] = {0};
+uint16_t *BackBuffer = new uint16_t[DN8App::FRAME_BUFFER_WIDTH*DN8App::FRAME_BUFFER_HEIGHT];
+uint16_t ParallelLinesBuffer[DN8App::DISPLAY_WIDTH*PARALLEL_LINES] = {0};
 
-libesp::ScalingBuffer FrameBuf(&Display, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, uint8_t(16), DISPLAY_WIDTH,DISPLAY_HEIGHT, PARALLEL_LINES, (uint8_t*)&BackBuffer[0],(uint8_t*)&ParallelLinesBuffer[0]);
+libesp::ScalingBuffer FrameBuf(&Display, DN8App::FRAME_BUFFER_WIDTH, DN8App::FRAME_BUFFER_HEIGHT, uint8_t(16), DN8App::DISPLAY_WIDTH,DN8App::DISPLAY_HEIGHT, PARALLEL_LINES, (uint8_t*)&BackBuffer[0],(uint8_t*)&ParallelLinesBuffer[0]);
 
 GUI DN8Gui(&Display);
 ContactStore MyContactStore(0, 0, 0, 0,	0, 0);
@@ -285,17 +280,12 @@ MenuState DN8MenuState;
 CalibrationMenu DN8CalibrationMenu;
 libesp::DisplayMessageState DMS;
 CommunicationSettingState MyCommunicationSettingState;
-AddressMenu MyAddressMenu;
 BadgeInfoMenu MyBadgeInfoMenu;
 GameOfLife MyGameOfLife;
 Scan MyWifiScan;
 SettingMenu MySettingMenu;
 TestMenu MyTestMenu;
 	
-AddressMenu *DN8App::getAddressMenu() {
-	return &MyAddressMenu;
-}
-
 BadgeInfoMenu *DN8App::getBadgeInfoMenu() {
 	return &MyBadgeInfoMenu;
 }

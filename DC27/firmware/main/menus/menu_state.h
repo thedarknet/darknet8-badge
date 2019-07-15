@@ -14,7 +14,7 @@ protected:
 	virtual libesp::ErrorType onShutdown();
 private:
 	libesp::GUIListData MenuList;
-	libesp::GUIListItemData Items[12];
+	libesp::GUIListItemData Items[9];
 };
 
 #endif
