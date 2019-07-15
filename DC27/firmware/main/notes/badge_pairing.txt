@@ -1,0 +1,2 @@
+pin34 - RX Badge pairing
+pin25 - TX Badge pairing
