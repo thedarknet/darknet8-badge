@@ -9,7 +9,6 @@
 #include "setting_state.h"
 #include <libesp/app/display_message_state.h>
 #include "game_of_life.h"
-#include "address_menu.h"
 #include "badge_info_menu.h"
 #include "communications_settings.h"
 
@@ -37,23 +36,19 @@ ErrorType MenuState::onInit() {
 	Items[1].id = 1;
 	Items[1].text = (const char *) "Badge Pair";
 	Items[2].id = 2;
-	Items[2].text = (const char *) "Address Book";
+	Items[2].text = (const char *) "3D";
 	Items[3].id = 3;
-	Items[3].text = (const char *) "3D";
+	Items[3].text = (const char *) "Screen Saver";
 	Items[4].id = 4;
-	Items[4].text = (const char *) "Screen Saver";
+	Items[4].text = (const char *) "Badge Info";
 	Items[5].id = 5;
-	Items[5].text = (const char *) "Badge Info";
+	Items[5].text = (const char *) "Communications Settings";
 	Items[6].id = 6;
-	Items[6].text = (const char *) "Communications Settings";
+	Items[6].text = (const char *) "Scan for NPCs";
 	Items[7].id = 7;
-	Items[7].text = (const char *) "Scan for NPCs";
+	Items[7].text = (const char *) "Test Badge";
 	Items[8].id = 8;
-	Items[8].text = (const char *) "Test Badge";
-	Items[9].id = 9;
-	Items[9].text = (const char *) "Scan: Shitty Addon Badge";
-	Items[10].id = 10;
-	Items[10].text = (const char *) "Calibrate Touch";
+	Items[8].text = (const char *) "Calibrate Touch";
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&this->MenuList);
 	return ErrorType();
@@ -79,31 +74,25 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 					}
 					break;
 				case 2:
-					nextState = DN8App::get().getAddressMenu();
-					break;
-				case 3:
 					//nextState = DN8App::get().get3DState();
 					break;
-				case 4:
+				case 3:
 					nextState = DN8App::get().getGameOfLifeMenu();
 					break;
-				case 5:
+				case 4:
 					nextState = DN8App::get().getBadgeInfoMenu();
 					break;
-				case 6:
+				case 5:
 					nextState = DN8App::get().getCommunicationSettingState();
 					break;
-				case 7:
+				case 6:
 					DN8App::get().getWifiScanMenu()->setNPCOnly(true);
 					nextState = DN8App::get().getWifiScanMenu();
 					break;
-				case 8:
+				case 7:
 					nextState = DN8App::get().getTestMenu();
 					break;
-				case 9:
-					//nextState = DN8App::get().getSAOMenuMenu();
-					break;
-				case 10:
+				case 8:
 					nextState = DN8App::get().getCalibrationMenu();
 					break;
 			}

@@ -58,15 +58,17 @@ libesp::BaseMenu::ReturnStateContext GameOfLife::onRun() {
 			uint16_t count = 0;
 			int16_t xOffSet = DN8App::get().getCanvasWidth()-width;
 			xOffSet = xOffSet>0? xOffSet/2 : 0;
+			int16_t yOffSet = DN8App::get().getCanvasHeight()-height;
+			yOffSet = yOffSet>0? yOffSet/2 : 0;
 
 			//uint8_t bitToCheck = CurrentGeneration % 32;
 			for (uint16_t j = 0; j < height; j++) {
 				for (uint16_t k = 0; k < width; k++) {
 					if(GOL.getValueAsByte((j*width)+k)) {
-						DN8App::get().getDisplay().drawPixel(k+xOffSet, j, RGBColor::WHITE);
+						DN8App::get().getDisplay().drawPixel(k+xOffSet, j+yOffSet, RGBColor::WHITE);
 						count++;
 					} else {
-						DN8App::get().getDisplay().drawPixel(k+xOffSet, j, RGBColor::BLACK);
+						DN8App::get().getDisplay().drawPixel(k+xOffSet, j+yOffSet, RGBColor::BLACK);
 					}
 				}
 			}

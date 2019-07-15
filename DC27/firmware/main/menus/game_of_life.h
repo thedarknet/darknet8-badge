@@ -3,14 +3,15 @@
 
 #include "dn8base_menu.h"
 #include "libesp/utility/bitarray.h"
+#include "../app.h"
 
 class GameOfLife: public DN8BaseMenu {
 public:
 	GameOfLife();
 	virtual ~GameOfLife();
 public:
-	static const int width = 128;
-	static const int height = 128;
+	static const int width = int((float)DN8App::FRAME_BUFFER_WIDTH*0.85f);
+	static const int height = int((float)DN8App::FRAME_BUFFER_HEIGHT*0.85f);
 	static const int num_slots = width*height;
 	static const int sizeof_buffer = (num_slots/8)+1;
 	static uint8_t Buffer[sizeof_buffer];
