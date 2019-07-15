@@ -40,6 +40,45 @@ void SendWinResponse(GameMsg* msg, const char* a);
 
 class GameTask : public Task {
 private:
+
+	// TTT3D Resources
+	bool T3DverifyInput(GameMsg* msg);
+	void T3DprintBoard(GameMsg* msg);
+	bool T3Dtimeout(GameMsg* msg);
+	int  T3DscoreBoard(GameMsg* msg);
+	void T3DmakePlay(GameMsg* msg);
+	void T3DnewGame(GameMsg* msg);
+	void T3Dreset(GameMsg* msg);
+	void T3DcommandHandler(GameMsg* msg);
+	bool T3Dinit(void);
+
+	long int t3_start_time = 0;
+	int      t3_net_wins = 0;
+	bool     t3_timer_started = false;
+	int      t3_x, t3_y, t3_z;
+	int      t3_moves = 0;
+	char     t3_board[3][3][3];
+
+	// Brainfuzz Resources
+	void BFreset();
+	bool BFverifyInput(GameMsg* msg);
+	void BFrun(GameMsg* msg);
+	void BFcommandHandler(GameMsg* msg);
+
+	char bf_buf[512];
+	char bf_output[512];
+	uint16_t bf_output_length;
+
+	// Exploitable Game Resources
+	void EXPsetCurrentLevel(uint32_t lvlid);
+	void EXPcommandHandler(GameMsg* msg);
+	void EXPinit();
+
+	void*    exp_levels[8];
+	uint32_t exp_cur_level = 0;
+	
+	// GameMaster resources
+
 	static const int GAME_QUEUE_SIZE = 3;
 	static const int GAME_MSG_SIZE = sizeof(GameMsg);
 	StaticQueue_t GameQueue;
@@ -61,7 +100,7 @@ public:
 	bool isGameUnlocked(uint8_t game_id);
 	bool setGameUnlocked(uint8_t game_id);
 
-	bool installGame(GameId id, bool unlocked, QueueHandle_t gameQueue);
+	bool installGame(GameId id, bool unlocked);
 
 	void mainMenuSendResponse(GameMsg* msg, char* data, uint8_t size);
 	void sendBadContextError(GameMsg* msg);
