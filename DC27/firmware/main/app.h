@@ -41,6 +41,7 @@ class CalibrationMenu;
 class ContactStore;
 class CommunicationSettingState;
 class BadgeInfoMenu;
+class OTAMenu;
 class GameOfLife;
 class Scan;
 class SettingMenu;
@@ -83,6 +84,7 @@ public:
 	libesp::DisplayMessageState *getDisplayMessageState(libesp::BaseMenu *, const char *msg, uint32_t msDisplay);
 	CommunicationSettingState *getCommunicationSettingState();
 	BadgeInfoMenu *getBadgeInfoMenu();
+	OTAMenu *getOTAMenu();
 	GameOfLife *getGameOfLifeMenu();
 	Scan *getWifiScanMenu();
 	SettingMenu *getSettingsMenu();

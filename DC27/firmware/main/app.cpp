@@ -15,7 +15,6 @@
 #include <libesp/device/touch/XPT2046.h>
 #include "./ble.h"
 #include "./game_master.h"
-#include "./ota.h"
 #include "menus/menu_state.h"
 #include "buttons.h"
 #include "menus/calibration_menu.h"
@@ -24,6 +23,7 @@
 #include "menus/communications_settings.h"
 #include "menus/badge_info_menu.h"
 #include "menus/game_of_life.h"
+#include "menus/ota_menu.h"
 #include "menus/scan.h"
 #include "menus/setting_state.h"
 #include "menus/test_menu.h"
@@ -73,7 +73,6 @@ ContactStore MyContactStore(0, 0, 0, 0,	0, 0);
 XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
-OTATask OtaTask("OTATask");
 ButtonInfo MyButtons;
 
 const char *DN8ErrorMap::toString(uint32_t err) {
@@ -140,20 +139,6 @@ libesp::ErrorType DN8App::onInit() {
 		ESP_LOGI(LOGTAG,"display init swap done");
 
 
-		// XXX: In the final version, start this task first, because it monitors
-		// whether a boot was successful and will provider an interposition point
-		// for a user to select whether to revert to the last known bootable
-		// partition if the app has crashed x times.  (A crash defined as not
-		// living beyond 30 seconds - easy revert by resetting the badge x times).
-		// libwifi and friends is like 500kb
-		if(!OtaTask.init()) {
-			return ErrorType(ErrorType::FACILITY_APP,OTA_INIT_FAIL);
-		}
-		//OTACmd* cmd = (OTACmd*)malloc(sizeof(OTACmd));
-		// *cmd = ATTEMPT_OTA;
-		//xQueueSend(OTATask.getQueueHandle(), &cmd, (TickType_t)100);
-	
-		////
 		// libbt.a is like 300kb
 		if(!BTTask.init()) {
 			return ErrorType(ErrorType::FACILITY_APP,BT_INIT_FAIL);
@@ -173,7 +158,6 @@ libesp::ErrorType DN8App::onInit() {
 	}
 	
 	TouchTask.start();
-	OtaTask.start();
 	BTTask.start();
 	GMTask.start();
 	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
@@ -188,10 +172,6 @@ BluetoothTask &DN8App::getBTTask() {
 
 GameTask &DN8App::getGameTask() {
 	return GMTask;
-}
-
-OTATask &DN8App::getOTATask() {
-	return OtaTask;
 }
 
 uint16_t DN8App::getCanvasWidth() {
@@ -247,6 +227,7 @@ CalibrationMenu DN8CalibrationMenu;
 libesp::DisplayMessageState DMS;
 CommunicationSettingState MyCommunicationSettingState;
 BadgeInfoMenu MyBadgeInfoMenu;
+OTAMenu MyOTAMenu;
 GameOfLife MyGameOfLife;
 Scan MyWifiScan;
 SettingMenu MySettingMenu;
@@ -254,6 +235,10 @@ TestMenu MyTestMenu;
 	
 BadgeInfoMenu *DN8App::getBadgeInfoMenu() {
 	return &MyBadgeInfoMenu;
+}
+
+OTAMenu *DN8App::getOTAMenu() {
+	return &MyOTAMenu;
 }
 
 GameOfLife *DN8App::getGameOfLifeMenu() {

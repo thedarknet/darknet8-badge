@@ -10,6 +10,7 @@
 #include <libesp/app/display_message_state.h>
 #include "game_of_life.h"
 #include "badge_info_menu.h"
+#include "ota_menu.h"
 #include "communications_settings.h"
 
 using libesp::ErrorType;
@@ -94,6 +95,9 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 					break;
 				case 8:
 					nextState = DN8App::get().getCalibrationMenu();
+					break;
+				case 9:
+					nextState = DN8App::get().getOTAMenu();
 					break;
 			}
 		}
