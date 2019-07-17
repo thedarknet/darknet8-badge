@@ -16,8 +16,8 @@ class DisplayMessageState;
 };
 
 enum ERRORS {
-	APP_OK = 0
-	, OTA_INIT_FAIL = 1
+	APP_OK = libesp::ErrorType::APP_OK
+	, OTA_INIT_FAIL = libesp::ErrorType::APP_BASE + 1
 	, BT_INIT_FAIL
 	, GAME_TASK_INIT_FAIL
 	, EXPLOIT_TASK_INIT_FAIL
@@ -26,7 +26,7 @@ enum ERRORS {
 
 class DN8ErrorMap : public libesp::IErrorDetail {
 public:
-	virtual const char *toString(uint32_t err);
+	virtual const char *toString(int32_t err);
 };
 
 class BluetoothTask;
