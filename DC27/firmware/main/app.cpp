@@ -75,7 +75,7 @@ BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
 ButtonInfo MyButtons;
 
-const char *DN8ErrorMap::toString(uint32_t err) {
+const char *DN8ErrorMap::toString(int32_t err) {
 	return "TODO";
 }
 
@@ -86,7 +86,7 @@ DN8App &DN8App::get() {
 }
 
 DN8App::DN8App() : AppErrors() {
-	ErrorType::setFacilityErrorDetailHandler(ErrorType::FACILITY_APP,&AppErrors);
+	ErrorType::setAppDetail(&AppErrors);
 }
 
 DN8App::~DN8App() {
@@ -141,15 +141,15 @@ libesp::ErrorType DN8App::onInit() {
 
 		// libbt.a is like 300kb
 		if(!BTTask.init()) {
-			return ErrorType(ErrorType::FACILITY_APP,BT_INIT_FAIL);
+			return ErrorType(BT_INIT_FAIL);
 		}
 
 		if(!GMTask.init()) {
-			return ErrorType(ErrorType::FACILITY_APP,GAME_TASK_INIT_FAIL);
+			return ErrorType(GAME_TASK_INIT_FAIL);
 		}
 
 		if(!MyButtons.init()) {
-			return ErrorType(ErrorType::FACILITY_APP,BUTTON_INIT_FAIL);
+			return ErrorType(BUTTON_INIT_FAIL);
 		} else {
 			ESP_LOGI(LOGTAG,"Button Init complete");
 		}
