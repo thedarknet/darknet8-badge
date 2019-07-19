@@ -74,7 +74,7 @@ private:
 	void EXPcommandHandler(GameMsg* msg);
 	void EXPinit();
 
-	void*    exp_levels[8];
+	void*    exp_levels[7];
 	uint32_t exp_cur_level = 0;
 	
 	// GameMaster resources
