@@ -534,35 +534,14 @@ static void exp_badLevel(GameMsg* msg)
     SendStringResponse(msg, "Bad level.\n");
 }
 
-static bool level5_greeting = false;
-static void exp_level5(GameMsg* msg)
-{
-    if (!msg->length || !level5_greeting)
-    {   
-        SendStringResponse(msg, "That's all Gourry wrote!(?)\n");
-        level5_greeting = true;
-    }   
-    return;
-}
-
-static bool level4_greeting = false;
-static void exp_level4(GameMsg* msg)
-{
-    if (!msg->length || !level4_greeting)
-    {   
-        SendStringResponse(msg, "Level 4\n");
-        level4_greeting = true;
-    }   
-    return;
-}
 static bool level3_greeting = false;
 static void exp_level3(GameMsg* msg)
 {
     if (!msg->length || !level3_greeting)
-    {
-        SendStringResponse(msg, "Level 3\n");
+    {   
+        SendStringResponse(msg, "That's all Gourry wrote!(?)\n");
         level3_greeting = true;
-    }
+    }   
     return;
 }
 
@@ -687,7 +666,7 @@ void GameTask::EXPcommandHandler(GameMsg* msg)
             return;
         }
         level_num = atoi(&msg->data[6]);
-        if (level_num < 0 || level_num == 6 || level_num > 8)
+        if (level_num < 0 || level_num == 4 || level_num > 6)
         {
             SendStringResponse(msg, "Bad number in level selection\n");
             return;
@@ -710,11 +689,9 @@ void GameTask::EXPinit()
     exp_levels[1] = (void*)exp_level1;
     exp_levels[2] = (void*)exp_level2;
     exp_levels[3] = (void*)exp_level3;
-    exp_levels[4] = (void*)exp_level4;
-    exp_levels[5] = (void*)exp_level5;
-    exp_levels[6] = (void*)exp_badLevel; // unreachable
-    exp_levels[7] = (void*)exp_badLevel;
-    exp_levels[8] = (void*)exp_secretLevel;
+    exp_levels[4] = (void*)exp_badLevel; // unreachable
+    exp_levels[5] = (void*)exp_badLevel;
+    exp_levels[6] = (void*)exp_secretLevel;
     if (nvs_get_u32(my_nvs_handle, "exp_cur_level", &exp_cur_level) != ESP_OK)
     {
         exp_cur_level = 0;
