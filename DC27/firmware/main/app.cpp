@@ -74,6 +74,7 @@ XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
 BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
 ButtonInfo MyButtons;
+CalibrationMenu DN8CalibrationMenu;
 
 const char *DN8ErrorMap::toString(int32_t err) {
 	return "TODO";
@@ -104,9 +105,16 @@ ButtonInfo &DN8App::getButtonInfo() {
 libesp::ErrorType DN8App::onInit() {
 	ErrorType et;
 
+	et = DN8CalibrationMenu.initNVS();
+	if(!et.ok()) {
+		ESP_LOGE(LOGTAG,"failed to init nvs");
+		return et;
+	}
+
 	et = XPT2046::initTouch(PIN_NUM_TOUCH_MISO, PIN_NUM_TOUCH_MOSI, PIN_NUM_TOUCH_CLK,VSPI_HOST, 1);
 
 	if(!et.ok()) {
+		ESP_LOGE(LOGTAG,"failed to touch");
 		return et;
 	}
 
@@ -114,6 +122,7 @@ libesp::ErrorType DN8App::onInit() {
 	et = TouchTask.init(bus,PIN_NUM_TOUCH_CS);
 
 	if(!et.ok()) {
+		ESP_LOGE(LOGTAG,"failed to touch SPI");
 		return et;
 	}
 
@@ -228,7 +237,6 @@ ContactStore &DN8App::getContacts() {
 }
 
 MenuState DN8MenuState;
-CalibrationMenu DN8CalibrationMenu;
 libesp::DisplayMessageState DMS;
 CommunicationSettingState MyCommunicationSettingState;
 BadgeInfoMenu MyBadgeInfoMenu;

@@ -4,6 +4,7 @@
 #include "dn8base_menu.h"
 #include <libesp/math/point.h>
 #include <libesp/device/touch/XPT2046.h>
+#include <libesp/nvs_memory.h>
 
 class CalibrationMenu : public DN8BaseMenu {
 public:
@@ -23,15 +24,18 @@ public:
 public:
 	CalibrationMenu();
 	virtual ~CalibrationMenu();
+	libesp::ErrorType initNVS();
 protected:
 	virtual libesp::ErrorType onInit();
 	virtual libesp::BaseMenu::ReturnStateContext onRun();
 	virtual libesp::ErrorType onShutdown();
 	void drawCrossHairs();
+	libesp::ErrorType loadCalibrationData();
 private:
 	libesp::Point2Ds CalibrationLocations[TOTAL];
 	uint32_t CurrentIndex;
 	QueueHandle_t InternalQueueHandler;
+	libesp::NVS CalibrationData;
 };
 
 #endif
