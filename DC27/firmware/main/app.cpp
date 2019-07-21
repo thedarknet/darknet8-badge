@@ -93,6 +93,10 @@ DN8App::~DN8App() {
 
 }
 
+XPT2046 &DN8App::getTouch() {
+	return TouchTask;
+}
+
 ButtonInfo &DN8App::getButtonInfo() {
 	return MyButtons;
 }
@@ -202,6 +206,7 @@ ErrorType DN8App::onRun() {
 		  return ErrorType();
 #else
 	MyButtons.process();
+	TouchTask.broadcast();
 	libesp::BaseMenu::ReturnStateContext rsc = getCurrentMenu()->run();
 	Display.swap();
 

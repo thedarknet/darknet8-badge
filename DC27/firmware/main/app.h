@@ -13,6 +13,7 @@ namespace libesp {
 class GUI;
 class DisplayDevice;
 class DisplayMessageState;
+class XPT2046;
 };
 
 enum ERRORS {
@@ -89,6 +90,7 @@ public:
 	Scan *getWifiScanMenu();
 	SettingMenu *getSettingsMenu();
 	TestMenu *getTestMenu();
+	libesp::XPT2046 &getTouch();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();
