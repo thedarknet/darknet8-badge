@@ -68,7 +68,7 @@ void app_main() {
 
    do {
 		et = DN8App::get().run();
-		vTaskDelay(10 / portTICK_RATE_MS);
+		//vTaskDelay(1 / portTICK_RATE_MS);
 	} while (et.ok());
 
 	vTaskDelay(3000 / portTICK_RATE_MS);

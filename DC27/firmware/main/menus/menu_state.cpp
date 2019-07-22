@@ -12,14 +12,25 @@
 #include "badge_info_menu.h"
 #include "ota_menu.h"
 #include "communications_settings.h"
+#include <esp_log.h>
 
 using libesp::ErrorType;
 using libesp::BaseMenu;
 using libesp::RGBColor;
+using libesp::XPT2046;
+using libesp::Point2Ds;
+using libesp::TouchNotification;
+
+static StaticQueue_t InternalQueue;
+static uint8_t InternalQueueBuffer[MenuState::QUEUE_SIZE*MenuState::MSG_SIZE] = {0};
+static const char *LOGTAG = "MenuState";
 
 MenuState::MenuState() :
-		DN8BaseMenu(), MenuList("Main Menu", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel()
-			, DN8App::get().getLastCanvasHeightPixel(), 0, (sizeof(Items) / sizeof(Items[0]))) {
+	DN8BaseMenu(), MenuList("Main Menu", Items, 0, 0, 
+	DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel()
+	, 0, (sizeof(Items) / sizeof(Items[0]))) {
+	
+	InternalQueueHandler = xQueueCreateStatic(QUEUE_SIZE,MSG_SIZE,&InternalQueueBuffer[0],&InternalQueue);
 }
 
 MenuState::~MenuState() {
@@ -52,14 +63,39 @@ ErrorType MenuState::onInit() {
 	Items[8].text = (const char *) "Calibrate Touch";
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&this->MenuList);
+	//empty queue
+	TouchNotification *pe = nullptr;
+	for(int i=0;i<2;i++) {
+		if(xQueueReceive(InternalQueueHandler, &pe, 0)) {
+			delete pe;
+		}
+	}
+	DN8App::get().getTouch().addObserver(InternalQueueHandler);
+
 	return ErrorType();
 }
 
 libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 	BaseMenu *nextState = this;
-	if (!GUIListProcessor::process(&MenuList,(sizeof(Items) / sizeof(Items[0]))))
+	TouchNotification *pe = nullptr;
+	Point2Ds TouchPosInBuf;
+	bool penUp = false;
+	if(xQueueReceive(InternalQueueHandler, &pe, 0)) {
+		Point2Ds screenPoint(pe->getX(),pe->getY());
+		TouchPosInBuf = DN8App::get().getCalibrationMenu()->getPickPoint(screenPoint);
+		ESP_LOGI(LOGTAG,"TouchPoint: X:%d Y:%d PD:%d", int32_t(TouchPosInBuf.getX()),
+							 int32_t(TouchPosInBuf.getY()), pe->isPenDown()?1:0);
+		penUp = !pe->isPenDown();
+		delete pe;
+		int32_t touchGUI = GUIListProcessor::process(TouchPosInBuf, &MenuList,(sizeof(Items) / sizeof(Items[0])));
+		if(touchGUI==GUIListProcessor::NO_GUI_ITEM_HIT
+				|| touchGUI==GUIListProcessor::GUI_HEADER_HIT) {
+			pe = nullptr;
+		}
+	}
+	if (pe || !GUIListProcessor::process(&MenuList,(sizeof(Items) / sizeof(Items[0]))))
 	{
-		if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1))
+		if (penUp || DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1))
 		{
 			switch (MenuList.selectedItem)
 			{
@@ -111,6 +147,7 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 
 ErrorType MenuState::onShutdown() {
 	//MenuList.selectedItem = 0;
+	DN8App::get().getTouch().removeObserver(InternalQueueHandler);
 	return ErrorType();
 }
 

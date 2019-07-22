@@ -3,11 +3,14 @@
 
 #include "dn8base_menu.h"
 
+namespace libesp {
+	class TouchNotification;
+}
+
 class TestMenu: public DN8BaseMenu {
 public:
-	static const uint16_t MAX_MSG_LEN = 64;
-public:
-
+	static const int QUEUE_SIZE = 10;
+	static const int MSG_SIZE = sizeof(libesp::TouchNotification*);
 public:
 	TestMenu();
 	virtual ~TestMenu();
@@ -16,9 +19,12 @@ protected:
 	virtual libesp::BaseMenu::ReturnStateContext onRun();
 	virtual libesp::ErrorType onShutdown();
 private:
-	static const uint32_t EXIT_COUNT = 20;
 	libesp::GUIListData ButtonList;
-	libesp::GUIListItemData Items[8];
-	uint32_t TimesMidHasBeenHeld;
+	libesp::GUIListItemData Items[9];
+	int32_t PenX;
+	int32_t PenY;
+	int32_t PenZ;
+	bool IsPenDown;
+	QueueHandle_t InternalQueueHandler;
 };
 #endif

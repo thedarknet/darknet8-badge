@@ -70,7 +70,7 @@ libesp::ScalingBuffer FrameBuf(&Display, DN8App::FRAME_BUFFER_WIDTH, DN8App::FRA
 
 GUI DN8Gui(&Display);
 ContactStore MyContactStore(0, 0, 0, 0,	0, 0);
-XPT2046 TouchTask(4,25,PIN_NUM_TOUCH_IRQ);
+XPT2046 TouchTask(PIN_NUM_TOUCH_IRQ,true);
 BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
 ButtonInfo MyButtons;
