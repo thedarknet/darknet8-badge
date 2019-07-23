@@ -2,7 +2,7 @@
 #define GAME_OF_LIFE_H
 
 #include "dn8base_menu.h"
-#include "libesp/utility/bitarray.h"
+#include "utility/bitarray.h"
 #include "../app.h"
 
 class GameOfLife: public DN8BaseMenu {

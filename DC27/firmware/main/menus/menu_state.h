@@ -2,8 +2,7 @@
 #define DN8_MENU_STATE_H
 
 #include "dn8base_menu.h"
-#include <libesp/device/display/gui.h>
-#include <libesp/device/touch/XPT2046.h>
+#include <device/touch/XPT2046.h>
 
 class MenuState: public DN8BaseMenu {
 public:

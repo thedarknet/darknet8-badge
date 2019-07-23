@@ -9,7 +9,7 @@
 #include <string>
 #include "../app.h"
 #include "../buttons.h"
-#include <libesp/freertos.h>
+#include <freertos.h>
 
 using libesp::RGBColor;
 using libesp::FreeRTOS;

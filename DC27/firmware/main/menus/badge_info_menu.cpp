@@ -8,7 +8,7 @@
 #include "gui_list_processor.h"
 #include "../app.h"
 #include "../buttons.h"
-#include <libesp/system.h>
+#include <system.h>
 
 using libesp::RGBColor;
 using libesp::ErrorType;

@@ -5,7 +5,7 @@
 #include <esp_log.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-#include <libesp/task.h>
+#include "task.h"
 
 #include "esp_bt.h"
 #include "esp_gap_ble_api.h"

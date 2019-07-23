@@ -5,10 +5,10 @@
  */
 
 #include "gui_list_processor.h"
-#include <libesp/device/display/gui.h>
+#include <device/display/gui.h>
 #include "../app.h"
 #include "../buttons.h"
-#include <libesp/device/display/display_device.h>
+#include <device/display/display_device.h>
 #include <esp_log.h>
 
 using namespace libesp;

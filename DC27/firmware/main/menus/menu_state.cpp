@@ -7,7 +7,7 @@
 #include "scan.h"
 #include "../KeyStore.h"
 #include "setting_state.h"
-#include <libesp/app/display_message_state.h>
+#include <app/display_message_state.h>
 #include "game_of_life.h"
 #include "badge_info_menu.h"
 #include "ota_menu.h"

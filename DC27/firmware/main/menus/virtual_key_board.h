@@ -7,7 +7,7 @@
 #ifndef DARKNET_MENUS_VIRTUAL_KEY_BOARD_H_
 #define DARKNET_MENUS_VIRTUAL_KEY_BOARD_H_
 
-#include <libesp/device/display/display_device.h>
+#include <device/display/display_device.h>
 
 class VirtualKeyBoard {
 public:

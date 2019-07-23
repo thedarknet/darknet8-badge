@@ -5,11 +5,11 @@
  */
 
 #include "setting_state.h"
-#include <libesp/device/display/display_device.h>
+#include <device/display/display_device.h>
 #include "menu_state.h"
 #include "../app.h"
 #include "../buttons.h"
-#include <libesp/app/display_message_state.h>
+#include <app/display_message_state.h>
 
 using libesp::ErrorType;
 using libesp::BaseMenu;

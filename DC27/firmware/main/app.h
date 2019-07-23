@@ -7,7 +7,7 @@
 #ifndef DC27_APP_H
 #define DC27_APP_H
 
-#include <libesp/app/app.h>
+#include <app/app.h>
 
 namespace libesp {
 class GUI;

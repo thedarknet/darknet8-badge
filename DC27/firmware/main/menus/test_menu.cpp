@@ -2,7 +2,7 @@
 #include "menu_state.h"
 #include "../app.h"
 #include "../buttons.h"
-#include <libesp/math/point.h>
+#include <math/point.h>
 #include "calibration_menu.h"
 
 using libesp::ErrorType;

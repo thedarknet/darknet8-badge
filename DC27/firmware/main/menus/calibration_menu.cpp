@@ -1,8 +1,8 @@
 #include "calibration_menu.h"
 #include "menu_state.h"
 #include "../app.h"
-#include <libesp/math/point.h>
-#include <libesp/device/display/display_device.h>
+#include <math/point.h>
+#include <device/display/display_device.h>
 #include "../buttons.h"
 #include <esp_log.h>
 

@@ -1,9 +1,9 @@
 #include "game_of_life.h"
 #include <stdlib.h>
-#include <libesp/device/display/display_device.h>
+#include <device/display/display_device.h>
 #include "menu_state.h"
 #include "../app.h"
-#include <libesp/freertos.h>
+#include <freertos.h>
 #include "../buttons.h"
 
 using libesp::ErrorType;

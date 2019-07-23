@@ -9,7 +9,7 @@
 #define LIBESP_GUI_LIST_PROCESSOR_H_
 
 #include <stdint.h>
-#include <libesp/math/point.h>
+#include <math/point.h>
 
 namespace libesp {
 	class GUIListData;

@@ -8,7 +8,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "freertos/queue.h"
-#include "libesp/task.h"
+#include "task.h"
 
 QueueHandle_t GetGameMsgQueue(void);
 

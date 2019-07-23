@@ -7,8 +7,8 @@
 #include "driver/spi_master.h"
 #include "soc/gpio_struct.h"
 
-#include <libesp/system.h>
-#include <libesp/i2c.hpp>
+#include "system.h"
+#include "i2c.hpp"
 #include <esp_log.h>
 
 #include "nvs_flash.h"

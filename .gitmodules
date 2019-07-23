@@ -4,3 +4,6 @@
 [submodule "DC27/firmware/components/libesp"]
 	path = DC27/firmware/components/libesp
 	url = https://github.com/cmdc0de/libesp
+[submodule "DC27/firmware/components/cryptoauthlib"]
+	path = DC27/firmware/components/cryptoauthlib
+	url = https://github.com/cmdc0de/cryptoauthlib.git

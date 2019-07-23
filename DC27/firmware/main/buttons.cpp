@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include "buttons.h"
 #include "driver/gpio.h"
-#include "libesp/freertos.h"
+#include "freertos.h"
 
 using libesp::FreeRTOS;
 /*

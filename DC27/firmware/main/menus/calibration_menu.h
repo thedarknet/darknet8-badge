@@ -2,10 +2,10 @@
 #define DN8_CALIBRATION_MENU_H
 
 #include "dn8base_menu.h"
-#include <libesp/math/point.h>
-#include <libesp/device/touch/XPT2046.h>
-#include <libesp/nvs_memory.h>
-#include <libesp/math/point.h>
+#include <math/point.h>
+#include <device/touch/XPT2046.h>
+#include <nvs_memory.h>
+#include <math/point.h>
 
 class CalibrationMenu : public DN8BaseMenu {
 public:
