@@ -19,11 +19,11 @@ protected:
 	virtual libesp::ErrorType onInit();
 	virtual libesp::BaseMenu::ReturnStateContext onRun();
 	virtual libesp::ErrorType onShutdown();
-	const char *getRegCode(ContactStore &cs);
+	const char *getRegCode();
 private:
 	libesp::GUIListData BadgeInfoList;
 	libesp::GUIListItemData Items[9];
-	char RegCode[18];
+	char RegCode[19];
 };
 
 

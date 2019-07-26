@@ -9,6 +9,7 @@
 #include "../app.h"
 #include "../buttons.h"
 #include <system.h>
+#include "cryptoauthlib.h"
 
 using libesp::RGBColor;
 using libesp::ErrorType;
@@ -24,21 +25,13 @@ BadgeInfoMenu::~BadgeInfoMenu() {
 
 }
 
-const char *BadgeInfoMenu::getRegCode(ContactStore &cs) {
-/*
+const char *BadgeInfoMenu::getRegCode() {
 	if (RegCode[0] == 0) {
-		ShaOBJ hashObj;
-		sha256_init(&hashObj);
-		sha256_add(&hashObj, cs.getMyInfo().getPrivateKey(),
-				ContactStore::PRIVATE_KEY_LENGTH);
-		uint16_t id = cs.getMyInfo().getUniqueID();
-		sha256_add(&hashObj, (uint8_t *) &id, sizeof(id));
-		uint8_t rH[SHA256_HASH_SIZE];
-		sha256_digest(&hashObj, &rH[0]);
-		sprintf(&RegCode[0], "%02x%02x%02x%02x%02x%02x%02x%02x", rH[0], rH[1],
-				rH[2], rH[3], rH[4], rH[5], rH[6], rH[7]);
+		uint8_t rH[9];
+		ATCA_STATUS status = atcab_read_serial_number(&rH[0]);
+		sprintf(&RegCode[0], "%02x%02x%02x%02x%02x%02x%02x%02x%02x", rH[0], rH[1],
+				rH[2], rH[3], rH[4], rH[5], rH[6], rH[7], rH[8]);
 	}
-*/
 	return &RegCode[0];
 }
 
@@ -48,7 +41,7 @@ ErrorType BadgeInfoMenu::onInit() {
 	clearListBuffer();
 	sprintf(getRow(0), "Name: %s", "NOT DONE"); //DN8App::get().getContacts().getSettings().getAgentName());
 	sprintf(getRow(1), "Num contacts: %u", 0); //DN8App::get().getContacts().getSettings().getNumContacts());
-	sprintf(getRow(2), "REG: %s", "NOT DONE"); //getRegCode(DN8App::get().getContacts()));
+	sprintf(getRow(2), "REG: %s", getRegCode());
 	sprintf(getRow(3), "UID: %u", 0); //DN8App::get().getContacts().getMyInfo().getUniqueID());
 	uint8_t fake[24] = {1};
 	uint8_t *pCP =	&fake[0]; //DN8App::get().getContacts().getMyInfo().getCompressedPublicKey();
