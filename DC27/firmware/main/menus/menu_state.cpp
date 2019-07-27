@@ -10,6 +10,7 @@
 #include <app/display_message_state.h>
 #include "game_of_life.h"
 #include "badge_info_menu.h"
+#include "pairing_menu.h"
 #include "ota_menu.h"
 #include "communications_settings.h"
 #include <esp_log.h>
@@ -134,6 +135,9 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 					break;
 				case 9:
 					nextState = DN8App::get().getOTAMenu();
+					break;
+				case 9:
+					nextState = DN8App::get().getPairingMenu();
 					break;
 			}
 		}

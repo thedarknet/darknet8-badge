@@ -35,7 +35,6 @@ class GameTask;
 class ExploitableGameTask;
 class BrainfuzzGameTask;
 class TTT3DGameTask;
-class OTATask;
 class ButtonInfo;
 class MenuState;
 class CalibrationMenu;
@@ -71,7 +70,6 @@ public:
 	ExploitableGameTask &getExploitTask();
 	BrainfuzzGameTask &getBrainfuzzTask();
 	TTT3DGameTask &getTTT3DTask();
-	OTATask &getOTATask();
 	uint16_t getCanvasWidth();
 	uint16_t getCanvasHeight();
 	uint16_t getLastCanvasWidthPixel();
@@ -86,6 +84,7 @@ public:
 	CommunicationSettingState *getCommunicationSettingState();
 	BadgeInfoMenu *getBadgeInfoMenu();
 	OTAMenu *getOTAMenu();
+	PairingMenu *getPairingMenu();
 	GameOfLife *getGameOfLifeMenu();
 	Scan *getWifiScanMenu();
 	SettingMenu *getSettingsMenu();

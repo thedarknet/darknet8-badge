@@ -24,6 +24,7 @@
 #include "menus/badge_info_menu.h"
 #include "menus/game_of_life.h"
 #include "menus/ota_menu.h"
+#include "menus/pairing_menu.h"
 #include "menus/scan.h"
 #include "menus/setting_state.h"
 #include "menus/test_menu.h"
@@ -241,6 +242,7 @@ libesp::DisplayMessageState DMS;
 CommunicationSettingState MyCommunicationSettingState;
 BadgeInfoMenu MyBadgeInfoMenu;
 OTAMenu MyOTAMenu;
+PairingMenu MyPairingMenu;
 GameOfLife MyGameOfLife;
 Scan MyWifiScan;
 SettingMenu MySettingMenu;
@@ -252,6 +254,10 @@ BadgeInfoMenu *DN8App::getBadgeInfoMenu() {
 
 OTAMenu *DN8App::getOTAMenu() {
 	return &MyOTAMenu;
+}
+
+PairingMenu *DN8App::getPairingMenu() {
+	return &MyPairingMenu;
 }
 
 GameOfLife *DN8App::getGameOfLifeMenu() {
