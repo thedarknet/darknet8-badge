@@ -42,6 +42,7 @@ class ContactStore;
 class CommunicationSettingState;
 class BadgeInfoMenu;
 class OTAMenu;
+class PairingMenu;
 class GameOfLife;
 class Scan;
 class SettingMenu;

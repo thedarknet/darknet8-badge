@@ -7,23 +7,28 @@
 
 #include "dn8base_menu.h"
 
-class ContactStore;
+//class ContactStore; // FIXME
 
 class PairingMenu: public DN8BaseMenu {
 public:
 	struct AliceInitConvo {
         uint8_t irmsgid;
-        uint8_t AlicePublicKey[ContactStore::PUBLIC_KEY_COMPRESSED_LENGTH];
+        //uint8_t AlicePublicKey[ContactStore::PUBLIC_KEY_COMPRESSED_LENGTH]; // TODO
+		uint8_t AlicePublicKey[100]; // FIXME
         uint16_t AliceRadioID;
-        char AliceName[ContactStore::AGENT_NAME_LENGTH];
+        //char AliceName[ContactStore::AGENT_NAME_LENGTH]; // TODO
+        char AliceName[32]; // FIXME
 	};
 
     struct BobReplyToInit {
         uint8_t irmsgid;
-        uint8_t BoBPublicKey[ContactStore::PUBLIC_KEY_COMPRESSED_LENGTH];
+        //uint8_t BoBPublicKey[ContactStore::PUBLIC_KEY_COMPRESSED_LENGTH]; // TODO
+        uint8_t BoBPublicKey[100]; // FIXME
         uint16_t BoBRadioID;
-        char BobAgentName[ContactStore::AGENT_NAME_LENGTH];
-        uint8_t SignatureOfAliceData[ContactStore::SIGNATURE_LENGTH];
+        //char BobAgentName[ContactStore::AGENT_NAME_LENGTH]; // TODO
+        char BobAgentName[32]; // FIXME
+        //uint8_t SignatureOfAliceData[ContactStore::SIGNATURE_LENGTH]; // TODO
+        uint8_t SignatureOfAliceData[128]; // FIXME
     };  
 
     struct AliceToBobSignature {
@@ -49,7 +54,7 @@ private:
 	// Internal State information
 	INTERNAL_STATE InternalState;
 	uint32_t ESPRequestID;
-	uin32_t timesRunCalledSinceReset;
+	uint32_t timesRunCalledSinceReset;
 
 	// Pairing State information
 	uint16_t TimeoutMS;

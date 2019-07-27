@@ -8,23 +8,19 @@
 #include "gui_list_processor.h"
 #include "../app.h"
 #include "../buttons.h"
-#include <system.h>
-#include "cryptoauthlib.h"
+//#include <system.h>
+//#include "cryptoauthlib.h"
 
 using libesp::RGBColor;
 using libesp::ErrorType;
 using libesp::BaseMenu;
 
-PairingMenu::PairingMenu() : DN8BaseMenu(), 
-	PairingList("Pairing", 0, 0, DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel(), 0) {
-}
+PairingMenu::PairingMenu() : DN8BaseMenu() { }
 
-PairingMenu::~PairingMenu() {
-
-}
+PairingMenu::~PairingMenu() { }
 
 ErrorType PairingMenu::onInit() {
-	InternalState = FETCHING_DATA;
+	InternalState = NEGOTIATE;
 
 	this->timesRunCalledSinceReset = 0;
 	this->msgId = 1;
@@ -34,7 +30,7 @@ ErrorType PairingMenu::onInit() {
 	memset(&ATBS, 0, sizeof(ATBS));
 
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
-	DN8App::get().getGUI().drawString(5, 10, (const char*)"Pairing...", RGBColor::BLUE);
+	DN8App::get().getDisplay().drawString(5, 10, (const char*)"Pairing...", RGBColor::BLUE);
 
 	return ErrorType();
 }
@@ -51,7 +47,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			// Alice: ALICE_SEND_AIC
 			// Bob: BOB_RECEIVE_AIC
 		if (this->timesRunCalledSinceReset > 500)
-			InternalState == PAIRING_FAILED;
+			InternalState = PAIRING_FAILED;
 	}
 	else if (InternalState == ALICE_INIT)
 	{
@@ -59,9 +55,9 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 		AIC.irmsgid = ALICE_INIT;
 		//memcpy(&AIC.AlicePublicKey[0], DN8App::get().getCompressedPublicKey(), // TODO
 			//sizeof(AIC.AlicePublicKey));
-		AIC.AlicRadioID = DN8App::get().getContacts().getMyInfo().getUniqueId();
-		strncpy(&AIC.AliceName[0], DN8APP::get().getContacts.getSettings.getAgentName(),
-			sizeof(AIC.AliceName));
+		//AIC.AliceRadioID = DN8App::get().getContacts().getMyInfo().getUniqueId();
+		//strncpy(&AIC.AliceName[0], DN8APP::get().getContacts.getSettings.getAgentName(),
+			//sizeof(AIC.AliceName));
 
 		// TODO: Send AIC Message
 
@@ -71,6 +67,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 	{
 		if (false) // TODO: Receive AIC
 		{
+			uint8_t signature[128]; // FIXME: magic number
 			// TODO: Sign or hash the data
 			/* SHA256 code
 			uint8_t message_hash[SHA256_HASH_SIZE];
@@ -93,9 +90,9 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			//BRTI.BoBRadioID = DN8App::get().getContacts.getMyInfo().getUniqueId();
 			//memcpy(&BRTI.BoBPublicKey[0],DN8App::get().getCompressedPublicKey(), // TODO
 				//sizeof(BRTI.BoBPublicKey));
-			strncpy(&BRTI.BobAgentName[0],
-				DN8App::get().getContacts()::getSettings().getAgentName(),
-				sizeof(BRTI.BobAgentName));
+			//strncpy(&BRTI.BobAgentName[0],
+			//	DN8App::get().getContacts().getSettings().getAgentName(), // FIXME
+			//	sizeof(BRTI.BobAgentName));
 			memcpy(&BRTI.SignatureOfAliceData[0], &signature[0],
 				sizeof(BRTI.SignatureOfAliceData));
 			// TODO: Send BRTI Message
@@ -104,7 +101,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 		}
 
 		if (this->timesRunCalledSinceReset > 500)
-			InternalState == PAIRING_FAILED;
+			InternalState = PAIRING_FAILED;
 	}
 	else if (InternalState == ALICE_RECEIVE_BRTI)
 	{
@@ -134,17 +131,19 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			// TODO: actually send ATBS
 			*/
 
-			// Add to contacts
+			// TODO Add to contacts
+			/*
 			if (!DN8App::get().getContacts().findContactByID(BRTI->BobRadioID, c))
 			{
 				DN8App::get().getContacts().addContact(BRTI->BobRadioID, &BRTI->BobAgentName[0],
 					&BRTI->BoBPublicKey[0], &BRTI->SignatureOfAliceData[0]);
 			}
+			*/
 
 			InternalState = PAIRING_SUCCESS;
 		}
 		if (this->timesRunCalledSinceReset > 500)
-			InternalState == PAIRING_FAILED;
+			InternalState = PAIRING_FAILED;
 	}
 	else if (InternalState == BOB_RECEIVE_ATBS)
 	{
@@ -187,21 +186,17 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			*/
 		}
 		if (this->timesRunCalledSinceReset > 500)
-			InternalState == PAIRING_FAILED;
+			InternalState = PAIRING_FAILED;
 	}
 	else if (InternalState == PAIRING_SUCCESS)
 	{
 		// TODO: Display Success
 		// TODO: nextState = getMenu()
-		if (this->timesRunCalledSinceReset > 500)
-			InternalState == PAIRING_FAILED;
 	}
 	else if (InternalState == PAIRING_FAILED)
 	{
 		// TODO: Display Error
 		// TODO: nextState = getMenu()
-		if (this->timesRunCalledSinceReset > 500)
-			InternalState == PAIRING_FAILED;
 	}
 
 	this->timesRunCalledSinceReset += 1;
