@@ -92,7 +92,7 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 		case 100:
 			VKB.process();
 			if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1) && AgentName[0] != '\0' && AgentName[0] != ' ' && AgentName[0] != '_') {
-				AgentName[ContactStore::AGENT_NAME_LENGTH - 1] = '\0';
+				AgentName[Contact::AGENT_NAME_LENGTH - 1] = '\0';
 				if (DN8App::get().getContacts().getSettings().setAgentname(&AgentName[0])) {
 					nextState = DN8App::get().getDisplayMessageState(	DN8App::get().getMenuState(), (const char *)"Save Successful", 2000);
 				} else {

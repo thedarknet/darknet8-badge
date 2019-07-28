@@ -1,63 +1,139 @@
 #include "KeyStore.h"
 #include <string.h>
+#include <error_type.h>
+#include <nvs_memory.h>
+#include <esp_log.h>
+#include <cryptoauthlib.h>
 
+using libesp::ErrorType;
+using libesp::NVS;
 
-ContactStore::SettingsInfo::SettingsInfo(uint8_t sector, uint32_t offSet, uint8_t endSector) :
-		SettingSector(sector), OffSet(offSet), EndSettingSector(endSector), AgentName() {
-	CurrentAddress = getStartAddress();
+static NVS NVSContact("nvs","contact", false);
+
+/////////////////////////////////////////////////////////////////////////////////
+// Contact
+Contact::Contact() : ContactData() {
+	memset(&ContactData,0,sizeof(ContactData));
+}
+
+bool Contact::isValidContact() const {
+	int ret = 0;
+	for(int i=0;i<Contact::CONTACT_ID_SIZE && ret==0;++i) {
+		if(ContactData.ContactID[i]!=0) ret|=1;
+	}
+	if(ret && ContactData.AgentName[0]!='\0') {
+		ret = 0;
+		for(int i=0;i<Contact::PUBLIC_KEY_LENGTH && ret==0;++i) {
+			if(ContactData.PublicKey[i]!=0) ret|=1;
+		}
+		if(ret!=0) {
+			ret = 0;
+			for(int i=0;i<Contact::SIGNATURE_LENGTH && ret==0;++i) {
+				if(ContactData.PairSig[i]!=0) ret|=1;
+			}
+		}
+	}
+	return ret==1;
+}
+
+const  uint8_t *Contact::getUniqueID() {
+	return &ContactData.ContactID[0];
+}
+
+const char *Contact::getAgentName() {
+	return &ContactData.AgentName[0];
+}
+
+const uint8_t *Contact::getPublicKey() {
+	return &ContactData.PublicKey[0];
+}
+
+const uint8_t *Contact::getPairingSignature() {
+	return &ContactData.PairSig[0];
+}
+
+void Contact::setUniqueID(uint8_t contactID[Contact::CONTACT_ID_SIZE]) {
+	memcpy(&ContactData.ContactID[0],&contactID[0],Contact::CONTACT_ID_SIZE);
+}
+
+void Contact::setAgentname(const char name[Contact::AGENT_NAME_LENGTH]) {
+	memcpy(&ContactData.AgentName[0],&name[0],Contact::AGENT_NAME_LENGTH);
+}
+
+void Contact::setPublicKey(uint8_t key[Contact::PUBLIC_KEY_LENGTH]) {
+	memcpy(&ContactData.PublicKey[0],&key[0],Contact::PUBLIC_KEY_LENGTH);
+}
+
+void Contact::setPairingSignature(const uint8_t sig[Contact::SIGNATURE_LENGTH]) {
+	memcpy(&ContactData.PairSig[0],&sig[0],Contact::SIGNATURE_LENGTH);
+}
+
+void Contact::toString(char buf[CONTACT_ID_SIZE*2+1]) const {
+		sprintf(&buf[0],"%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+				int32_t(ContactData.ContactID[0]),
+				int32_t(ContactData.ContactID[1]),
+				int32_t(ContactData.ContactID[2]),
+				int32_t(ContactData.ContactID[3]),
+				int32_t(ContactData.ContactID[4]),
+				int32_t(ContactData.ContactID[5]),
+				int32_t(ContactData.ContactID[6]),
+				int32_t(ContactData.ContactID[7]),
+				int32_t(ContactData.ContactID[8]));
+}
+
+bool Contact::save(libesp::NVS &nvs) const {
+	if(isValidContact()) {
+		char buf[(CONTACT_ID_SIZE*2)+1] = {'\0'};
+		toString(buf);
+		ErrorType et = nvs.setBlob(&buf[0],&ContactData,sizeof(ContactData));
+		return et.ok();
+	}
+	return false;
+}
+
+////////////////////////////////////////////////
+static NVS NVSMe("nvs","me", false);
+const char *ContactStore::LOGTAG = "ContactStore";
+
+//////////////////////////////////////////////////////////////////
+// SettingInfo
+ContactStore::SettingsInfo::SettingsInfo() : AgentName(), Data() {
+	Data.Settings.ScreenSaverTime = 1;
+	Data.Settings.ScreenSaverType = 0;
+	Data.Settings.SleepTimer = 3;
 	memset(&AgentName[0], 0, sizeof(AgentName));
 }
 
 bool ContactStore::SettingsInfo::init() {
-	//couldn't find DS
-	CurrentAddress = getEndAddress();
-	DataStructure ds;
-	ds.Health = 0; //0x1FE; //all the virus
-	ds.ScreenSaverTime = 1;
-	ds.ScreenSaverType = 0;
-	ds.SleepTimer = 3;
-	ds.NumContacts = 0;
-	return writeSettings(ds);
-}
-
-uint32_t ContactStore::SettingsInfo::getStartAddress() {
-	return 0;
-}
-
-uint32_t ContactStore::SettingsInfo::getEndAddress() {
-	return 0;
-}
-
-bool ContactStore::SettingsInfo::setAgentname(const char name[AGENT_NAME_LENGTH]) {
-	strncpy(&AgentName[0], &name[0], sizeof(AgentName));
-	DataStructure ds = getSettings();
-	return writeSettings(ds);
-}
-
-bool ContactStore::SettingsInfo::setHealth(uint16_t v) {
-	DataStructure ds = getSettings();
-	if(v==CLEAR_ALL) {
-		ds.Health = 0;
-	} else {
-		ds.Health|=v;
+	ErrorType et;
+	if(NVSMe.getValue("mysetting",Data.Blob)==ESP_ERR_NVS_NOT_FOUND) {
+		Data.Settings.ScreenSaverTime = 1;
+		Data.Settings.ScreenSaverType = 0;
+		Data.Settings.SleepTimer = 3;
+		et = NVSMe.setValue("mysetting",Data.Blob);
 	}
-	return writeSettings(ds);
+	if(et.ok()) {
+		uint32_t length = sizeof(AgentName);
+		NVSMe.getValue("myname",&AgentName[0],length);
+		if(et.ok()) {
+			if(!(et = NVSMe.getValue("mysetting",Data.Blob)).ok()) {
+				ESP_LOGE(LOGTAG,"%s",et.toString());
+			}
+		} else {
+			ESP_LOGE(LOGTAG,"%s",et.toString());
+		}
+	} else {
+		ESP_LOGE(LOGTAG,"%s",et.toString());
+	}
+	return et.ok();
 }
 
-uint16_t ContactStore::SettingsInfo::getHealth() {
-	DataStructure ds = getSettings();
-	return (ds.Health & 0xFFFF);
-}
-
-bool ContactStore::SettingsInfo::isInfectedWith(uint16_t v) {
-	DataStructure ds = getSettings();
-	return ((v&ds.Health)==v);
-}
-
-bool ContactStore::SettingsInfo::cure(uint16_t v) {
-	DataStructure ds = getSettings();
-	ds.Health = (ds.Health&~v);
-	return writeSettings(ds);
+bool ContactStore::SettingsInfo::setAgentname(const char name[Contact::AGENT_NAME_LENGTH]) {
+	strncpy(&AgentName[0], &name[0], sizeof(AgentName));
+	if(NVSMe.setValue("myname",&AgentName[0]).ok()) {
+		return NVSMe.commit().ok();
+	}
+	return false;
 }
 
 bool ContactStore::SettingsInfo::isNameSet() {
@@ -68,92 +144,109 @@ const char *ContactStore::SettingsInfo::getAgentName() {
 	return &AgentName[0];
 }
 
-uint32_t ContactStore::SettingsInfo::getVersion() {
-	return *((uint32_t*) CurrentAddress);
-}
-
-uint8_t ContactStore::SettingsInfo::getNumContacts() {
-	DataStructure ds = getSettings();
-	return ds.NumContacts;
-}
-
-ContactStore::SettingsInfo::DataStructure ContactStore::SettingsInfo::getSettings() {
-	return *((ContactStore::SettingsInfo::DataStructure*) (CurrentAddress + sizeof(uint32_t)));
-}
-
 void ContactStore::SettingsInfo::resetToFactory() {
-	{
-	}
+	NVSMe.eraseKey("myname");
+	NVSMe.eraseKey("mysetting");
+	NVSMe.commit();
 	init();
 }
 
-bool ContactStore::SettingsInfo::writeSettings(const DataStructure &ds) {
-	return true;
-}
-
-uint8_t ContactStore::SettingsInfo::setNumContacts(uint8_t num) {
-	return 0;
-}
-
 bool ContactStore::SettingsInfo::setScreenSaverType(uint8_t value) {
-	DataStructure ds = getSettings();
-	ds.ScreenSaverType = value & 0xF;
-	return writeSettings(ds);
+	Data.Settings.ScreenSaverType = value & 0xF;
+	return NVSMe.setValue("mysetting",Data.Blob).ok();
 }
 
 uint8_t ContactStore::SettingsInfo::getScreenSaverType() {
-	DataStructure ds = getSettings();
-	return ds.ScreenSaverType;
+	return Data.Settings.ScreenSaverType;
 }
 
 bool ContactStore::SettingsInfo::setScreenSaverTime(uint8_t value) {
-	DataStructure ds = getSettings();
-	ds.ScreenSaverTime = value & 0xF;
-	return writeSettings(ds);
+	Data.Settings.ScreenSaverTime = value & 0xF;
+	return NVSMe.setValue("mysetting",Data.Blob).ok();
 }
 
 uint8_t ContactStore::SettingsInfo::getScreenSaverTime() {
-	return getSettings().ScreenSaverTime;
+	return Data.Settings.ScreenSaverTime;
 }
 
 bool ContactStore::SettingsInfo::setSleepTime(uint8_t n) {
-	DataStructure ds = getSettings();
-	ds.SleepTimer = n & 0xF;
-	return writeSettings(ds);
+	Data.Settings.SleepTimer = n & 0xF;
+	return NVSMe.setValue("mysetting",Data.Blob).ok();
 }
 
 uint8_t ContactStore::SettingsInfo::getSleepTime() {
-	return getSettings().SleepTimer;
+	return Data.Settings.SleepTimer;
 }
 
 // MyInfo
 //===========================================================
-ContactStore::MyInfo::MyInfo(uint32_t startAddress) :
-		StartAddress(startAddress) {
-
+ContactStore::MyInfo::MyInfo():UniqueID(), PublicKey(), Flags(0) {
+	memset(&UniqueID[0],0,sizeof(UniqueID));
+	memset(&PublicKey[0],0,sizeof(PublicKey));
 }
 
 bool ContactStore::MyInfo::init() {
-	return (*(uint16_t*) StartAddress) == 0xdcdc;
+	//init crytpo
+	//load serial
+	//load public key
+	//load flags
+	ATCAIfaceCfg *gCfg = &cfg_ateccx08a_i2c_default;
+	ATCA_STATUS status = ATCA_GEN_FAIL;
+	uint8_t random_number[32];
+	uint8_t serial_number[9];
+
+	gCfg->iface_type = ATCA_I2C_IFACE,
+	gCfg->devtype = ATECC608A,
+	gCfg->atcai2c.slave_address = 0xC0;  // Detected correctly!!
+	gCfg->atcai2c.bus = 0;
+	gCfg->atcai2c.baud = 400000;
+	gCfg->wake_delay = 800;
+	gCfg->rx_retries = 20;
+
+	status = atcab_init(gCfg);
+
+	if (status == ATCA_SUCCESS) {
+		uint8_t ret[4];
+		status = atcab_selftest(SELFTEST_MODE_ALL,0,&ret[0]);
+		ESP_LOGI(LOGTAG, "selft test status %d, result: %d",status, int32_t(ret[0]));
+		  
+		status = atcab_info(&ret[0]);
+		ESP_LOGI(LOGTAG, "info status %d",status );
+		ESP_LOG_BUFFER_HEX(LOGTAG, &ret[0],sizeof(ret));
+
+		uint32_t counter = 0;
+		status = atcab_counter_read(1,&counter);
+		ESP_LOGI(LOGTAG, "counter status %d, counter %d",status, counter );
+		status = atcab_counter_increment(1,&counter);
+		ESP_LOGI(LOGTAG, "counter status %d, counter %d",status, counter );
+		status = atcab_counter_increment(1,&counter);
+		ESP_LOGI(LOGTAG, "counter status %d, counter %d",status, counter );
+
+		status = atcab_random(random_number);
+		ESP_LOGI(LOGTAG, "\tRandom: %i", status);
+		ESP_LOG_BUFFER_HEX(LOGTAG, &random_number[0],sizeof(random_number));
+
+		status = atcab_read_serial_number(serial_number);
+		ESP_LOGI(LOGTAG, "\tSerial: %i", status);
+		ESP_LOG_BUFFER_HEX(LOGTAG, &serial_number[0],sizeof(serial_number));
+
+		char s[10] = {'\0'};
+		status = atcab_version(s);
+		ESP_LOGI(LOGTAG, "version: status %d, version %s",status, s );
+		//status = atcab_release();
+		//ESP_LOGI(LOGTAG, "\tRelease: %i", status);
+    } else {
+        ESP_LOGE(LOGTAG, "\t- ERROR: %i", status);
+    }
+	return true;
 }
 
-uint8_t *ContactStore::MyInfo::getPrivateKey() {
-	return ((uint8_t*) (StartAddress + sizeof(uint16_t) + sizeof(uint16_t)));
+const uint8_t *ContactStore::MyInfo::getUniqueID() {
+	return &UniqueID[0];
 }
 
-uint16_t ContactStore::MyInfo::getUniqueID() {
-	return *((uint16_t*) (StartAddress + sizeof(uint16_t)));
-}
-
-//TODO make this a member var of MyInfo
-uint8_t publicKey[ContactStore::PUBLIC_KEY_LENGTH] = { 0 };
-uint8_t *ContactStore::MyInfo::getPublicKey() {
-	return 0;
-}
-
-uint8_t compressedPublicKey[ContactStore::PUBLIC_KEY_COMPRESSED_STORAGE_LENGTH] = { 0 };
-uint8_t *ContactStore::MyInfo::getCompressedPublicKey() {
-	return 0;
+const uint8_t *ContactStore::MyInfo::getPublicKey() {
+	return &PublicKey[0];
 }
 
 bool ContactStore::MyInfo::isUberBadge() {
@@ -161,47 +254,11 @@ bool ContactStore::MyInfo::isUberBadge() {
 }
 
 uint16_t ContactStore::MyInfo::getFlags() {
-	return 0;
+	return Flags;
 }
 
-/////////////////////////////////////////////////////////////////////////////////
-ContactStore::Contact::Contact(uint32_t startAddr) :
-		StartAddress(startAddr) {
-}
-
-uint16_t ContactStore::Contact::getUniqueID() {
-	return *((uint16_t*) StartAddress);
-}
-
-const char *ContactStore::Contact::getAgentName() {
-	return 0;
-}
-
-uint8_t *ContactStore::Contact::getCompressedPublicKey() {
-	return 0;
-}
-
-void ContactStore::Contact::getUnCompressedPublicKey(uint8_t key[PUBLIC_KEY_LENGTH]) {
-}
-
-uint8_t *ContactStore::Contact::getPairingSignature() {
-	return 0;
-}
-
-void ContactStore::Contact::setUniqueID(uint16_t id) {
-}
-
-void ContactStore::Contact::setAgentname(const char name[AGENT_NAME_LENGTH]) {
-}
-
-void ContactStore::Contact::setCompressedPublicKey(const uint8_t key1[PUBLIC_KEY_COMPRESSED_LENGTH]) {
-}
-
-void ContactStore::Contact::setPairingSignature(const uint8_t sig[SIGNATURE_LENGTH]) {
-}
 
 //====================================================
-
 ContactStore::MyInfo &ContactStore::getMyInfo() {
 	return MeInfo;
 }
@@ -210,12 +267,9 @@ ContactStore::SettingsInfo &ContactStore::getSettings() {
 	return Settings;
 }
 
-//ContactStore MyContacts( MyAddressInfoSector, MyAddressInfoOffSet, SettingSector, SettingOffset, StartContactSector, EndContactSector);
 //=============================================
-ContactStore::ContactStore(uint8_t myAddressInfoSector, uint32_t myAddressInfoOffset, uint8_t settingSector,
-	uint32_t settingOffset, uint8_t startContactSector, uint8_t endContactSector) : Settings(settingSector,settingOffset,settingSector+1), MeInfo(0), 
-		StartingContactSector(startContactSector), EndContactSector(endContactSector) {
-
+ContactStore::ContactStore() : Settings(), MeInfo(), MyIndex() {
+	memset(&MyIndex,0,sizeof(MyIndex));
 }
 
 void ContactStore::resetToFactory() {
@@ -223,27 +277,47 @@ void ContactStore::resetToFactory() {
 }
 
 bool ContactStore::init() {
-	if (getMyInfo().init() && Settings.init()) {
-		return true;
+	ErrorType et = NVSContact.init();
+	if(et.ok()) {
+		NVSContact.logInfo();
+		if(!(et = NVSMe.init()).ok()) {
+			ESP_LOGE(LOGTAG,"MyInfo init: %s", et.toString());
+		}
+		NVSMe.logInfo();
+	} else {
+		ESP_LOGE(LOGTAG,"MyInfo init: %s", et.toString());
+	}
+	if (et.ok() && getMyInfo().init() && Settings.init()) {
+		uint32_t len = sizeof(MyIndex);
+		et = NVSContact.getBlob("MyIndex",&MyIndex,len);
+		if(et==ESP_ERR_NVS_NOT_FOUND || et.ok()) {
+			return true;
+		} 
 	}
 	return false;
 }
 
-bool ContactStore::getContactAt(uint16_t numContact, Contact &c) {
-	return false;
-}
-
-bool ContactStore::findContactByID(uint16_t uid, Contact &c) {
-	return false;
-}
-
-bool ContactStore::addContact(uint16_t uid, char agentName[AGENT_NAME_LENGTH],
-		uint8_t key[PUBLIC_KEY_COMPRESSED_LENGTH], uint8_t sig[SIGNATURE_LENGTH]) {
-
+bool ContactStore::addContact(const Contact &c) {
+	if(c.save(NVSContact)) {
+		char buf[Contact::CONTACT_ID_SIZE*2+1];
+		c.toString(buf);
+		strcpy(MyIndex.ConIndex[MyIndex.NumContacts], &buf[0]);
+		MyIndex.NumContacts++;
+		ErrorType et = NVSContact.setBlob("MyIndex",&MyIndex,sizeof(MyIndex));
+		if(et.ok()) {
+			return true;
+		} else {
+			ESP_LOGE(LOGTAG,"add contact fail: %s", et.toString());
+		}
+	}
 	return false;
 }
 
 uint8_t ContactStore::getNumContactsThatCanBeStored() {
 	return MAX_CONTACTS;
+}
+
+uint8_t ContactStore::getNumContacts() {
+	return MyIndex.NumContacts;
 }
 
