@@ -70,7 +70,7 @@ uint16_t ParallelLinesBuffer[DN8App::DISPLAY_WIDTH*PARALLEL_LINES] = {0};
 libesp::ScalingBuffer FrameBuf(&Display, DN8App::FRAME_BUFFER_WIDTH, DN8App::FRAME_BUFFER_HEIGHT, uint8_t(16), DN8App::DISPLAY_WIDTH,DN8App::DISPLAY_HEIGHT, PARALLEL_LINES, (uint8_t*)&BackBuffer[0],(uint8_t*)&ParallelLinesBuffer[0]);
 
 GUI DN8Gui(&Display);
-ContactStore MyContactStore(0, 0, 0, 0,	0, 0);
+ContactStore MyContactStore;
 XPT2046 TouchTask(PIN_NUM_TOUCH_IRQ,true);
 BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
@@ -106,6 +106,8 @@ ButtonInfo &DN8App::getButtonInfo() {
 
 libesp::ErrorType DN8App::onInit() {
 	ErrorType et;
+
+	MyContactStore.init();
 
 	et = DN8CalibrationMenu.initNVS();
 	if(!et.ok()) {

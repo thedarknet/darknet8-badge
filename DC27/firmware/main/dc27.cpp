@@ -14,7 +14,6 @@
 #include "nvs_flash.h"
 
 #include "app.h"
-#include "cryptoauthlib.h"
 
 
 #define I2C_SCL GPIO_NUM_22
@@ -43,54 +42,6 @@ void app_main() {
 
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
-	ATCAIfaceCfg *gCfg = &cfg_ateccx08a_i2c_default;
-	ATCA_STATUS status = ATCA_GEN_FAIL;
-	uint8_t random_number[32];
-	uint8_t serial_number[9];
-
-	gCfg->iface_type = ATCA_I2C_IFACE,
-	gCfg->devtype = ATECC608A,
-	gCfg->atcai2c.slave_address = 0xC0;  // Detected correctly!!
-	gCfg->atcai2c.bus = 0;
-	gCfg->atcai2c.baud = 400000;
-	gCfg->wake_delay = 800;
-	gCfg->rx_retries = 20;
-
-	status = atcab_init(gCfg);
-
-	if (status == ATCA_SUCCESS) {
-		uint8_t ret[4];
-		status = atcab_selftest(SELFTEST_MODE_ALL,0,&ret[0]);
-		ESP_LOGI(LOGTAG, "selft test status %d, result: %d",status, int32_t(ret[0]));
-		  
-		status = atcab_info(&ret[0]);
-		ESP_LOGI(LOGTAG, "info status %d",status );
-		ESP_LOG_BUFFER_HEX(LOGTAG, &ret[0],sizeof(ret));
-
-		uint32_t counter = 0;
-		status = atcab_counter_read(1,&counter);
-		ESP_LOGI(LOGTAG, "counter status %d, counter %d",status, counter );
-		status = atcab_counter_increment(1,&counter);
-		ESP_LOGI(LOGTAG, "counter status %d, counter %d",status, counter );
-		status = atcab_counter_increment(1,&counter);
-		ESP_LOGI(LOGTAG, "counter status %d, counter %d",status, counter );
-
-		status = atcab_random(random_number);
-		ESP_LOGI(LOGTAG, "\tRandom: %i", status);
-		ESP_LOG_BUFFER_HEX(LOGTAG, &random_number[0],sizeof(random_number));
-
-		status = atcab_read_serial_number(serial_number);
-		ESP_LOGI(LOGTAG, "\tSerial: %i", status);
-		ESP_LOG_BUFFER_HEX(LOGTAG, &serial_number[0],sizeof(serial_number));
-
-		char s[10] = {'\0'};
-		status = atcab_version(s);
-		ESP_LOGI(LOGTAG, "version: status %d, version %s",status, s );
-		//status = atcab_release();
-		//ESP_LOGI(LOGTAG, "\tRelease: %i", status);
-    } else {
-        ESP_LOGE(LOGTAG, "\t- ERROR: %i", status);
-    }
 	
 	libesp::ErrorType et;
 	et = DN8App::get().init();
