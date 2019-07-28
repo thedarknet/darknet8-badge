@@ -22,6 +22,7 @@ enum ERRORS {
 	, BT_INIT_FAIL
 	, GAME_TASK_INIT_FAIL
 	, EXPLOIT_TASK_INIT_FAIL
+	, WIFI_TASK_INIT_FAIL
 	, BUTTON_INIT_FAIL
 };
 
@@ -32,9 +33,7 @@ public:
 
 class BluetoothTask;
 class GameTask;
-class ExploitableGameTask;
-class BrainfuzzGameTask;
-class TTT3DGameTask;
+class WIFITask;
 class ButtonInfo;
 class MenuState;
 class CalibrationMenu;
@@ -68,9 +67,7 @@ public:
 	virtual ~DN8App();
 	BluetoothTask &getBTTask();
 	GameTask &getGameTask();
-	ExploitableGameTask &getExploitTask();
-	BrainfuzzGameTask &getBrainfuzzTask();
-	TTT3DGameTask &getTTT3DTask();
+	WIFITask &getWifiTask();
 	uint16_t getCanvasWidth();
 	uint16_t getCanvasHeight();
 	uint16_t getLastCanvasWidthPixel();

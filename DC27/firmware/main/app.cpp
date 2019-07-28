@@ -15,6 +15,7 @@
 #include <device/touch/XPT2046.h>
 #include "./ble.h"
 #include "./game_master.h"
+#include "./wifi.h"
 #include "menus/menu_state.h"
 #include "buttons.h"
 #include "menus/calibration_menu.h"
@@ -23,7 +24,6 @@
 #include "menus/communications_settings.h"
 #include "menus/badge_info_menu.h"
 #include "menus/game_of_life.h"
-#include "menus/ota_menu.h"
 #include "menus/pairing_menu.h"
 #include "menus/scan.h"
 #include "menus/setting_state.h"
@@ -76,6 +76,7 @@ BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
 ButtonInfo MyButtons;
 CalibrationMenu DN8CalibrationMenu;
+WIFITask WifiTask("WifiTask");
 
 const char *DN8ErrorMap::toString(int32_t err) {
 	return "TODO";
@@ -161,6 +162,9 @@ libesp::ErrorType DN8App::onInit() {
 		if(!GMTask.init()) {
 			return ErrorType(GAME_TASK_INIT_FAIL);
 		}
+		if(!WifiTask.init()) {
+			return ErrorType(WIFI_TASK_INIT_FAIL);
+		}
 
 		if(!MyButtons.init()) {
 			return ErrorType(BUTTON_INIT_FAIL);
@@ -175,6 +179,7 @@ libesp::ErrorType DN8App::onInit() {
 	BTTask.start();
 	GMTask.start();
 	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
+	WifiTask.start();
 	
 	setCurrentMenu(getMenuState());
 	return et;
@@ -186,6 +191,10 @@ BluetoothTask &DN8App::getBTTask() {
 
 GameTask &DN8App::getGameTask() {
 	return GMTask;
+}
+
+WIFITask &DN8App::getWifiTask() {
+	return WifiTask;
 }
 
 uint16_t DN8App::getCanvasWidth() {
@@ -241,7 +250,6 @@ MenuState DN8MenuState;
 libesp::DisplayMessageState DMS;
 CommunicationSettingState MyCommunicationSettingState;
 BadgeInfoMenu MyBadgeInfoMenu;
-OTAMenu MyOTAMenu;
 PairingMenu MyPairingMenu;
 GameOfLife MyGameOfLife;
 Scan MyWifiScan;
@@ -250,10 +258,6 @@ TestMenu MyTestMenu;
 	
 BadgeInfoMenu *DN8App::getBadgeInfoMenu() {
 	return &MyBadgeInfoMenu;
-}
-
-OTAMenu *DN8App::getOTAMenu() {
-	return &MyOTAMenu;
 }
 
 PairingMenu *DN8App::getPairingMenu() {

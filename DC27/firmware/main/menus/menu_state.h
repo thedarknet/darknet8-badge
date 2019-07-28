@@ -16,7 +16,7 @@ protected:
 	virtual libesp::ErrorType onShutdown();
 private:
 	libesp::GUIListData MenuList;
-	libesp::GUIListItemData Items[10];
+	libesp::GUIListItemData Items[9];
 	QueueHandle_t InternalQueueHandler;
 };
 

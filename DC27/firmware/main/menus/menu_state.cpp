@@ -11,7 +11,6 @@
 #include "game_of_life.h"
 #include "badge_info_menu.h"
 #include "pairing_menu.h"
-#include "ota_menu.h"
 #include "communications_settings.h"
 #include <esp_log.h>
 
@@ -62,8 +61,6 @@ ErrorType MenuState::onInit() {
 	Items[7].text = (const char *) "Test Badge";
 	Items[8].id = 8;
 	Items[8].text = (const char *) "Calibrate Touch";
-	Items[9].id = 9;
-	Items[9].text = (const char *) "Badge Update";
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&this->MenuList);
 	//empty queue
@@ -134,9 +131,6 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 					break;
 				case 8:
 					nextState = DN8App::get().getCalibrationMenu();
-					break;
-				case 9:
-					nextState = DN8App::get().getOTAMenu();
 					break;
 			}
 		}
