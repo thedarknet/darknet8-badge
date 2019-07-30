@@ -43,7 +43,7 @@ ErrorType BadgeInfoMenu::onInit() {
 	sprintf(getRow(1), "Num contacts: %u", 0); //DN8App::get().getContacts().getSettings().getNumContacts());
 	sprintf(getRow(2), "REG: %s", getRegCode());
 	sprintf(getRow(3), "UID: %u", 0); //DN8App::get().getContacts().getMyInfo().getUniqueID());
-	uint8_t fake[24] = {1};
+	uint8_t fake[25] = {1};
 	uint8_t *pCP =	&fake[0]; //DN8App::get().getContacts().getMyInfo().getCompressedPublicKey();
 	sprintf(getRow(4), "PK: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 			pCP[0], pCP[1], pCP[2], pCP[3], pCP[4], pCP[5], pCP[6], pCP[7],
