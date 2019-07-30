@@ -207,11 +207,9 @@ GameTask &DN8App::getGameTask() {
 	return GMTask;
 }
 
-/*
 WIFITask &DN8App::getWifiTask() {
 	return WifiTask;
 }
-*/
 
 uint16_t DN8App::getCanvasWidth() {
 	return FrameBuf.getBufferWidth(); 
