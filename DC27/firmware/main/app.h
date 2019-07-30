@@ -60,8 +60,8 @@ public:
 	static const char *sNO;
 	static const uint16_t DISPLAY_HEIGHT		= 240;
 	static const uint16_t DISPLAY_WIDTH			= 320;
-	static const uint16_t FRAME_BUFFER_HEIGHT	= 180;
-	static const uint16_t FRAME_BUFFER_WIDTH	= 240;
+	static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
+	static const uint16_t FRAME_BUFFER_WIDTH	= 160;
 	static DN8App &get();
 public:
 	virtual ~DN8App();

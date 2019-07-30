@@ -15,9 +15,8 @@
 
 #include "app.h"
 
-//#define DEVKIT_I2C
-
-#ifdef DEVKIT_I2C
+#include "devkit.h"
+#ifdef GOURRY_DEVKIT
 #define I2C_SCL NOPIN
 #define I2C_SDA NOPIN
 #else

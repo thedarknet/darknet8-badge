@@ -8,6 +8,18 @@
 #include "driver/gpio.h"
 #include "freertos.h"
 
+#include "devkit.h"
+#ifdef GOURRY_DEVKIT
+#define UP_BUTTON   GPIO_NUM_15
+#define DOWN_BUTTON GPIO_NUM_14
+#define FIRE_BUTTON GPIO_NUM_0
+#else
+#define UP_BUTTON   GPIO_NUM_39
+#define DOWN_BUTTON GPIO_NUM_36
+#define FIRE_BUTTON GPIO_NUM_0
+#endif
+
+
 using libesp::FreeRTOS;
 /*
 static xQueueHandle gpio_evt_queue = NULL;
@@ -112,17 +124,16 @@ bool ButtonInfo::wasAnyButtonReleased() {
 	return ButtonState!=LastButtonState && LastButtonState!=0;
 }
 
-
 void ButtonInfo::process() {
 	LastButtonState = ButtonState;
 	ButtonState = 0;
-	if (gpio_get_level(GPIO_NUM_39) == 0) {
+	if (gpio_get_level(UP_BUTTON) == 0) {
 		ButtonState|=BUTTON_LEFT_UP;
 	}
-	if (gpio_get_level(GPIO_NUM_36) == 0) {
+	if (gpio_get_level(DOWN_BUTTON) == 0) {
 		ButtonState|=BUTTON_RIGHT_DOWN;
 	}
-	if (gpio_get_level(GPIO_NUM_0) == 0) {
+	if (gpio_get_level(FIRE_BUTTON) == 0) {
 		ButtonState|=BUTTON_FIRE1;
 	}
 	if(ButtonState!=0) {

@@ -43,15 +43,15 @@ const char *DN8App::sYES = "Yes";
 const char *DN8App::sNO = "No";
 
 
+#include "devkit.h"
+
 #define PIN_NUM_TOUCH_CLK  GPIO_NUM_26
 #define PIN_NUM_TOUCH_CS   GPIO_NUM_27
 #define PIN_NUM_TOUCH_IRQ  GPIO_NUM_32
 #define PIN_NUM_TOUCH_MISO GPIO_NUM_35
 #define PIN_NUM_TOUCH_MOSI GPIO_NUM_33
 
-//#define DEVKIT_LCD
-
-#ifdef DEVKIT_LCD
+#ifdef GOURRY_DEVKIT
 #define PIN_NUM_DISPLAY_RESET GPIO_NUM_18
 #define PIN_NUM_DISPLAY_CLK  GPIO_NUM_19
 #define PIN_NUM_DISPLAY_DATA_CMD GPIO_NUM_21
@@ -177,9 +177,11 @@ libesp::ErrorType DN8App::onInit() {
 		if(!GMTask.init()) {
 			return ErrorType(GAME_TASK_INIT_FAIL);
 		}
+
 		if(!WifiTask.init()) {
 			return ErrorType(WIFI_TASK_INIT_FAIL);
 		}
+
 		if(!MyButtons.init()) {
 			return ErrorType(BUTTON_INIT_FAIL);
 		} else {
