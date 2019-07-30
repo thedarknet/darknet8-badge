@@ -3,7 +3,7 @@
 
 #include "esp_system.h"
 #include "esp_log.h"
-#include "lib/Task.h"
+#include "task.h"
 #include "freertos/queue.h"
 #include <string.h>
 
@@ -50,7 +50,7 @@ public:
 			}
 		}
 	};
-	static const int NPCMSG_QUEUE_SIZE = 10;
+	static const int NPCMSG_QUEUE_SIZE = 3;
 	static const int NPCMSG_ITEM_SIZE = sizeof(NPCInteractionTask::NPCMsg*);
 	static const char *LOGTAG;
 public:

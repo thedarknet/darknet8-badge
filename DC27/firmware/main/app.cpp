@@ -15,7 +15,7 @@
 #include <device/touch/XPT2046.h>
 #include "./ble.h"
 #include "./game_master.h"
-//#include "./wifi.h"
+#include "./wifi.h"
 #include "menus/menu_state.h"
 #include "buttons.h"
 #include "menus/calibration_menu.h"
@@ -89,7 +89,7 @@ BluetoothTask BTTask("BluetoothTask");
 GameTask GMTask("GameTask");
 ButtonInfo MyButtons;
 CalibrationMenu DN8CalibrationMenu;
-//WIFITask WifiTask("WifiTask");
+WIFITask WifiTask("WifiTask");
 
 const char *DN8ErrorMap::toString(int32_t err) {
 	return "TODO";
@@ -177,11 +177,9 @@ libesp::ErrorType DN8App::onInit() {
 		if(!GMTask.init()) {
 			return ErrorType(GAME_TASK_INIT_FAIL);
 		}
-/*
 		if(!WifiTask.init()) {
 			return ErrorType(WIFI_TASK_INIT_FAIL);
 		}
-*/
 		if(!MyButtons.init()) {
 			return ErrorType(BUTTON_INIT_FAIL);
 		} else {
@@ -195,7 +193,7 @@ libesp::ErrorType DN8App::onInit() {
 	BTTask.start();
 	GMTask.start();
 	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
-	//WifiTask.start();
+	WifiTask.start();
 	
 	setCurrentMenu(getMenuState());
 	return et;

@@ -16,11 +16,11 @@
 #include "esp_ota_ops.h"
 
 #include "factory_reset.h"
-#include "wifi.h"
+#include "./wifi.h"
 #include "npc_interact.h"
 
-#include "lib/WiFi.h"
-#include "lib/HttpServer.h"
+#include "wifi/WiFi.h"
+#include "HttpServer.h"
 
 const char *WIFITask::LOGTAG = "WIFITask";
 const char *WIFI_LOGTAG = "WIFITask";
@@ -140,7 +140,7 @@ static void initialize_wifi(void)
 /************************** DC26 WIFI CODE ******************************/
 //#include "npc_interact.h"
 static NPCInteractionTask NPCITask("NPCInteractTask");
-static HttpServer Port80WebServer;
+static libesp::HttpServer Port80WebServer;
 
 class MyWiFiEventHandler: public WiFiEventHandler
 {

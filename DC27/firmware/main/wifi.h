@@ -9,7 +9,7 @@
 #include <nvs_flash.h>
 #include <nvs.h>
 
-#include "lib/WiFi.h"
+#include "wifi/WiFi.h"
 
 
 typedef enum
@@ -105,7 +105,7 @@ protected:
 
 public:
 	static const char *LOGTAG;
-	WIFITask(const std::string &tName, uint16_t stackSize=10000, uint8_t priority=5);
+	WIFITask(const std::string &tName, uint16_t stackSize=5000, uint8_t priority=5);
 	bool init();
 	virtual void run(void* data);
 	virtual ~WIFITask();

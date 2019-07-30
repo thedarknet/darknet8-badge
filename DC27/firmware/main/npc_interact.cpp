@@ -1,5 +1,5 @@
 #include "npc_interact.h"
-#include "lib/System.h"
+#include "system.h"
 #include <esp_http_client.h>
 #include <cJSON.h>
 
