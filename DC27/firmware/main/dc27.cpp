@@ -15,9 +15,15 @@
 
 #include "app.h"
 
+//#define DEVKIT_I2C
 
+#ifdef DEVKIT_I2C
+#define I2C_SCL NOPIN
+#define I2C_SDA NOPIN
+#else
 #define I2C_SCL GPIO_NUM_22
 #define I2C_SDA GPIO_NUM_21
+#endif
 #define I2C_SCL2 GPIO_NUM_2
 #define I2C_SDA2 GPIO_NUM_16
 
