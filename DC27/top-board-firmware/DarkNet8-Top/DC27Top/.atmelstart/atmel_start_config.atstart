@@ -1,0 +1,417 @@
+format_version: '2'
+name: DC27Top
+versions:
+  api: '1.0'
+  backend: 1.6.148
+  commit: 605f106ab95776472e3febf2fac2471441fb1816
+  content: 1.0.1600
+  content_pack_name: acme-packs-all
+  format: '2'
+  frontend: 1.6.1881
+board:
+  identifier: CustomBoard
+  device: ATmega4809-AFR
+details: null
+application: null
+middlewares: {}
+drivers:
+  CLKCTRL:
+    user_label: CLKCTRL
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::CLKCTRL::driver_config_definition::CLKCTRL::Drivers:CLKCTRL:Init
+    functionality: System
+    api: Drivers:CLKCTRL:Init
+    configuration:
+      clkctrl_mclkctrla_cksel: 20MHz Internal Oscillator (OSC20M)
+      clkctrl_mclkctrla_clkout: false
+      clkctrl_mclkctrlb_pdiv: '6'
+      clkctrl_mclkctrlb_pen: true
+      clkctrl_mclklock_locken: false
+      clkctrl_osc16mctrla_runstdby: false
+      clkctrl_osc20mctrla_runstdby: false
+      clkctrl_osc32kctrla_runstdby: false
+      clkctrl_xosc32kctrla_csut: 1k cycles
+      clkctrl_xosc32kctrla_runstdby: false
+      clkctrl_xosc32kctrla_sel: false
+      cpu_clock_source: Main Clock (CLK_MAIN)
+      enable_clk_per: true
+      enable_extclk: true
+      enable_main: true
+      enable_osc16m: true
+      enable_osc20m: true
+      enable_osculp1k: true
+      enable_osculp32k: true
+      enable_tcd0: true
+      enable_xosc32kctrla: false
+      extosc: 32768
+      nvm_clock_source: Main Clock (CLK_MAIN)
+      osculp1k_clksel_clksel: 32KHz Internal Ultra Low Power Oscillator (OSCULP32K)
+      ram_clock_source: Main Clock (CLK_MAIN)
+      tcd0_ctrla_clksel: 20MHz Internal Oscillator (OSC20M)
+      tcd0_ctrla_syncpres: '1'
+      xosc32kctrla_arch_enable: false
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: CPU
+          input: CPU
+          external: false
+          external_frequency: 0
+        configuration: {}
+  TIMER_0:
+    user_label: TIMER_0
+    definition: 'Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::RTC::driver_config_definition::Timeout::Drivers:Timeout:'
+    functionality: Timer
+    api: 'Drivers:Timeout:'
+    configuration:
+      enable_rtc: true
+      rtc_clksel_clksel: 32KHz Internal Ultra Low Power Oscillator (OSCULP32K)
+      rtc_cmp: 0
+      rtc_cnt: 0
+      rtc_ctrla_prescaler: '1'
+      rtc_ctrla_rtcen: true
+      rtc_ctrla_runstdby: false
+      rtc_dbgctrl_dbgrun: false
+      rtc_intctrl_cmp: false
+      rtc_intctrl_ovf: true
+      rtc_per: 65535
+      rtc_pitctrla_period: 'Off'
+      rtc_pitctrla_piten: false
+      rtc_pitdbgctrl_dbgrun: false
+      rtc_pitintctrl_pi: false
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: RTC
+          input: RTC Clock (CLK_RTC)
+          external: false
+          external_frequency: 0
+        configuration:
+          rtc_clock_source: RTC Clock (CLK_RTC)
+  PWM_0:
+    user_label: PWM_0
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::TCA0::driver_config_definition::Dual.Slope.~28Phase.correct~29.Programmable.TOP::Drivers:PWM:Basic
+    functionality: PWM
+    api: Drivers:PWM:Basic
+    configuration:
+      callback_rate: 0
+      inc_overflow_irq: true
+      tca_cmp0: 255
+      tca_cmp1: 0
+      tca_cmp2: 0
+      tca_cnt: 0
+      tca_ctrla_clksel: System Clock
+      tca_ctrla_enable: true
+      tca_ctrlb_alupd: false
+      tca_ctrlb_cmp0en: PWM connected to pin
+      tca_ctrlb_cmp1en: Normal port operation, PWM pin disconnected
+      tca_ctrlb_cmp2en: Normal port operation, PWM pin disconnected
+      tca_ctrlc_cmp0ov: false
+      tca_ctrlc_cmp1ov: false
+      tca_ctrlc_cmp2ov: false
+      tca_dbgctrl_dbgrun: false
+      tca_evctrl_cntei: false
+      tca_evctrl_evact: Count on positive edge event
+      tca_intctrl_cmp0: false
+      tca_intctrl_cmp1: false
+      tca_intctrl_cmp2: false
+      tca_intctrl_ovf: false
+      tca_per: 65535
+    optional_signals:
+    - identifier: PWM_0:WO/0
+      pad: PA0
+      mode: Enabled
+      configuration: null
+      definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::optional_signal_definition::TCA0.WO.0
+      name: TCA0/WO/0
+      label: WO/0
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: TCA
+          input: Main Clock (CLK_MAIN)
+          external: false
+          external_frequency: 0
+        configuration:
+          tca_clock_source: Main Clock (CLK_MAIN)
+  CPUINT:
+    user_label: CPUINT
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::CPUINT::driver_config_definition::CPUINT::Drivers:CPUINT:Init
+    functionality: System
+    api: Drivers:CPUINT:Init
+    configuration:
+      cpuint_ctrla_cvt: false
+      cpuint_ctrla_ivsel: false
+      cpuint_ctrla_lvl0rr: false
+      cpuint_global_interrupt: false
+      cpuint_lvl0pri_lvl0pri: 0
+      cpuint_lvl1vec_lvl1vec: 0
+      inc_isr_harness: false
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group: null
+  SLPCTRL:
+    user_label: SLPCTRL
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::SLPCTRL::driver_config_definition::SLPCTRL::Drivers:SLPCTRL:Init
+    functionality: System
+    api: Drivers:SLPCTRL:Init
+    configuration:
+      slpctrl_ctrla_sen: false
+      slpctrl_ctrla_smode: Idle mode
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group: null
+  I2C_0:
+    user_label: I2C_0
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::TWI0::driver_config_definition::I2C.Slave.Interrupt::Drivers:I2C:Slave
+    functionality: I2C
+    api: Drivers:I2C:Slave
+    configuration:
+      f_scl: 100000
+      inc_isr_harness: false
+      t_rise: 0
+      twi_ctrla_fmpen: false
+      twi_ctrla_sdahold: SDA hold time off
+      twi_ctrla_sdasetup: SDA setup time is 4 clock cycles
+      twi_dbgctrl_dbgrun: false
+      twi_mctrla_enable: false
+      twi_mctrla_qcen: false
+      twi_mctrla_rien: false
+      twi_mctrla_smen: false
+      twi_mctrla_timeout: Bus Timeout Disabled
+      twi_mctrla_wien: false
+      twi_mstatus_busstate: false
+      twi_saddr: 28
+      twi_saddr_gcren: false
+      twi_saddrmask_addren: false
+      twi_saddrmask_addrmask: 0
+      twi_sctrla_apien: true
+      twi_sctrla_dien: true
+      twi_sctrla_enable: true
+      twi_sctrla_pien: true
+      twi_sctrla_pmen: false
+      twi_sctrla_smen: false
+    optional_signals:
+    - identifier: I2C_0:SCL
+      pad: PA3
+      mode: Enabled
+      configuration: null
+      definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::optional_signal_definition::TWI0.SCL
+      name: TWI0/SCL
+      label: SCL
+    - identifier: I2C_0:SDA
+      pad: PA2
+      mode: Enabled
+      configuration: null
+      definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::optional_signal_definition::TWI0.SDA
+      name: TWI0/SDA
+      label: SDA
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: TWI
+          input: Main Clock (CLK_MAIN)
+          external: false
+          external_frequency: 0
+        configuration:
+          twi_clock_source: Main Clock (CLK_MAIN)
+  BOD:
+    user_label: BOD
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::BOD::driver_config_definition::BOD::Drivers:BOD:Init
+    functionality: System
+    api: Drivers:BOD:Init
+    configuration:
+      bod_ctrla_sleep: Disabled
+      bod_intctrl_vlmcfg: Interrupt when supply goes below VLM level
+      bod_intctrl_vlmie: false
+      bod_vlmctrla_vlmlvl: VLM threshold 5% above BOD level
+      inc_isr_harness: false
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: BOD
+          input: 32KHz divided by 32
+          external: false
+          external_frequency: 0
+        configuration:
+          bod_clock_source: 32KHz divided by 32
+pads:
+  LED3:
+    name: PA5
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PA5
+    mode: Digital output
+    user_label: LED3
+    configuration: null
+  LED2:
+    name: PA6
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PA6
+    mode: Digital output
+    user_label: LED2
+    configuration: null
+  LED1:
+    name: PA7
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PA7
+    mode: Digital output
+    user_label: LED1
+    configuration: null
+  LED12:
+    name: PC0
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PC0
+    mode: Digital output
+    user_label: LED12
+    configuration: null
+  LED11:
+    name: PC1
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PC1
+    mode: Digital output
+    user_label: LED11
+    configuration: null
+  LED10:
+    name: PC2
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PC2
+    mode: Digital output
+    user_label: LED10
+    configuration: null
+  LED9:
+    name: PC3
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PC3
+    mode: Digital output
+    user_label: LED9
+    configuration: null
+  LED8:
+    name: PC4
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PC4
+    mode: Digital output
+    user_label: LED8
+    configuration: null
+  LED7:
+    name: PD0
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PD0
+    mode: Digital output
+    user_label: LED7
+    configuration: null
+  LED18:
+    name: PD4
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PD4
+    mode: Digital output
+    user_label: LED18
+    configuration: null
+  LED17:
+    name: PD5
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PD5
+    mode: Digital output
+    user_label: LED17
+    configuration: null
+  LED16:
+    name: PD6
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PD6
+    mode: Digital output
+    user_label: LED16
+    configuration: null
+  LED15:
+    name: PD7
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PD7
+    mode: Digital output
+    user_label: LED15
+    configuration: null
+  LED14:
+    name: PE0
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PE0
+    mode: Digital output
+    user_label: LED14
+    configuration: null
+  LED13:
+    name: PE1
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PE1
+    mode: Digital output
+    user_label: LED13
+    configuration: null
+  LED24:
+    name: PE2
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PE2
+    mode: Digital output
+    user_label: LED24
+    configuration: null
+  LED23:
+    name: PE3
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PE3
+    mode: Digital output
+    user_label: LED23
+    configuration: null
+  LED22:
+    name: PF0
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PF0
+    mode: Digital output
+    user_label: LED22
+    configuration: null
+  LED21:
+    name: PF1
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PF1
+    mode: Digital output
+    user_label: LED21
+    configuration: null
+  LED20:
+    name: PF2
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PF2
+    mode: Digital output
+    user_label: LED20
+    configuration: null
+  LED19:
+    name: PF5
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PF5
+    mode: Digital output
+    user_label: LED19
+    configuration: null
+  LED6:
+    name: PF6
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PF6
+    mode: Digital output
+    user_label: LED6
+    configuration: null
+  PA0:
+    name: PA0
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PA0
+    mode: Digital output
+    user_label: PA0
+    configuration: null
+  LED5:
+    name: PA1
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PA1
+    mode: Digital output
+    user_label: LED5
+    configuration: null
+  PA2:
+    name: PA2
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PA2
+    mode: Advanced
+    user_label: PA2
+    configuration: null
+  PA3:
+    name: PA3
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PA3
+    mode: Advanced
+    user_label: PA3
+    configuration: null
+  LED4:
+    name: PA4
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::pad::PA4
+    mode: Digital output
+    user_label: LED4
+    configuration: null
+toolchain_options:
+- definition:
+    identifier: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::environment_definition::All:Atmel.Studio:7.0.0
+  configuration:
+    compiler_config:
+      avrgcc_compiler_miscellaneous_OtherFlags: -std=gnu99
+    linker_config:
+      avrgcc_linker_miscellaneous_LinkerFlags: ''
