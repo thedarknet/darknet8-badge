@@ -2,7 +2,12 @@
 #define RENDERER_H
 
 #include "vec_math.h"
-#include <libesp/device/display/color.h>
+#include "device/display/color.h"
+
+namespace libesp {
+	class BitArray;
+	class DisplayDevice;
+}
 
 extern Matrix ModelView;
 extern Matrix Viewport;
@@ -46,7 +51,7 @@ public:
 	IShader();
 	virtual ~IShader() = 0;
 	virtual Vec3i vertex(const Matrix &ModelViewProj, const Model &model, int iface, int nthvert) = 0;
-	virtual bool fragment(Vec3f bar, cmdc0de::RGBColor &color) = 0;
+	virtual bool fragment(Vec3f bar, libesp::RGBColor &color) = 0;
 	void setLightDir(const Vec3f &ld);
 	const Vec3f &getLightDir() const;
 private:
@@ -59,7 +64,7 @@ public:
 	virtual ~FlatShader();
 
 	virtual Vec3i vertex(const Matrix &ModelViewProj, const Model &model, int iface, int nthvert);
-	virtual bool fragment(Vec3f bar, cmdc0de::RGBColor &color);
+	virtual bool fragment(Vec3f bar, libesp::RGBColor &color);
 private:
 	mat<3, 3, float> varying_tri;
 };
@@ -69,7 +74,7 @@ public:
 	GouraudShader();
 	virtual ~GouraudShader();
 	virtual Vec3i vertex(const Matrix &ModelViewProj, const Model &model, int iface, int nthvert);
-	virtual bool fragment(Vec3f bar, cmdc0de::RGBColor &color);
+	virtual bool fragment(Vec3f bar, libesp::RGBColor &color);
 private:
 	mat<3, 3, float> varying_tri;
 	Vec3f varying_ity;
@@ -80,7 +85,7 @@ public:
 	ToonShader();
 	virtual ~ToonShader();
 	virtual Vec3i vertex(const Matrix &ModelViewProj, const Model &model, int iface, int nthvert);
-	virtual bool fragment(Vec3f bar, cmdc0de::RGBColor &color);
+	virtual bool fragment(Vec3f bar, libesp::RGBColor &color);
 private:
 	mat<3, 3, float> varying_tri;
 	Vec3f varying_ity;
@@ -91,7 +96,7 @@ void viewport(int x, int y, int w, int h);
 void projection(float coeff = 0.f); // coeff = -1/c
 void lookat(const Vec3f &eye, const Vec3f &center, const Vec3f &up);
 //void triangle(Vec3i *pts, IShader &shader, BitArray &zbuffer, DisplayST7735 *display);
-void triangle(Vec3i *pts, IShader &shader, cmdc0de::BitArray &zbuffer, cmdc0de::DisplayDevice *display, const Vec2i &bboxmin, const Vec2i &bboxmax, uint16_t canvasWdith);
+void triangle(Vec3i *pts, IShader &shader, libesp::BitArray &zbuffer, libesp::DisplayDevice *display, const Vec2i &bboxmin, const Vec2i &bboxmax, uint16_t canvasWdith);
 
 template<typename T> T CLAMP(const T& value, const T& low, const T& high) {
 	return value < low ? low : (value > high ? high : value);

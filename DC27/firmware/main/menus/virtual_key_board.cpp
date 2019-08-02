@@ -65,15 +65,12 @@ void VirtualKeyBoard::init(const char *vkb, InputHandleContext *ic, int16_t xdis
 
 void VirtualKeyBoard::process() {
 	if(DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP)) {
-		if(CursorPos>0)	--CursorPos;
+		if(--CursorPos<0) {
+			CursorPos=SizeOfKeyboard-1;
+		}
 	} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN)) {
 		if(CursorPos<SizeOfKeyboard) CursorPos++;
 		else CursorPos=0;
-	//} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_UP)) {
-	//	if(CursorPos>=CharsPerRow) CursorPos-=CharsPerRow;
-	//} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_DOWN)) {
-	//	CursorPos+=CharsPerRow;
-	//	if(CursorPos>SizeOfKeyboard) CursorPos = SizeOfKeyboard-1;
 	} else if(DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
 		if(InputContext) {
 			InputContext->addChar(getSelectedChar());
@@ -115,8 +112,5 @@ uint8_t VirtualKeyBoard::getVKBIndex() {
 char VirtualKeyBoard::getSelectedChar() {
 	return VKB[CursorPos];
 }
-
-
-
 
 

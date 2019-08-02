@@ -1,23 +1,26 @@
 #include "renderer.h"
-#include <display/display_device.h>
-#include <logger.h>
+#include "device/display/display_device.h"
+#include <esp_log.h>
 #include <stdlib.h>
+#include "freertos.h"
 
 using libesp::RGBColor;
+using libesp::FreeRTOS;
 
+static const char *LOGTAG="render";
 class Timer {
 public:
 	Timer(const char *n) :
 			Name(n), Stop(0), diff(0) {
-		Start = HAL_GetTick();
+		Start = FreeRTOS::getTimeSinceStart();
 	}
 	void stop() {
-		Stop = HAL_GetTick();
+		Stop = FreeRTOS::getTimeSinceStart();
 		diff = Stop - Start;
 	}
 	~Timer() {
 		stop();
-		INFOMSG("%s: %u", Name, HAL_GetTick() - Start);
+		ESP_LOGI(LOGTAG,"%s: %u", Name, FreeRTOS::getTimeSinceStart() - Start);
 	}
 private:
 	const char *Name;
@@ -102,7 +105,7 @@ Vec3i FlatShader::vertex(const Matrix &ModelViewProj, const Model &model,
 }
 
 bool FlatShader::fragment(Vec3f bar, RGBColor &color) {
-	UNUSED(bar);
+	//UNUSED(bar);
 	Vec3f n = cross(varying_tri.col(1) - varying_tri.col(0),
 			varying_tri.col(2) - varying_tri.col(0)).normalize();
 	float intensity = CLAMP(n * getLightDir(), 0.f, 1.f);
@@ -214,8 +217,8 @@ Vec3f barycentric(const Vec3i &A, const Vec3i &B, const Vec3i &C,
 	return Vec3f(-1, 1, 1); // in this case generate negative coordinates, it will be thrown away by the rasterizator
 }
 
-void triangle(Vec3i *pts, IShader &shader, cmdc0de::BitArray &zbuffer,
-		cmdc0de::DisplayDevice *display, const Vec2i &bboxmin,
+void triangle(Vec3i *pts, IShader &shader, libesp::BitArray &zbuffer,
+		libesp::DisplayDevice *display, const Vec2i &bboxmin,
 		const Vec2i &bboxmax, uint16_t canvasWidth) {
 	//Timer bt("bbbox");
 	/*Vec2i bboxmin( INT16_MAX, INT16_MAX);

@@ -25,7 +25,7 @@ SettingMenu::SettingMenu() : DN8BaseMenu(), SettingList((const char *) "MENU", I
 	Items[1].text = (const char *) "Screen Saver Time";
 	Items[1].setShouldScroll();
 	Items[2].id = 2;
-	Items[2].text = (const char *) "Reset Badge Contacts";
+	Items[2].text = (const char *) "Factory Reset";
 	Items[2].setShouldScroll();
 }
 
@@ -74,7 +74,7 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 				} else {
 					DN8App::get().getDisplay().drawString(0, 20, DN8App::get().getContacts().getSettings().getAgentName());
 				}
-				DN8App::get().getDisplay().drawString(0, 40, (const char*) "MID button completes entry");
+				DN8App::get().getDisplay().drawString(0, 40, (const char*) "Release UP/DOWN buttons completes entry");
 				DN8App::get().getDisplay().drawString(0, 50, (const char*) "Set agent name:");
 				DN8App::get().getDisplay().drawString(0, 60, &AgentName[0]);
 				break;
@@ -91,12 +91,12 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 		switch (SubState) {
 		case 100:
 			VKB.process();
-			if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1) && AgentName[0] != '\0' && AgentName[0] != ' ' && AgentName[0] != '_') {
+			if (DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN| ButtonInfo::BUTTON_LEFT_UP)&& AgentName[0] != '\0' && AgentName[0] != ' ' && AgentName[0] != '_') {
 				AgentName[Contact::AGENT_NAME_LENGTH - 1] = '\0';
 				if (DN8App::get().getContacts().getSettings().setAgentname(&AgentName[0])) {
-					nextState = DN8App::get().getDisplayMessageState(	DN8App::get().getMenuState(), (const char *)"Save Successful", 2000);
+					nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Save Successful", 2000);
 				} else {
-					nextState = DN8App::get().getDisplayMessageState(	DN8App::get().getMenuState(), (const char *)"Save FAILED!",	4000);
+					nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Save FAILED!",	4000);
 				}
 			} else {
 				DN8App::get().getDisplay().drawString(0, 60, &AgentName[0]);
@@ -109,7 +109,7 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 				DN8App::get().getDisplay().drawString(0, 10, (const char*) "Badge Sleep Time:", RGBColor::WHITE, RGBColor::BLACK, 1, true);
 				DN8App::get().getDisplay().drawString(0, 30, (const char*) "Up to increase, down to decrease", RGBColor::WHITE, RGBColor::BLACK, 1, true);
 				DN8App::get().getDisplay().drawString(10, 60, &Misc[0], RGBColor::WHITE, RGBColor::BLACK, 1, true);
-				DN8App::get().getDisplay().drawString(0, 100, (const char*) "MID Button completes", RGBColor::WHITE, RGBColor::BLACK, 1, true);
+				DN8App::get().getDisplay().drawString(0, 100, (const char*) "Fire Button completes", RGBColor::WHITE, RGBColor::BLACK, 1, true);
 				if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP)) {
 					MiscCounter++;
 				} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN)) {

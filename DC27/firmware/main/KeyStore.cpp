@@ -111,6 +111,7 @@ ContactStore::ContactStore() : Settings(), MeInfo(), MyIndex() {
 
 void ContactStore::resetToFactory() {
 	getSettings().resetToFactory();
+	NVSContact.wipe();
 }
 
 bool ContactStore::init() {

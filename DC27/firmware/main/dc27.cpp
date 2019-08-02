@@ -63,10 +63,10 @@ void app_main() {
 	//ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
 	//I2c.init(false);
 	//I2c.scan();
-	//ESP_LOGI(LOGTAG,"scan I2c1");
-	ESP32_I2CMaster I2c1(I2C_SCL2,I2C_SDA2,1000000, I2C_NUM_1, 0, 32);
-	I2c1.init(true);
-	//I2c1.scan();
+	ESP_LOGI(LOGTAG,"scan I2c1");
+	ESP32_I2CMaster I2c1(I2C_SCL2,I2C_SDA2,400000, I2C_NUM_1, 0, 16);
+	I2c1.init(false);
+	I2c1.scan();
 	
 
 	libesp::System::get().logSystemInfo();
