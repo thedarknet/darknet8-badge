@@ -93,13 +93,13 @@ drivers:
           rtc_clock_source: RTC Clock (CLK_RTC)
   PWM_0:
     user_label: PWM_0
-    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::TCA0::driver_config_definition::Dual.Slope.~28Phase.correct~29.Programmable.TOP::Drivers:PWM:Basic
+    definition: Atmel:ATmega4809_drivers:1.0.0::ATmega4809-AFR::TCA0::driver_config_definition::Single.Slope.~28Fast~29.Programmable.TOP::Drivers:PWM:Basic
     functionality: PWM
     api: Drivers:PWM:Basic
     configuration:
       callback_rate: 0
       inc_overflow_irq: true
-      tca_cmp0: 255
+      tca_cmp0: 128
       tca_cmp1: 0
       tca_cmp2: 0
       tca_cnt: 0
@@ -118,7 +118,7 @@ drivers:
       tca_intctrl_cmp0: false
       tca_intctrl_cmp1: false
       tca_intctrl_cmp2: false
-      tca_intctrl_ovf: false
+      tca_intctrl_ovf: true
       tca_per: 65535
     optional_signals:
     - identifier: PWM_0:WO/0

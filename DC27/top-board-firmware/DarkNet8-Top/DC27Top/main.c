@@ -7,30 +7,29 @@ typedef void (*LEDFUN)(const bool) ;
 
 uint8_t I2C_0_slave_address=NONE;
 uint8_t I2C_0_register_address=NONE;
-//uint8_t I2C_0_cmd = NONE;
+uint8_t I2C_0_cmd = NONE;
+uint32_t LedCache =0;
+volatile uint8_t dutyPct = 100;
 
 
-void I2C_0_address_handler()
-{
+void I2C_0_address_handler() {
 	I2C_0_slave_address = I2C_0_read();
 	I2C_0_send_ack(); // or send_nack() if we don't want to ack the address
 	//I2C_0_num_addresses++;
 }
 
-void I2C_0_read_handler()
-{ // Master read operation
+void I2C_0_read_handler() { // Master read operation
 	I2C_0_write(0x0c);
 	//I2C_0_num_reads++;
 }
 
-void I2C_0_write_handler()
-{ // Master write handler
+void I2C_0_write_handler() { // Master write handler
 	if(I2C_0_register_address==NONE) {
 		I2C_0_register_address = I2C_0_read();
 		I2C_0_send_ack(); // or send_nack() if we don't want to receive more data
-	//} else if(I2C_0_cmd==NONE) {
-		//I2C_0_cmd = I2C_0_read();
-		//I2C_0_send_ack(); // or send_nack() if we don't want to receive more data
+	} else if(I2C_0_cmd==NONE) {
+		I2C_0_cmd = I2C_0_read();
+		I2C_0_send_nack(); // or send_nack() if we don't want to receive more data
 	} else {
 		I2C_0_read();
 		I2C_0_send_nack(); // or send_nack() if we don't want to receive more data
@@ -137,11 +136,52 @@ absolutetime_t turnOnEveryN(void *d) {
 	for(int i=0;i<TOTAL_LEDS;++i) {
 		if((i%data->ExtraData)==0) {
 			(*LedFunctions[i])(true);
+			LedCache|=(1<<i);
 			} else {
 			(*LedFunctions[i])(false);
 		}
 	}
 	return queueNext(data->next);
+}
+
+bool PWMOn = true;
+uint32_t onCount = 0;
+uint32_t total = 0;
+
+void PWM_handler_cb(void) {
+	for(uint32_t i=0;i<TOTAL_LEDS;++i) {
+		//if((LedCache&(1<<i))) {
+			(*LedFunctions[i])(PWMOn);
+		//}
+	}
+	uint32_t count =0 ;
+	if(PWMOn) {
+		onCount+=TCA0.SINGLE.CNT;
+		count = 650;
+	} else {
+		count = 65000;
+		//offCount+=TCA0.SINGLE.CNT;
+	}
+	total+=TCA0.SINGLE.CNT;
+	PWM_0_load_counter(0);
+	PWM_0_load_top(count);
+	PWMOn = !PWMOn;
+	
+	
+}
+
+void setupPWM() {
+	// Enable pin output
+	PWM_0_enable_output_ch0();
+
+	// Set channel 0 duty cycle value register value to specified value
+	PWM_0_load_duty_cycle_ch0(0xFFFF);
+	PWM_0_load_top(650);
+
+	// Set counter register value
+	PWM_0_load_counter(0);
+
+	PWM_0_register_callback(PWM_handler_cb);
 }
 
 LedDanceFun Initial5 = {&turnAll     ,30000,0,0};
@@ -160,19 +200,33 @@ int main(void)
 	setupLeds();
 	setupSlave();
 	
+	//dutyPct =1;
+	//setupPWM();
+	//PWM_handler_cb();
+	
 	
 	ENABLE_INTERRUPTS();
 	LedTimer.callback_ptr = turnAll;
 	LedTimer.payload = &Initial;
 	TIMER_0_timeout_create(&LedTimer, 1000);
+	
+	
+	
+	for(int i=0;i<TOTAL_LEDS;++i) {
+		(*LedFunctions[i])(true);
+	}
+	LedCache = 0xFFF;
+	
+	
 		
 	/* Replace with your application code */
 	while (1) {
-		if(NONE!=I2C_0_register_address) {
-			I2C_0_register_address=NONE;
+		if(NONE!=I2C_0_register_address && NONE!=I2C_0_cmd) {
 			switch(I2C_0_register_address) {
 				case 1:
-					//turnOnHalf();
+					LedTimer.callback_ptr = turnAll;
+					LedTimer.payload = &Initial;
+					TIMER_0_timeout_create(&LedTimer, 1000);
 					break;
 				case 2:
 					//turnOnQuarter();
@@ -180,6 +234,8 @@ int main(void)
 				case 3:
 					break;
 			}
+			I2C_0_cmd = NONE;
+			I2C_0_register_address = NONE;
 		}
 		TIMER_0_timeout_call_next_callback();
 	}

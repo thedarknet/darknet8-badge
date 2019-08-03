@@ -78,7 +78,7 @@
           <AcmeProjectActionInfo Action="File" Source="src/cpuint.c" IsConfig="false" Hash="atOCxG8NqDjEug0NnJ67aw" />
           <AcmeProjectActionInfo Action="File" Source="src/i2c_slave.c" IsConfig="false" Hash="ZM6686Kf5y1ojY6HskWtkg" />
           <AcmeProjectActionInfo Action="File" Source="src/protected_io.S" IsConfig="false" Hash="L8Ol9RShK90tJyVn8DHTdw" />
-          <AcmeProjectActionInfo Action="File" Source="src/pwm_basic.c" IsConfig="false" Hash="+5N+KM13e9jlbIOmCmiWXQ" />
+          <AcmeProjectActionInfo Action="File" Source="src/pwm_basic.c" IsConfig="false" Hash="O+pMyNt89YCj+e7qIpkGMg" />
           <AcmeProjectActionInfo Action="File" Source="src/slpctrl.c" IsConfig="false" Hash="A/OSxkl7A7aQDu0kEXtMMA" />
           <AcmeProjectActionInfo Action="File" Source="src/timeout.c" IsConfig="false" Hash="YgSFYkyFxdT7mBcLRv/jSw" />
           <AcmeProjectActionInfo Action="File" Source="utils/assembler.h" IsConfig="false" Hash="jaaWqpCXnRJMciuXpjSfgQ" />

@@ -36,7 +36,7 @@ extern "C" {
 
 typedef void (*pwm_irq_cb_t)(void);
 
-#define PWM_0_INTERRUPT_CB_RATE 0
+#define PWM_0_INTERRUPT_CB_RATE 1
 
 /** The datatype matching the bitwidth of the PWM hardware */
 typedef uint16_t PWM_0_register_t;
