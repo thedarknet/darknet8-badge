@@ -24,6 +24,7 @@ enum ERRORS {
 	, EXPLOIT_TASK_INIT_FAIL
 	, WIFI_TASK_INIT_FAIL
 	, BUTTON_INIT_FAIL
+	, TOP_BOARD_INIT_FAIL
 };
 
 class DN8ErrorMap : public libesp::IErrorDetail {
@@ -47,6 +48,7 @@ class Scan;
 class SettingMenu;
 class TestMenu;
 class Menu3D;
+class TopBoardMenu;
 
 class DN8App : public libesp::App {
 public:
@@ -90,6 +92,7 @@ public:
 	TestMenu *getTestMenu();
 	libesp::XPT2046 &getTouch();
 	Menu3D *get3DMenu();
+	TopBoardMenu *getTopBoardMenu();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();
