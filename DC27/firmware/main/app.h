@@ -46,6 +46,7 @@ class GameOfLife;
 class Scan;
 class SettingMenu;
 class TestMenu;
+class Menu3D;
 
 class DN8App : public libesp::App {
 public:
@@ -60,8 +61,8 @@ public:
 	static const char *sNO;
 	static const uint16_t DISPLAY_HEIGHT		= 240;
 	static const uint16_t DISPLAY_WIDTH			= 320;
-	static const uint16_t FRAME_BUFFER_HEIGHT	= 120;
-	static const uint16_t FRAME_BUFFER_WIDTH	= 160;
+	static const uint16_t FRAME_BUFFER_HEIGHT	= 132;
+	static const uint16_t FRAME_BUFFER_WIDTH	= 176;
 	static DN8App &get();
 public:
 	virtual ~DN8App();
@@ -88,6 +89,7 @@ public:
 	SettingMenu *getSettingsMenu();
 	TestMenu *getTestMenu();
 	libesp::XPT2046 &getTouch();
+	Menu3D *get3DMenu();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();

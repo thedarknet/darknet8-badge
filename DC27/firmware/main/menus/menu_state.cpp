@@ -12,6 +12,7 @@
 #include "badge_info_menu.h"
 #include "pairing_menu.h"
 #include "communications_settings.h"
+#include "menu3d.h"
 #include <esp_log.h>
 
 using libesp::ErrorType;
@@ -111,7 +112,7 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 					}
 					break;
 				case 2:
-					//nextState = DN8App::get().get3DState();
+					nextState = DN8App::get().get3DMenu();
 					break;
 				case 3:
 					nextState = DN8App::get().getGameOfLifeMenu();

@@ -8,12 +8,11 @@
 #include "task.h"
 #include <nvs_flash.h>
 #include <nvs.h>
+#include <list>
 
 #include "wifi/WiFi.h"
 
-
-typedef enum
-{
+enum WIFIResponseType {
 	WIFI_OK            = 0x00, // Request 
 	WIFI_SCAN_RESP     = 0x01, // Found someone, returning data
 	WIFI_SCAN_COMPLETE = 0x02, // No longer scanning
@@ -21,96 +20,96 @@ typedef enum
 	// WIFI_ERR_x = 0x8_,
 	WIFI_ERR_CONNECTAP = 0x80,
 	WIFI_ERR_UNK = 0xFF
-} WIFIResponseType;
+};
 
-typedef struct ScanResult
-{
-	char* bssid;
-	char* ssid;
+struct ScanResult {
+	char bssid[6];
+	char ssid[33];
 	wifi_auth_mode_t authmode;
-} ScanResult;
+};
 
-typedef struct WIFIResponseMsg
-{
+struct WiFiScanResult {
+	WiFiScanResult() : Length(0), ResultArray(0) {}
+	uint8_t	Length;
+	ScanResult *ResultArray;
+};
+
+struct WIFIResponseMsg {
+	WIFIResponseMsg(const WIFIResponseType &t) : type(t), SRes() {}
+	~WIFIResponseMsg() {
+		std::list<ScanResult*>::iterator it = SRes.begin();
+		while(it!=SRes.end()) {
+			delete (*it);
+			++it;
+		}
+		SRes.clear();
+	}
+
 	WIFIResponseType type;
-	ScanResult sres;
-} WIFIResponseMsg;
+	std::list<ScanResult*> SRes;
+};
 
-typedef enum
-{
+enum WIFICmd {
 	WIFI_ATTEMPT_OTA  = 0x00,
 	WIFI_AP_START     = 0x01,
 	WIFI_AP_STOP      = 0x02,
 	WIFI_SCAN         = 0x03,
 	WIFI_NPC_INTERACT = 0x04,
+};
 
-} WIFICmd;
-
-typedef enum
-{
+enum NpcMsgType {
 	NPC_LIST   = 0x00,
 	NPC_ACTION = 0x01
-} NpcMsgType;
+};
 
-typedef struct WifiNpcMsg
-{
+struct WifiNpcMsg {
 	NpcMsgType type;
 	char* npcname;
 	char* ssid;
 	uint8_t* data;
-} WifiNpcMsg;
+};
 
-typedef struct WifiScanMsg
-{
+struct WifiScanMsg {
 	bool npcfilter;
-} WifiScanMsg;
+};
 
-typedef struct StartAPMsg
-{
+struct StartAPMsg {
 	wifi_auth_mode_t mode;
 	char* ssid;
 	char* passwd;
-} StartAPMsg;
+};
 
-typedef struct WIFIMsg
-{
+struct WIFIMsg {
 	WIFICmd cmd;
-	union
-	{
+	union {
 		WifiNpcMsg wnm;
 		WifiScanMsg wsm;
 		StartAPMsg sap;
 	} data;
 	QueueHandle_t returnQueue;
-} WIFIMsg;
+};
 
 class WIFITask : public Task {
-private:
-	QueueHandle_t gameTaskQueue = nullptr;
-
+public:
 	static const int WIFI_QUEUE_SIZE = 3;
 	static const int WIFI_MSG_SIZE = sizeof(WIFIMsg);
-	StaticQueue_t WIFIQueue;
+	static const char *LOGTAG;
+public:
+	WIFITask(const std::string &tName, uint16_t stackSize=5000, uint8_t priority=5);
+	bool init();
+	virtual void run(void* data);
+	virtual ~WIFITask();
+	QueueHandle_t getQueueHandle() {return WIFIQueueHandle;}
+private:
 	QueueHandle_t WIFIQueueHandle = nullptr;
-	uint8_t otaQueueBuffer[WIFI_QUEUE_SIZE * WIFI_MSG_SIZE];
 	uint32_t my_nvs_handle;
 
 	void wifiScan(WIFIMsg* msg);
 	void npcInteract(WIFIMsg* msg);
 	void startAp(WIFIMsg* msg);
 	void stopAp(WIFIMsg* msg);
-
 protected:
 	WiFi wifi;
-
-public:
-	static const char *LOGTAG;
-	WIFITask(const std::string &tName, uint16_t stackSize=5000, uint8_t priority=5);
-	bool init();
-	virtual void run(void* data);
-	virtual ~WIFITask();
-
-	QueueHandle_t getQueueHandle() {return WIFIQueueHandle;}
 };
 
 #endif // DC27_WIFI
