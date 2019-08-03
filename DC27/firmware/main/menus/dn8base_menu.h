@@ -12,7 +12,7 @@ protected:
 	static void clearListBuffer();
 	static char *getRow(uint8_t row);
 private:
-	static char ListBuffer[9][32]; //height then width
+	static char ListBuffer[10][32]; //height then width
 	static uint8_t NumRows;
 };
 

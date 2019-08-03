@@ -29,6 +29,7 @@
 #include "menus/setting_state.h"
 #include "menus/test_menu.h"
 #include "menus/menu3d.h"
+#include "menus/top_board.h"
 
 using libesp::ErrorType;
 using libesp::DisplayILI9341;
@@ -91,6 +92,7 @@ GameTask GMTask("GameTask");
 ButtonInfo MyButtons;
 CalibrationMenu DN8CalibrationMenu;
 WIFITask WifiTask("WifiTask");
+TopBoardMenu MyTopBoardMenu;
 
 const char *DN8ErrorMap::toString(int32_t err) {
 	return "TODO";
@@ -186,6 +188,12 @@ libesp::ErrorType DN8App::onInit() {
 		} else {
 			ESP_LOGI(LOGTAG,"Button Init complete");
 		}
+
+		if(!MyTopBoardMenu.deviceInit()) {
+			return ErrorType(TOP_BOARD_INIT_FAIL);
+		} else {
+			ESP_LOGI(LOGTAG,"TopBoard Init complete");
+		}
 	} else {
 		ESP_LOGE(LOGTAG,"failed display init");
 	}
@@ -277,6 +285,10 @@ BadgeInfoMenu *DN8App::getBadgeInfoMenu() {
 
 Menu3D *DN8App::get3DMenu() {
 	return &My3DMenu;
+}
+
+TopBoardMenu *DN8App::getTopBoardMenu() {
+	return &MyTopBoardMenu;
 }
 
 PairingMenu *DN8App::getPairingMenu() {

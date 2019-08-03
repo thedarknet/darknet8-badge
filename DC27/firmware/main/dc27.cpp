@@ -23,8 +23,6 @@
 #define I2C_SCL GPIO_NUM_22
 #define I2C_SDA GPIO_NUM_21
 #endif
-#define I2C_SCL2 GPIO_NUM_2
-#define I2C_SDA2 GPIO_NUM_16
 
 
 extern "C" {
@@ -58,15 +56,10 @@ void app_main() {
 
 	//ESP32_I2CMaster::doIt();
 
-	/////
-	//ESP_LOGI(LOGTAG,"scan I2c0");
-	//ESP32_I2CMaster I2c(I2C_SCL,I2C_SDA,1000000, I2C_NUM_0, 0, 32);
-	//I2c.init(false);
-	//I2c.scan();
-	ESP_LOGI(LOGTAG,"scan I2c1");
-	ESP32_I2CMaster I2c1(I2C_SCL2,I2C_SDA2,400000, I2C_NUM_1, 0, 16);
-	I2c1.init(false);
-	I2c1.scan();
+	//ESP_LOGI(LOGTAG,"scan I2c1");
+	//ESP32_I2CMaster I2c1(I2C_SCL2,I2C_SDA2,400000, I2C_NUM_1, 0, 16);
+	//I2c1.init(false);
+	//I2c1.scan();
 	
 
 	libesp::System::get().logSystemInfo();
