@@ -13,6 +13,7 @@
 #include <device/display/fonts.h>
 #include <device/display/gui.h>
 #include <device/touch/XPT2046.h>
+
 #include "./ble.h"
 #include "./game_master.h"
 #include "./wifi.h"
@@ -30,6 +31,10 @@
 #include "menus/test_menu.h"
 #include "menus/menu3d.h"
 #include "menus/top_board.h"
+#include <driver/uart.h>
+
+// This contains GPIO Pin definitions for various kits
+#include "devkit.h"
 
 using libesp::ErrorType;
 using libesp::DisplayILI9341;
@@ -44,32 +49,6 @@ static uint8_t CommandBuffer[DN8App::QUEUE_SIZE * DN8App::ITEM_SIZE] = { 0 };
 const char *DN8App::sYES = "Yes";
 const char *DN8App::sNO = "No";
 
-
-#include "devkit.h"
-
-#define PIN_NUM_TOUCH_CLK  GPIO_NUM_26
-#define PIN_NUM_TOUCH_CS   GPIO_NUM_27
-#define PIN_NUM_TOUCH_IRQ  GPIO_NUM_32
-#define PIN_NUM_TOUCH_MISO GPIO_NUM_35
-#define PIN_NUM_TOUCH_MOSI GPIO_NUM_33
-
-#ifdef GOURRY_DEVKIT
-#define PIN_NUM_DISPLAY_RESET GPIO_NUM_18
-#define PIN_NUM_DISPLAY_CLK  GPIO_NUM_19
-#define PIN_NUM_DISPLAY_DATA_CMD GPIO_NUM_21
-#define PIN_NUM_DISPLAY_CS  GPIO_NUM_22
-#define PIN_NUM_DISPLAY_MOSI GPIO_NUM_23
-#define PIN_NUM_DISPLAY_MISO GPIO_NUM_25
-#define PIN_NUM_DISPLAY_BACKLIGHT GPIO_NUM_5
-#else
-#define PIN_NUM_DISPLAY_MISO GPIO_NUM_19
-#define PIN_NUM_DISPLAY_MOSI GPIO_NUM_23
-#define PIN_NUM_DISPLAY_CLK  GPIO_NUM_18
-#define PIN_NUM_DISPLAY_CS  GPIO_NUM_17
-#define PIN_NUM_DISPLAY_DATA_CMD GPIO_NUM_4
-#define PIN_NUM_DISPLAY_BACKLIGHT NOPIN
-#define PIN_NUM_DISPLAY_RESET NOPIN
-#endif
 
 //static const uint16_t FRAME_BUFFER_HEIGHT	= 132;
 //static const uint16_t FRAME_BUFFER_WIDTH	= 176;
@@ -122,6 +101,23 @@ ButtonInfo &DN8App::getButtonInfo() {
 
 libesp::ErrorType DN8App::onInit() {
 	ErrorType et;
+
+  // Configure UART parameters for pairing
+	uart_config_t uart_config {
+		.baud_rate           = 115200,
+		.data_bits           = UART_DATA_8_BITS,
+		.parity              = UART_PARITY_DISABLE,
+		.stop_bits           = UART_STOP_BITS_1,
+		.flow_ctrl           = UART_HW_FLOWCTRL_DISABLE,
+		.rx_flow_ctrl_thresh = 122,
+		.use_ref_tick        = false
+	};
+	uart_param_config(PAIRING_UART, &uart_config);
+	uart_set_pin(PAIRING_UART, PAIRING_TX, PAIRING_RX,
+		PAIRING_RTS, PAIRING_CTS);
+	uart_driver_install(PAIRING_UART, PAIR_BUFSIZE, PAIR_BUFSIZE,
+		0, NULL, 0);
+
 
 	MyContactStore.init();
 

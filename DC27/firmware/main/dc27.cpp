@@ -15,15 +15,8 @@
 
 #include "app.h"
 
+// This contains GPIO pin definitions for different kits
 #include "devkit.h"
-#ifdef GOURRY_DEVKIT
-#define I2C_SCL NOPIN
-#define I2C_SDA NOPIN
-#else
-#define I2C_SCL GPIO_NUM_22
-#define I2C_SDA GPIO_NUM_21
-#endif
-
 
 extern "C" {
 	void app_main();

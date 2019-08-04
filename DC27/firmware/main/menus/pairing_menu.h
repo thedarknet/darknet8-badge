@@ -66,6 +66,8 @@ private:
 	AliceToBobSignature ATBS;
 	unsigned char msgId = 0;
 	bool isAlice = false;
+	bool isBob   = false;
+	bool tempAlice = false;
 };
 
 

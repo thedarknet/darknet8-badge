@@ -7,6 +7,10 @@
 #include <esp_log.h>
 #include "gui_list_processor.h"
 
+// This contains GPIO definitions
+#include <system.h>
+#include "../devkit.h"
+
 using libesp::ErrorType;
 using libesp::RGBColor;
 using libesp::Point2Ds;
@@ -17,8 +21,6 @@ static StaticQueue_t InternalQueue;
 static uint8_t InternalQueueBuffer[TopBoardMenu::QUEUE_SIZE*TopBoardMenu::MSG_SIZE] = {0};
 static const char *LOGTAG = "TopBoardMenu";
 
-#define I2C_SCL2 GPIO_NUM_2
-#define I2C_SDA2 GPIO_NUM_16
 static ESP32_I2CMaster I2c1(I2C_SCL2,I2C_SDA2, 50000, I2C_NUM_1, 0, 16);
 
 
