@@ -36,7 +36,7 @@
 #define PAIRING_TX   GPIO_NUM_17
 #define PAIRING_RTS  UART_PIN_NO_CHANGE
 #define PAIRING_CTS  UART_PIN_NO_CHANGE
-#define PAIR_BUFSIZE 256
+#define PAIR_BUFSIZE (200)
 
 #else // Production
 #define UP_BUTTON   GPIO_NUM_39
@@ -71,7 +71,7 @@
 #define PAIRING_TX    GPIO_NUM_25
 #define PAIRING_RTS   NOPIN
 #define PAIRING_CTS   NOPIN
-#define PAIR_BUFSIZE  256
+#define PAIR_BUFSIZE  (200)
 #endif
 
 #endif

@@ -6,6 +6,7 @@
 #define DARKNET_MENUS_PAIRING_MENU_H_
 
 #include "dn8base_menu.h"
+#include "../devkit.h"
 
 //class ContactStore; // FIXME
 
@@ -48,8 +49,9 @@ protected:
 		PAIRING_SUCCESS, PAIRING_FAILED };
 
 private:
-	char MesgBuf[200];
+	char MesgBuf[PAIR_BUFSIZE];
 	unsigned int MesgLen;
+	size_t buffered_len;
 
 	// Internal State information
 	INTERNAL_STATE InternalState;

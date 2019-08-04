@@ -19,8 +19,6 @@ PairingMenu::PairingMenu() : DN8BaseMenu() { }
 
 PairingMenu::~PairingMenu() { }
 
-uint8_t uart_buf[PAIR_BUFSIZE];
-
 ErrorType PairingMenu::onInit() {
 	InternalState = NEGOTIATE;
 
@@ -34,7 +32,8 @@ ErrorType PairingMenu::onInit() {
 	memset(&AIC, 0, sizeof(AIC));
 	memset(&BRTI, 0, sizeof(BRTI));
 	memset(&ATBS, 0, sizeof(ATBS));
-	memset(uart_buf, 0, PAIR_BUFSIZE);
+	memset(MesgBuf, 0, PAIR_BUFSIZE);
+	this->buffered_len = 0;
 
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getDisplay().drawString(5, 10,
@@ -53,10 +52,10 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 
 	if (InternalState == NEGOTIATE)
 	{
-		if (uart_read_bytes(PAIRING_UART, uart_buf, 4,
+		if (uart_read_bytes(PAIRING_UART, (uint8_t*)MesgBuf, 1,
 			20 / portTICK_RATE_MS) > 0)
 		{
-			if ((uart_buf[0] == '\x8C') && this->tempAlice) //AliceConf
+			if ((MesgBuf[0] == '\x8C') && this->tempAlice) //AliceConf
 			{
 				this->isAlice = false;
 				this->isBob = false;
@@ -65,18 +64,18 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 				srand(clock());
 				vTaskDelay((rand() % 250) / portTICK_RATE_MS);
 			}
-			else if (uart_buf[0] == '\x8C') // Alice Confirm
+			else if (MesgBuf[0] == '\x8C') // Alice Confirm
 			{
 				this->isBob = true;
 				uart_write_bytes(PAIRING_UART, (const char*)BOB_CONFIRM, 1);
 				InternalState = BOB_RECEIVE_AIC;
 			}
-			else if (uart_buf[0] == '\x8D') // Bob Confirm
+			else if (MesgBuf[0] == '\x8D') // Bob Confirm
 			{
 				this->isAlice = true;
 				InternalState = ALICE_INIT;
 			}
-			else if (uart_buf[0] == '\x8E') // Reset Negotiation
+			else if (MesgBuf[0] == '\x8E') // Reset Negotiation
 			{
 				this->isAlice = false;
 				this->isBob = false;
@@ -93,27 +92,33 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 	}
 	else if (InternalState == ALICE_INIT)
 	{
-		DN8App::get().getDisplay().drawString(5, 20,
-			(const char*)"Alice Init", RGBColor::WHITE);
-		// TODO: AliceInitConvo
 		AIC.irmsgid = ALICE_INIT;
+
+		// TODO: Fill in AIC
 		//memcpy(&AIC.AlicePublicKey[0], DN8App::get().getCompressedPublicKey(), // TODO
 			//sizeof(AIC.AlicePublicKey));
 		//AIC.AliceRadioID = DN8App::get().getContacts().getMyInfo().getUniqueId();
 		//strncpy(&AIC.AliceName[0], DN8APP::get().getContacts.getSettings.getAgentName(),
 			//sizeof(AIC.AliceName));
 
-		// TODO: Send AIC Message
+		uart_write_bytes(PAIRING_UART, (const char*)&AIC, sizeof(AIC));
+		DN8App::get().getDisplay().drawString(5, 20,
+			(const char*)"Alice sent AIC", RGBColor::WHITE);
 
 		this->InternalState = ALICE_RECEIVE_BRTI;
 	}
 	else if (InternalState == BOB_RECEIVE_AIC)
 	{
-		DN8App::get().getDisplay().drawString(5, 20,
-			(const char*)"Bob Init", RGBColor::WHITE);
-		if (false) // TODO: Receive AIC
+		uart_get_buffered_data_len(PAIRING_UART, &buffered_len);
+		if (buffered_len == sizeof(AIC))
 		{
 			uint8_t signature[128]; // FIXME: magic number
+			this->buffered_len = 0; // reset for next step
+			uart_read_bytes(PAIRING_UART, (uint8_t*)MesgBuf, sizeof(AIC),
+				20/portTICK_RATE_MS);
+			DN8App::get().getDisplay().drawString(5, 20,
+				(const char*)"Bob Received AIC", RGBColor::WHITE);
+
 			// TODO: Sign or hash the data
 			/* SHA256 code
 			uint8_t message_hash[SHA256_HASH_SIZE];
@@ -141,7 +146,10 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			//	sizeof(BRTI.BobAgentName));
 			memcpy(&BRTI.SignatureOfAliceData[0], &signature[0],
 				sizeof(BRTI.SignatureOfAliceData));
-			// TODO: Send BRTI Message
+
+			uart_write_bytes(PAIRING_UART, (const char*)&BRTI, sizeof(BRTI));
+			DN8App::get().getDisplay().drawString(5, 30,
+				(const char*)"Bob sent BRTI", RGBColor::WHITE);
 
 			InternalState = BOB_RECEIVE_ATBS;
 		}
@@ -151,8 +159,14 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 	}
 	else if (InternalState == ALICE_RECEIVE_BRTI)
 	{
-		if (false) // TODO: Receive BRTI
+		uart_get_buffered_data_len(PAIRING_UART, &buffered_len);
+		if (buffered_len == sizeof(BRTI))
 		{
+			uart_read_bytes(PAIRING_UART, (uint8_t*)MesgBuf, sizeof(AIC),
+				20/portTICK_RATE_MS);
+			DN8App::get().getDisplay().drawString(5, 30,
+				(const char*)"Alice Received BRTI", RGBColor::WHITE);
+			this->buffered_len = 0; // clear for the next step;
 			// TODO: Sign or hash data?
 			/* SHA256 Code
 			uint8_t uncompressedPublicKey[PUBLIC_KEY_LENGTH]; // TODO
@@ -177,6 +191,8 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			// TODO: actually send ATBS
 			*/
 
+			uart_write_bytes(PAIRING_UART, (const char*)&ATBS, sizeof(ATBS));
+
 			// TODO Add to contacts
 			/*
 			if (!DN8App::get().getContacts().findContactByID(BRTI->BobRadioID, c))
@@ -193,10 +209,17 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 	}
 	else if (InternalState == BOB_RECEIVE_ATBS)
 	{
-		// TODO: finish up
-
-		if (false) // TODO: get ATBS
+		uart_get_buffered_data_len(PAIRING_UART, &buffered_len);
+		if (buffered_len == sizeof(ATBS))
 		{
+			uart_read_bytes(PAIRING_UART, (uint8_t*)MesgBuf, sizeof(AIC),
+				20/portTICK_RATE_MS);
+			DN8App::get().getDisplay().drawString(5, 40,
+				(const char*)"Bob received ATBS", RGBColor::WHITE);
+			this->buffered_len = 0; // clear for the next step;
+
+			InternalState = PAIRING_SUCCESS; // FIXME: remove
+
 			/* SHA256 Code
 			uint8_t uncompressedPublicKey[PUBLIC_KEY_LENGTH]; // TODO: Public key length
 			uECC_decompress(&AIC.AlicePublicKey[0], &uncompressedPublicKey[0], THE_CURVE);
