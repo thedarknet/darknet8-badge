@@ -144,7 +144,7 @@ absolutetime_t turnOnEveryN(void *d) {
 	return queueNext(data->next);
 }
 
-absolutetime_t danceHorizonal(void *d) {
+absolutetime_t danceVertical(void *d) {
 	static int8_t danc1_value = 1;
 	static uint8_t count = 0;
 	LedDanceFun *data = (LedDanceFun *)d;
@@ -154,6 +154,7 @@ absolutetime_t danceHorizonal(void *d) {
 			danc1_value = 1;
 			data->ExtraData+=danc1_value;
 			count++;
+			break;
 		case 1:
 			(*LedFunctions[2])(danc1_value>0?true:false);
 			(*LedFunctions[5])(danc1_value>0?true:false);
@@ -208,15 +209,15 @@ absolutetime_t danceHorizonal(void *d) {
 			data->ExtraData+=danc1_value;
 		break;
 	}
-	if(count>10) {
+	if(count>5) {
 		count=0;
 		danc1_value = 1;
-		return queueNext(0);
+		return queueNext(data->next);
 	}
 	return queueNext(data);
 }
 
-absolutetime_t danceVertical(void *d) {
+absolutetime_t danceHorizonal(void *d) {
 	static int8_t danc1_value = 1;
 	static uint8_t count = 0;
 	LedDanceFun *data = (LedDanceFun *)d;
@@ -226,6 +227,7 @@ absolutetime_t danceVertical(void *d) {
 		danc1_value = 1;
 		data->ExtraData+=danc1_value;
 		count++;
+		break;
 		case 1:
 		(*LedFunctions[0])(danc1_value>0?true:false);
 		(*LedFunctions[1])(danc1_value>0?true:false);
@@ -272,7 +274,7 @@ absolutetime_t danceVertical(void *d) {
 		data->ExtraData+=danc1_value;
 		break;
 	}
-	if(count>10) {
+	if(count>5) {
 		count=0;
 		danc1_value = 1;
 		return queueNext(data->next);
