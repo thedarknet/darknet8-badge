@@ -37,6 +37,7 @@ using libesp::XPT2046;
 using libesp::GUI;
 using libesp::DisplayMessageState;
 using libesp::BaseMenu;
+using libesp::System;
 
 const char *DN8App::LOGTAG = "AppTask";
 static StaticQueue_t InCommingQueue;
@@ -122,8 +123,11 @@ ButtonInfo &DN8App::getButtonInfo() {
 
 libesp::ErrorType DN8App::onInit() {
 	ErrorType et;
-
+	ESP_LOGI(LOGTAG,"OnInit: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	MyContactStore.init();
+	ESP_LOGI(LOGTAG,"After Contact Store: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 	et = DN8CalibrationMenu.initNVS();
 	if(!et.ok()) {
@@ -132,6 +136,8 @@ libesp::ErrorType DN8App::onInit() {
 	}
 
 	et = XPT2046::initTouch(PIN_NUM_TOUCH_MISO, PIN_NUM_TOUCH_MOSI, PIN_NUM_TOUCH_CLK,VSPI_HOST, 1);
+	ESP_LOGI(LOGTAG,"After Touch and Calibration: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 	if(!et.ok()) {
 		ESP_LOGE(LOGTAG,"failed to touch");
@@ -150,9 +156,15 @@ libesp::ErrorType DN8App::onInit() {
 			PIN_NUM_DISPLAY_CLK, 2, PIN_NUM_DISPLAY_DATA_CMD, PIN_NUM_DISPLAY_RESET,
 			PIN_NUM_DISPLAY_BACKLIGHT, HSPI_HOST);
 
+	ESP_LOGI(LOGTAG,"After Display: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
+
 	bus = libesp::SPIBus::get(HSPI_HOST);
 
 	FrameBuf.createInitDevice(bus,PIN_NUM_DISPLAY_CS,PIN_NUM_DISPLAY_DATA_CMD);
+	
+	ESP_LOGI(LOGTAG,"After FrameBuf: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 	ESP_LOGI(LOGTAG,"start display init");
 	et=Display.init(libesp::DisplayILI9341::FORMAT_16_BIT, &Font_6x10, &FrameBuf);
@@ -169,31 +181,42 @@ libesp::ErrorType DN8App::onInit() {
 		Display.drawString(10,100,"HELLO!",libesp::RGBColor::RED);
 		Display.drawString(50,110,"GOODBYE!",libesp::RGBColor::WHITE);
 		Display.swap();
-		ESP_LOGI(LOGTAG,"display init swap done");
 
+		ESP_LOGI(LOGTAG,"After Display swap: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 		// libbt.a is like 300kb
 		if(!BTTask.init()) {
 			return ErrorType(BT_INIT_FAIL);
 		}
+		ESP_LOGI(LOGTAG,"After BT: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 		if(!GMTask.init()) {
 			return ErrorType(GAME_TASK_INIT_FAIL);
 		}
+		ESP_LOGI(LOGTAG,"After GameTask: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 		if(!WifiTask.init()) {
 			return ErrorType(WIFI_TASK_INIT_FAIL);
 		}
+		ESP_LOGI(LOGTAG,"After Wifi: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 		if(!MyButtons.init()) {
 			return ErrorType(BUTTON_INIT_FAIL);
 		} else {
 			ESP_LOGI(LOGTAG,"Button Init complete");
 		}
+		ESP_LOGI(LOGTAG,"After Buttons: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 		if(!MyTopBoardMenu.deviceInit()) {
 			return ErrorType(TOP_BOARD_INIT_FAIL);
 		} else {
 			ESP_LOGI(LOGTAG,"TopBoard Init complete");
 		}
+		ESP_LOGI(LOGTAG,"After Top Board: Free: %u, Min %u",
+						 System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	} else {
 		ESP_LOGE(LOGTAG,"failed display init");
 	}
@@ -203,6 +226,8 @@ libesp::ErrorType DN8App::onInit() {
 	GMTask.start();
 	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
 	WifiTask.start();
+	ESP_LOGI(LOGTAG,"After Task starts: Free: %u, Min %u",
+		System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	
 	setCurrentMenu(getMenuState());
 	return et;
@@ -254,6 +279,8 @@ ErrorType DN8App::onRun() {
 	if (rsc.Err.ok()) {
 		if (getCurrentMenu() != rsc.NextMenuToRun) {
 			setCurrentMenu(rsc.NextMenuToRun);
+			ESP_LOGI(LOGTAG,"on Menu swap: Free: %u, Min %u",
+				System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 		} else {
 		}
 	} else {
