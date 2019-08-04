@@ -21,6 +21,7 @@
 
 #include "wifi/WiFi.h"
 #include "HttpServer.h"
+#include "system.h"
 
 const char *WIFITask::LOGTAG = "WIFITask";
 static const char *LOGTAG = "OTAWIFI";
@@ -133,7 +134,7 @@ static void initialize_wifi(void) {
 /**************************** END CODE **********************************/
 
 
-/************************** DC26 WIFI CODE ******************************/
+/************************** DC27 WIFI CODE ******************************/
 //#include "npc_interact.h"
 static NPCInteractionTask NPCITask("NPCInteractTask");
 static libesp::HttpServer Port80WebServer;
@@ -148,12 +149,17 @@ public:
 		return ESP_OK;
 	}   
 	virtual esp_err_t apStart() {
-		ESP_LOGI(logTag, "MyWiFiEventHandler(Class): apStart starting web server");
+		ESP_LOGI(logTag, "MyWiFiEventHandler(Class): apStart");
 		APStarted = true;
+		libesp::System::get().logSystemInfo();
+		ESP_LOGI(logTag, "Starting Web Server");
+		Port80WebServer.start(80, false);
+		ESP_LOGI(logTag, "after starting Web server");
+		libesp::System::get().logSystemInfo();
 		return ESP_OK;
 	}   
 	virtual esp_err_t apStop() {
-		ESP_LOGI(logTag, "MyWiFiEventHandler(Class): apStop stopping web server");
+		ESP_LOGI(logTag, "MyWiFiEventHandler(Class): apStop stop");
 		APStarted = false;
 		return ESP_OK;
 	}   
@@ -170,6 +176,7 @@ public:
 		return ESP_OK;
 	}   
 	virtual esp_err_t staScanDone(system_event_sta_scan_done_t info) {
+			  /*
 		ESP_LOGI(logTag, "MyWiFiEventHandler(Class): scan done: APs Found %d", (int32_t) info.number);
 		uint16_t numAPs = info.number;
 		wifi_ap_record_t *recs = new wifi_ap_record_t[numAPs];
@@ -195,6 +202,7 @@ public:
 		}
 		xQueueSend(respQueue, (void* )&rmsg,(TickType_t ) 100);
 		delete [] recs;
+		*/
 		return ESP_OK;
 	}
 	virtual esp_err_t staAuthChange(system_event_sta_authmode_change_t info) { return ESP_OK; }
@@ -213,9 +221,9 @@ private:
 };
 
 
-void WIFITask::npcInteract(WIFIMsg* msg) {
+void WIFITask::npcInteract(WIFIRequestMsg* msg) {
 	bool success = false;
-	WifiNpcMsg* wnm = &msg->data.wnm;
+	WifiNpcMsg* wnm = msg->data.wnm;
 	ESP_LOGI(LOGTAG, "processing wifi npc interaction");
 	wifi.stopWiFi();
 	if (ESP_OK == wifi.connectAP(wnm->ssid, (const char*)"DCDN-8-DC27", wnm->data)) {
@@ -236,16 +244,15 @@ void WIFITask::npcInteract(WIFIMsg* msg) {
 	if (!success) free(wnm->npcname); // it not successful, this wasn't passed anywhere
 
 	// Send an OK or error response
-	WIFIResponseMsg* resp = (WIFIResponseMsg*)malloc(sizeof(WIFIResponseMsg));
-	resp->type = success ? WIFI_OK : WIFI_ERR_CONNECTAP;
+	WIFIResponseMsg* resp = new WIFIResponseMsg(success ? WIFI_OK : WIFI_ERR_CONNECTAP);
 	xQueueSend(msg->returnQueue, (void*)&resp, (TickType_t)100);
 }
 
 
 
-void WIFITask::wifiScan(WIFIMsg* msg)
+void WIFITask::wifiScan(WIFIRequestMsg* msg)
 {
-	WifiScanMsg* wsm = &msg->data.wsm;	
+	WifiScanMsg* wsm = msg->data.wsm;	
 	MyWiFiEventHandler *eh = (MyWiFiEventHandler*)wifi.getWifiEventHandler();
 	ESP_LOGI(LOGTAG, "processing wifi scan");
 	if (eh) {
@@ -258,45 +265,68 @@ void WIFITask::wifiScan(WIFIMsg* msg)
 	return;
 }
 
-void WIFITask::startAp(WIFIMsg* msg)
-{
-	StartAPMsg* sap = &msg->data.sap;
+void WIFITask::startAp(WIFIRequestMsg* msg) {
+	StartAPMsg* sap = msg->data.sap;
 
 	// Start the AP and the webserver
-	wifi.startAP(sap->ssid, sap->passwd, sap->mode);
-	Port80WebServer.start(80, false);
+	wifi.startAP(&sap->SSID[0], &sap->Password[0], sap->mode);
 
-	// Send an OK response
-	WIFIResponseMsg* resp = (WIFIResponseMsg*)malloc(sizeof(WIFIResponseMsg));
-	resp->type = WIFI_OK;
-	xQueueSend(msg->returnQueue, (void*)&resp, (TickType_t)100);
-
-	// clean up
-	free(sap->ssid);
-	free(sap->passwd);
-	return;
+	if(msg->returnQueue) {
+		// Send an OK response
+		WIFIResponseMsg* resp = new WIFIResponseMsg(WIFI_OK);
+		xQueueSend(msg->returnQueue, (void*)&resp, (TickType_t)10);
+	}
 }
-void WIFITask::stopAp(WIFIMsg* msg)
-{
+
+void WIFITask::stopAp(WIFIRequestMsg* msg) {
 	// Shut down webserver and AP
 	Port80WebServer.stop();
 	wifi.stopWiFi();
 	wifi.shutdown();
 
-	// Send an OK response
-	WIFIResponseMsg* resp = (WIFIResponseMsg*)malloc(sizeof(WIFIResponseMsg));
-	resp->type = WIFI_OK;
-	xQueueSend(msg->returnQueue, (void*)&resp, (TickType_t)100);
-	return;
+	if(msg->returnQueue) {
+		// Send an OK response
+		WIFIResponseMsg* resp = new WIFIResponseMsg(WIFI_OK);
+		xQueueSend(msg->returnQueue, (void*)&resp, (TickType_t)10);
+	}
 }
 
-/*********************** END DC26 WIFI CODE ****************************/
+void WIFITask::handleStatus(WIFIRequestMsg *msg) {
+	WIFIResponseMsg *resp = new WIFIResponseMsg(WIFI_STATUS_OK);
+	MyWiFiEventHandler *eh = (MyWiFiEventHandler*)wifi.getWifiEventHandler();
+	StatusMsg *smg = new StatusMsg(eh->isAPStarted());
+	resp->setResponse(smg);
+	smg->setSSID(wifi.getApSSID().c_str());
+	smg->setPassword("");
+	smg->setIP(wifi.getApIp().c_str());
+	wifi.dump();
+	xQueueSend(msg->returnQueue, (void*)&resp, (TickType_t)10);
+}
+	
+libesp::ErrorType WIFITask::requestStatus(QueueHandle_t &t) {
+	WIFIRequestMsg *req = new WIFIRequestMsg(WIFI_STATUS, t);
+	return xQueueSend(getQueueHandle(),&req, (TickType_t)10);
+}
+	
+libesp::ErrorType WIFITask::requestAPDown(QueueHandle_t &t) {
+	WIFIRequestMsg *req = new WIFIRequestMsg(WIFI_AP_STOP, t);
+	return xQueueSend(getQueueHandle(),&req, (TickType_t)10);
+}
 
+libesp::ErrorType WIFITask::requestAPUp(QueueHandle_t &t, uint16_t secType,const char *ssid,const char *pw) {
+	WIFIRequestMsg *req = new WIFIRequestMsg(WIFI_AP_START, t);
+	StartAPMsg *sapmsg = new StartAPMsg();
+	sapmsg->mode = (wifi_auth_mode_t)secType;
+	strncpy(&sapmsg->SSID[0],ssid,sizeof(sapmsg->SSID));
+	strncpy(&sapmsg->Password[0],pw,sizeof(sapmsg->Password));
+	req->setStartAPMsg(sapmsg);
+	return xQueueSend(getQueueHandle(),&req, (TickType_t)10);
+}
 
 #define CmdQueueTimeout ((TickType_t) 1000 / portTICK_PERIOD_MS)
 #define BOOT_CONSIDERED_SUCCESS (30)
 void WIFITask::run(void* data) {
-	WIFIMsg* msg = nullptr;
+	WIFIRequestMsg* msg = nullptr;
 	int since_boot = 0;
 	while (1) {
 		if (xQueueReceive(WIFIQueueHandle, &msg, CmdQueueTimeout)) {
@@ -319,9 +349,12 @@ void WIFITask::run(void* data) {
 			case WIFI_NPC_INTERACT:
 				npcInteract(msg);
 				break;
+			case WIFI_STATUS:
+				handleStatus(msg);
 			default:
 				break;
 			}
+			delete msg;
 		} else if (since_boot >= 0) { // on timeout (1 second?)
 			if (since_boot > BOOT_CONSIDERED_SUCCESS) {
 				ESP_LOGI(LOGTAG, "Boot considered successful");
@@ -333,7 +366,6 @@ void WIFITask::run(void* data) {
 				since_boot++; // increment and move on
 			}
 		}
-		delete msg;
 	}
 	ESP_LOGI(LOGTAG, "COMPLETE");
 	return;	

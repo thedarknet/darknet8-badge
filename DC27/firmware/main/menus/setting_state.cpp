@@ -48,20 +48,20 @@ static char Misc[8] = {'\0'};
 BaseMenu::ReturnStateContext SettingMenu::onRun() {
 	BaseMenu *nextState = this;
 	if (0 == SubState) {
-		if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP)) {
+		if (upAction()) {
 			if (SettingList.selectedItem == 0) {
 				SettingList.selectedItem = sizeof(Items) / sizeof(Items[0]) - 1;
 			} else {
 				SettingList.selectedItem--;
 			}
-		} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN)) {
+		} else if (downAction()) {
 			if (SettingList.selectedItem
 					== (sizeof(Items) / sizeof(Items[0]) - 1)) {
 				SettingList.selectedItem = 0;
 			} else {
 				SettingList.selectedItem++;
 			}
-		} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
+		} else if (selectAction()) {
 			SubState = SettingList.selectedItem + 100;
 			DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 			switch (SubState) {
@@ -91,7 +91,7 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 		switch (SubState) {
 		case 100:
 			VKB.process();
-			if (DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN| ButtonInfo::BUTTON_LEFT_UP)&& AgentName[0] != '\0' && AgentName[0] != ' ' && AgentName[0] != '_') {
+			if (backAction() && AgentName[0] != '\0' && AgentName[0] != ' ' && AgentName[0] != '_') {
 				AgentName[Contact::AGENT_NAME_LENGTH - 1] = '\0';
 				if (DN8App::get().getContacts().getSettings().setAgentname(&AgentName[0])) {
 					nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Save Successful", 2000);
@@ -110,11 +110,11 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 				DN8App::get().getDisplay().drawString(0, 30, (const char*) "Up to increase, down to decrease", RGBColor::WHITE, RGBColor::BLACK, 1, true);
 				DN8App::get().getDisplay().drawString(10, 60, &Misc[0], RGBColor::WHITE, RGBColor::BLACK, 1, true);
 				DN8App::get().getDisplay().drawString(0, 100, (const char*) "Fire Button completes", RGBColor::WHITE, RGBColor::BLACK, 1, true);
-				if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP)) {
+				if (upAction()) {
 					MiscCounter++;
-				} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN)) {
+				} else if (downAction()) {
 					MiscCounter--;
-				} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
+				} else if (selectAction()) {
 					if (DN8App::get().getContacts().getSettings().setScreenSaverTime(MiscCounter)) {
 						nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Setting saved", 2000);
 					} else {
@@ -124,7 +124,7 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 			}
 			break;
 		case 102:
-			if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
+			if (selectAction()) {
 				DN8App::get().getContacts().resetToFactory();
 				nextState = DN8App::get().getMenuState();
 			} else if (DN8App::get().getButtonInfo().wasAnyButtonReleased()) {

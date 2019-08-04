@@ -1,8 +1,7 @@
 /*
  * communications_settings.cpp
  *
- *  Created on: May 29, 2018
- *      Author: dcomes
+ *      Author: cmdc0de
  */
 
 
@@ -11,11 +10,20 @@
 #include "menu_state.h"
 #include "../app.h"
 #include "../buttons.h"
+#include "../wifi.h"
+#include "../KeyStore.h"
+#include <device/touch/XPT2046.h>
+#include "app/display_message_state.h"
 
 using libesp::ErrorType;
 using libesp::RGBColor;
 using libesp::BaseMenu;
+using libesp::TouchNotification;
 
+static StaticQueue_t WIFIQueue;
+static uint8_t WIFIQueueBuffer[CommunicationSettingState::WIFI_QUEUE_SIZE*CommunicationSettingState::WIFI_MSG_SIZE] = {0};
+static StaticQueue_t TouchQueue;
+static uint8_t TouchQueueBuffer[CommunicationSettingState::TOUCH_QUEUE_SIZE*CommunicationSettingState::TOUCH_MSG_SIZE] = {0};
 
 class BLESetDeviceNameMenu: public DN8BaseMenu {
 private:
@@ -114,170 +122,172 @@ protected:
 static const char *Advertise = "BLE Advertise";
 static BLEBoolMenu BLEAdvertise_Menu(Advertise, BLEBoolMenu::AD);
 
+const char *WIFI_SECURITY[] = {
+	"WIFI_AUTH_OPEN",
+	"WIFI_AUTH_WEP",
+	"WIFI_AUTH_WPA_PSK",
+	"WIFI_AUTH_WPA2_PSK",
+	"WIFI_AUTH_WPA_WPA2_PSK"
+};
 
-class WiFi: public DN8BaseMenu {
+static StaticQueue_t TouchMenuQueue;
+static const int WIFI_MENU_TOUCH_QUEUE_SIZE = 4;
+static const int WIFI_MENU_TOUCH_MSG_SIZE = sizeof(libesp::TouchNotification*);
+static uint8_t TouchMenuQueueBuffer[WIFI_MENU_TOUCH_QUEUE_SIZE*WIFI_MENU_TOUCH_MSG_SIZE] = {0};
+class WiFiMenu : public DN8BaseMenu {
 private:
 	VirtualKeyBoard VKB;
 	char SSID[17];
 	char Password[32];
 	VirtualKeyBoard::InputHandleContext IHC;
 	libesp::GUIListData WifiSettingList;
-	libesp::GUIListItemData Items[5];
-	char ListBuffer[5][33];
+	libesp::GUIListItemData Items[7];
 	uint16_t WorkingItem;
-	//darknet7::WiFiStatus CurrentWiFiStatus;
 	static const uint16_t NO_WORKING_TIME = 0xFFFF;
+	static const uint16_t ItemCount = uint16_t(sizeof(Items) / sizeof(Items[0]));
+	bool APStatus;
+	uint16_t SecurityType;
+	QueueHandle_t TouchQueueHandle;
 public:
-	WiFi() : DN8BaseMenu(), VKB(), SSID(), Password(), IHC(0,0), WifiSettingList("WiFi Settings:", Items,0,0, DN8App::get().getLastCanvasWidthPixel(), 70, 0
-		, (sizeof(Items) / sizeof(Items[0]))) , ListBuffer(), WorkingItem(NO_WORKING_TIME)
-		 { //, CurrentWiFiStatus(darknet7::WiFiStatus_DOWN) {
+	WiFiMenu() : DN8BaseMenu(), VKB(), SSID(), Password(), IHC(0,0), WifiSettingList("WiFi Settings:", Items,0,0, DN8App::get().getLastCanvasWidthPixel()-4, 90, 0, ItemCount), WorkingItem(NO_WORKING_TIME), APStatus(false) { 
+		TouchQueueHandle = xQueueCreateStatic(WIFI_MENU_TOUCH_QUEUE_SIZE,WIFI_MENU_TOUCH_MSG_SIZE,&TouchMenuQueueBuffer[0],&TouchMenuQueue);
 	}
-	//void setWifiStatus(darknet7::WiFiStatus c) {CurrentWiFiStatus = c;}
-	virtual ~WiFi() {}
+	void setAPStatus(bool b) {APStatus=b;}
+	void setSecurityType(wifi_auth_mode_t &t) {SecurityType=uint16_t(t);}
+	void setSSID(const char *ssid) {strncpy(&SSID[0],ssid,sizeof(SSID));}
+	virtual ~WiFiMenu() {}
 protected:
 	virtual libesp::ErrorType onInit() {
+		clearListBuffer();
 		memset(&SSID[0],0,sizeof(SSID));
 		memset(&Password[0],0,sizeof(Password));
-		memset(&ListBuffer[0],0,sizeof(ListBuffer));
-		for (uint32_t i = 0; i < (sizeof(Items) / sizeof(Items[0])); i++) {
+		for (uint32_t i = 0;i<ItemCount;++i) {
 			Items[i].id = i;
-			Items[i].text = &ListBuffer[i][0];
+			Items[i].text = getRow(i);
 			Items[i].setShouldScroll();
 		}
 		WorkingItem = NO_WORKING_TIME;
+		DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
+		DN8App::get().getTouch().addObserver(TouchQueueHandle);
 		return ErrorType();
 	}
 
 	virtual libesp::BaseMenu::ReturnStateContext onRun() {
 		BaseMenu *nextState = this;
-		DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
-/*
-		//sprintf(&ListBuffer[0][0],"AP Status: %s", darknet7::EnumNameWiFiStatus(CurrentWiFiStatus));
-		if(CurrentWiFiStatus==darknet7::WiFiStatus_DOWN) {
-			ListBuffer[1][0] = '\0';
-			ListBuffer[2][0] = '\0';
-			ListBuffer[3][0] = '\0';
-		} else {
-			//sprintf(&ListBuffer[1][0],"AP Type: %s", darknet7::EnumNameWifiMode(SecurityType));
-			sprintf(&ListBuffer[2][0],"SSID: %s", &SSID[0]);
-			if(SecurityType==darknet7::WifiMode_OPEN ) {
-				ListBuffer[3][0] = '\0';
-			} else {
-				sprintf(&ListBuffer[3][0],"Password: %s", &Password[0]);
+		sprintf(getRow(0),"AP Status: %s", APStatus?"UP":"DOWN");
+		if(APStatus) {
+			sprintf(getRow(1),"AP Type: %s", WIFI_SECURITY[SecurityType]);
+			sprintf(getRow(2),"SSID: %s", &SSID[0]);
+			if(SecurityType!=WIFI_AUTH_OPEN ) {
+				sprintf(getRow(3),"Password: %s", &Password[0]);
 			}
 		}
-		strcpy(&ListBuffer[4][0],"Submit");
+		strcpy(getRow(4),"Submit");
 
 		if(WorkingItem==NO_WORKING_TIME) {
-			if (!GUIListProcessor::process(&WifiSettingList,(sizeof(Items) / sizeof(Items[0])))) {
-				if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1)) {
+			TouchNotification *pe = nullptr;
+			bool penUp = false;
+			bool hdrHit = false;
+			pe = processTouch(TouchQueueHandle, WifiSettingList, ItemCount, penUp,hdrHit);
+			if (pe || !GUIListProcessor::process(&WifiSettingList,ItemCount)) {
+				if(penUp ||selectAction()) {
 					WorkingItem = WifiSettingList.selectedItem;
-
 					switch(WorkingItem) {
 					case 0:
 						//do nothing
-						break;
+						strcpy(getRow(6),"Use Fire end this menu");
+					break;
 					case 1:
-						break;
+						strcpy(getRow(6),"Use Fire end this menu");
+					break;
 					case 2:
 						IHC.set(&SSID[0],sizeof(SSID));
-						VKB.init(VirtualKeyBoard::STDKBLowerCase,&IHC,5,DN8App::DISPLAY_WIDTH-5,100,RGBColor::WHITE,	RGBColor::BLACK, RGBColor::BLUE,'_');
-						break;
+						VKB.init(VirtualKeyBoard::STDKBLowerCase,&IHC,5,DN8App::get().getLastCanvasWidthPixel()-5,100,RGBColor::WHITE,	RGBColor::BLACK, RGBColor::BLUE,'_');
+						strcpy(getRow(6),"Press UP/DOWN to esc this menu");
+					break;
 					case 3:
 						IHC.set(&Password[0],sizeof(Password));
-						VKB.init(VirtualKeyBoard::STDKBLowerCase,&IHC,5,DN8App::DISPLAY_WIDTH-5,100,RGBColor::WHITE,	RGBColor::BLACK, RGBColor::BLUE,'_');
-						break;
+						VKB.init(VirtualKeyBoard::STDKBLowerCase,&IHC,5,DN8App::get().getLastCanvasWidthPixel()-5,100,RGBColor::WHITE,	RGBColor::BLACK, RGBColor::BLUE,'_');
+						strcpy(getRow(6),"Press UP/DOWN to esc this menu");
+					break;
 					case 4: {
-							if(SSID[0]!='\0') { // || CurrentWiFiStatus==darknet7::WiFiStatus_DOWN) {
-								//flatbuffers::FlatBufferBuilder fbb;
-								//flatbuffers::Offset<void> msgOffset;
-								//darknet7::STMToESPAny Msg_type = darknet7::STMToESPAny_StopAP;
-								//if(CurrentWiFiStatus==darknet7::WiFiStatus_DOWN) {
-							///		auto r = darknet7::CreateStopAP(fbb);
-							//		msgOffset = r.Union();
-							//	} else {
-							//		auto r = darknet7::CreateSetupAPDirect(fbb,&SSID[0],&Password[0],SecurityType);
-							//		msgOffset = r.Union();
-							//		Msg_type = darknet7::STMToESPAny_SetupAP;
-							//	}
-							//	auto z = darknet7::CreateSTMToESPRequest(fbb,DN8App::get().nextSeq(),Msg_type,msgOffset);
-							//	darknet7::FinishSizePrefixedSTMToESPRequestBuffer(fbb,z);
-							//	MCUToMCU::get().send(fbb);
-								nextState = DN8App::get().getDisplayMessageState(DN8App::get().getCommunicationSettingState(),(const char *)"Updating ESP",5000);
-							} else {
-								DN8App::get().getDisplay().drawString(0,80,(const char *)"SID Can't be blank");
+						if(SSID[0]!='\0') { 
+							QueueHandle_t h = nullptr;
+							if(APStatus) { //ap down bring it up
+								DN8App::get().getWifiTask().requestAPUp(h,SecurityType,&SSID[0],&Password[0]);
+							} else { //ap up bring it down
+								DN8App::get().getWifiTask().requestAPDown(h);
 							}
+							nextState = DN8App::get().getDisplayMessageState(DN8App::get().getCommunicationSettingState(),(const char *)"Updating ESP",5000);
+						} else {
+							DN8App::get().getDisplay().drawString(0,80,(const char *)"SID Can't be blank");
 						}
-						break;
+						}
+					break;
 					}
-				} else if ( DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_LEFT_UP|ButtonInfo::BUTTON_RIGHT_DOWN)) {
+				} else if (backAction() || hdrHit) {
 					nextState = DN8App::get().getCommunicationSettingState();
 				}
-			}
+			} 
 		} else {
 			switch(WorkingItem) {
 			case 0:
-				if(DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_UP | DN8App::ButtonInfo::BUTTON_DOWN)) {
-					if(CurrentWiFiStatus==darknet7::WiFiStatus_DOWN) CurrentWiFiStatus = darknet7::WiFiStatus_AP_STA;
-					else CurrentWiFiStatus = darknet7::WiFiStatus_DOWN;
-				} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_MID | DN8App::ButtonInfo::BUTTON_FIRE1)) {
+				if(upAction() || downAction()) {
+					APStatus = !APStatus;
+				} else if (selectAction()) {
 					WorkingItem = NO_WORKING_TIME;
 				}
 				break;
 			case 1:
 			{
-				if(DN8App::get().getButtonInfo().wereTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_UP)) {
-					uint32_t s = (uint32_t)(SecurityType);
-					++s;
-					s = s%darknet7::WifiMode_MAX;
-					SecurityType = (darknet7::WifiMode)s;
-				} else if (DN8App::get().getButtonInfo().wereTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_DOWN)) {
-					if(SecurityType==darknet7::WifiMode_MIN) {
-						SecurityType = darknet7::WifiMode_MAX;
-					} else {
-						uint32_t s = (uint32_t)(SecurityType);
-						--s;
-						SecurityType = (darknet7::WifiMode)s;
+				if(upAction()) {
+					++SecurityType;
+					if(SecurityType==WIFI_AUTH_WEP)++SecurityType;
+					SecurityType=SecurityType%WIFI_AUTH_MAX;
+				} else if (downAction()) {
+					if(SecurityType!=WIFI_AUTH_OPEN) {
+						--SecurityType;
 					}
-				} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_MID
-																					| DN8App::ButtonInfo::BUTTON_FIRE1)) {
+				} else if (selectAction()) {
 					WorkingItem = NO_WORKING_TIME;
 				}
 			}
 			break;
 			case 2:
 				VKB.process();
-				if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_MID)) {
+				if (backAction()) {
 					WorkingItem = NO_WORKING_TIME;
 				}
 				break;
 			case 3:
 				VKB.process();
-				if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_MID)) {
+				if (backAction()) {
 					WorkingItem = NO_WORKING_TIME;
 				}
 				break;
 			}
 		}
 		DN8App::get().getGUI().drawList(&WifiSettingList);
-*/
 		return ReturnStateContext(nextState);
 	}
 
 	virtual libesp::ErrorType onShutdown() {
 		WifiSettingList.selectedItem=0;
+		DN8App::get().getTouch().removeObserver(TouchQueueHandle);
 		return ErrorType();
 	}
 };
-static WiFi WiFiMenu;
+static WiFiMenu WiFiMenuInstance;
 
 
 CommunicationSettingState::CommunicationSettingState() : DN8BaseMenu(), 
 	CommSettingList("Comm Info:", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel()
 	, DN8App::get().getLastCanvasHeightPixel(), 0, (sizeof(Items) / sizeof(Items[0])))
-	, Items(), ListBuffer(), CurrentDeviceName(), InternalState(NONE)
-	{ //, CurrentWifiStatus(darknet7::WiFiStatus_DOWN) {
+	, Items(), CurrentDeviceName(), InternalState(NONE)
+	{ 
 
+	WifiQueueHandle = xQueueCreateStatic(WIFI_QUEUE_SIZE,WIFI_MSG_SIZE,&WIFIQueueBuffer[0],&WIFIQueue);
+	TouchQueueHandle = xQueueCreateStatic(TOUCH_QUEUE_SIZE,TOUCH_MSG_SIZE,&TouchQueueBuffer[0],&TouchQueue);
 }
 
 CommunicationSettingState::~CommunicationSettingState() {
@@ -285,42 +295,57 @@ CommunicationSettingState::~CommunicationSettingState() {
 }
 
 ErrorType CommunicationSettingState::onInit() {
-/*
-	InternalState = FETCHING_DATA;
-	flatbuffers::FlatBufferBuilder fbb;
-	auto r = darknet7::CreateCommunicationStatusRequest(fbb);
-	ESPRequestID = DN8App::get().nextSeq();
-	auto e = darknet7::CreateSTMToESPRequest(fbb,ESPRequestID,darknet7::STMToESPAny_CommunicationStatusRequest, r.Union());
-	darknet7::FinishSizePrefixedSTMToESPRequestBuffer(fbb,e);
-	memset(&ListBuffer[0], 0, sizeof(ListBuffer));
-	const MSGEvent<darknet7::CommunicationStatusResponse> *si = 0;
-	MCUToMCU::get().getBus().addListener(this,si,&MCUToMCU::get());
+	clearListBuffer();
+	for(int i=0;i<(sizeof(Items)/sizeof(Items[0]));++i) {
+		Items[i].text = getRow(i);
+		Items[i].id = i;
+		Items[i].setShouldScroll();
+	}
+	DN8App::get().getWifiTask().requestStatus(WifiQueueHandle);
+	//sprintf(getRow(1),"BLE Advertise: %s",DN8App::get().getBTTask().isAdvertiseStr());
+	sprintf(getRow(2),"BLE DeviceName: %s",DN8App::get().getContacts().getSettings().getAgentName());
+
+	TouchNotification *pe = nullptr;
+	for(int i=0;i<2;i++) {
+		if(xQueueReceive(TouchQueueHandle, &pe, 0)) {
+			delete pe;
+		}
+	}
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
-
-	DN8App::get().getDisplay().drawString(5,10,(const char *)"Fetching data from ESP",RGBColor::BLUE);
-
-	MCUToMCU::get().send(fbb);
-*/
+	DN8App::get().getDisplay().drawString(0,30,(const char *)"***FETCHING DATA***");
+	InternalState=FETCHING_DATA;
 	return ErrorType();
 }
 
 BaseMenu::ReturnStateContext CommunicationSettingState::onRun() {
 	BaseMenu *nextState = this;
-/*
 	if(InternalState==FETCHING_DATA) {
-		if(this->getTimesRunCalledSinceLastReset()>200) {
-			const MSGEvent<darknet7::CommunicationStatusResponse> *mevt=0;
-			MCUToMCU::get().getBus().removeListener(this,mevt,&MCUToMCU::get());
-			nextState = DN8App::get().getDisplayMessageState(DN8App::get().getDisplayMenuState(),DN8App::get().NO_DATA_FROM_ESP,2000);
+		WIFIResponseMsg *wifimsg;
+		if(xQueueReceive(WifiQueueHandle, &wifimsg, 0)) {
+			if(wifimsg->getType()==WIFI_STATUS_OK) {
+				sprintf(getRow(0),"WifiStatus: %s",
+									 wifimsg->getStatusMsg().isApStarted()?"AP UP":"AP DOWN");
+				WiFiMenuInstance.setAPStatus(wifimsg->getStatusMsg().isApStarted());
+				WiFiMenuInstance.setSSID(wifimsg->getStatusMsg().getSSID());
+				DN8App::get().getTouch().addObserver(TouchQueueHandle);
+				InternalState=DISPLAY_DATA;
+			}
 		}
+		if(this->getTimesRunCalledSinceLastReset()>250) {
+			nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(),"Failed to fetch data",2000);
+		}
+		delete wifimsg;
 	} else {
-		if (!GUIListProcessor::process(&CommSettingList,(sizeof(Items) / sizeof(Items[0])))) {
-			if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_FIRE1)) {
+		TouchNotification *pe = nullptr;
+		bool penUp = false;
+		bool hdrHit = false;
+		pe = processTouch(TouchQueueHandle, CommSettingList, ItemCount, penUp, hdrHit);
+		if(pe || !GUIListProcessor::process(&CommSettingList,ItemCount)) {
+			if (penUp || selectAction()) {
 				DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 				switch(CommSettingList.selectedItem) {
 				case 0:
-					WiFiMenu.setWifiStatus(CurrentWifiStatus);
-					nextState = &WiFiMenu;
+					nextState = &WiFiMenuInstance;
 					break;
 				case 1:
 					nextState = &BLEAdvertise_Menu;
@@ -330,17 +355,17 @@ BaseMenu::ReturnStateContext CommunicationSettingState::onRun() {
 					nextState = &BLESetName_Menu;
 					break;
 				}
-			} else if (DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(DN8App::ButtonInfo::BUTTON_MID)) {
-				nextState = DN8App::get().getDisplayMenuState();
+			} else if(hdrHit) {
+				nextState = DN8App::get().getMenuState();
 			}
 		}
 		DN8App::get().getGUI().drawList(&CommSettingList);
 	}
-*/
 	return ReturnStateContext(nextState);
 }
 
 ErrorType CommunicationSettingState::onShutdown() {
+	DN8App::get().getTouch().removeObserver(TouchQueueHandle);
 	return ErrorType();
 }
 

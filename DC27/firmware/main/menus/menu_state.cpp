@@ -82,32 +82,17 @@ ErrorType MenuState::onInit() {
 libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 	BaseMenu *nextState = this;
 	TouchNotification *pe = nullptr;
-	Point2Ds TouchPosInBuf;
 	bool penUp = false;
-	if(xQueueReceive(InternalQueueHandler, &pe, 0)) {
-		Point2Ds screenPoint(pe->getX(),pe->getY());
-		TouchPosInBuf = DN8App::get().getCalibrationMenu()->getPickPoint(screenPoint);
-		ESP_LOGI(LOGTAG,"TouchPoint: X:%d Y:%d PD:%d", int32_t(TouchPosInBuf.getX()),
-							 int32_t(TouchPosInBuf.getY()), pe->isPenDown()?1:0);
-		penUp = !pe->isPenDown();
-		delete pe;
-		int32_t touchGUI = GUIListProcessor::process(TouchPosInBuf, &MenuList,(sizeof(Items) / sizeof(Items[0])));
-		if(touchGUI==GUIListProcessor::NO_GUI_ITEM_HIT
-				|| touchGUI==GUIListProcessor::GUI_HEADER_HIT) {
-			pe = nullptr;
-		}
-	}
-	if (pe || !GUIListProcessor::process(&MenuList,(sizeof(Items) / sizeof(Items[0]))))
-	{
-		if (penUp || DN8App::get().getButtonInfo().wereAnyOfTheseButtonsReleased(ButtonInfo::BUTTON_FIRE1))
-		{
-			switch (MenuList.selectedItem)
-			{
+	bool hdrHit = false;
+	pe = processTouch(InternalQueueHandler, MenuList, ItemCount, penUp, hdrHit);
+	if (pe || !GUIListProcessor::process(&MenuList,ItemCount)) {
+		if (penUp || selectAction()) {
+			switch (MenuList.getSelectedItemID()) {
 				case 0:
 					nextState = DN8App::get().getSettingsMenu();
 					break;
 				case 1:
-					if (DN8App::get().getContacts().getSettings().getAgentName()[0] != '\0') {
+					if (DN8App::get().getContacts().getSettings().getAgentName()[0]!='\0') {
 						nextState = DN8App::get().getPairingMenu();
 					} else {
 						nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(),
