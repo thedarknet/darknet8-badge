@@ -8,17 +8,8 @@
 #include "driver/gpio.h"
 #include "freertos.h"
 
+// This contains GPIO definitions for different kits
 #include "devkit.h"
-#ifdef GOURRY_DEVKIT
-#define UP_BUTTON   GPIO_NUM_15
-#define DOWN_BUTTON GPIO_NUM_14
-#define FIRE_BUTTON GPIO_NUM_0
-#else
-#define UP_BUTTON   GPIO_NUM_39
-#define DOWN_BUTTON GPIO_NUM_36
-#define FIRE_BUTTON GPIO_NUM_0
-#endif
-
 
 using libesp::FreeRTOS;
 /*
@@ -62,8 +53,7 @@ bool ButtonInfo::init() {
 	gpio_config_t io_conf;
 	//io_conf.intr_type = GPIO_INTR_NEGEDGE;
 	io_conf.intr_type = GPIO_INTR_DISABLE;
-	#define GPIO_INPUT_IO_39 (1ULL << GPIO_NUM_39)
-	io_conf.pin_bit_mask = GPIO_INPUT_IO_39;
+	io_conf.pin_bit_mask = UP_GPIO_INPUT;
 	io_conf.mode = GPIO_MODE_INPUT;
 	io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
 	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
@@ -72,8 +62,7 @@ bool ButtonInfo::init() {
 	}
 	//gpio_isr_handler_add(GPIO_NUM_39, gpio_isr_handler, (void*) GPIO_INPUT_IO_39);
 	
-	#define GPIO_INPUT_IO_36 (1ULL << GPIO_NUM_36)
-	io_conf.pin_bit_mask = GPIO_INPUT_IO_36;
+	io_conf.pin_bit_mask = DOWN_GPIO_INPUT;
 	io_conf.mode = GPIO_MODE_INPUT;
 	io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
 	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
@@ -82,8 +71,7 @@ bool ButtonInfo::init() {
 	}
 	//gpio_isr_handler_add(GPIO_NUM_36, gpio_isr_handler, (void*) GPIO_INPUT_IO_36);
 	
-	#define GPIO_INPUT_IO_0 (1ULL << GPIO_NUM_0)
-	io_conf.pin_bit_mask = GPIO_INPUT_IO_0;
+	io_conf.pin_bit_mask = FIRE_GPIO_INPUT;
 	io_conf.mode = GPIO_MODE_INPUT;
 	io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
 	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;

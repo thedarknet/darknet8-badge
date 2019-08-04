@@ -56,9 +56,9 @@ libesp::BaseMenu::ReturnStateContext TestMenu::onRun() {
 	}
 
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
-	sprintf(getRow(0), "LEFT/UP: %s", DN8App::get().getButtonInfo().isAnyOfTheseButtonDown(ButtonInfo::BUTTON_LEFT_UP)?DN8App::sYES : DN8App::sNO);
-	sprintf(getRow(1), "RIGHT DOWN: %s", DN8App::get().getButtonInfo().isAnyOfTheseButtonDown(ButtonInfo::BUTTON_RIGHT_DOWN)?DN8App::sYES : DN8App::sNO);
-	sprintf(getRow(2), "FIRE1: %s", DN8App::get().getButtonInfo().isAnyOfTheseButtonDown(ButtonInfo::BUTTON_FIRE1)?DN8App::sYES : DN8App::sNO);
+	sprintf(getRow(0), "LEFT/UP: %s", upAction()?DN8App::sYES : DN8App::sNO);
+	sprintf(getRow(1), "RIGHT DOWN: %s", downAction()?DN8App::sYES : DN8App::sNO);
+	sprintf(getRow(2), "FIRE1: %s", selectAction()?DN8App::sYES : DN8App::sNO);
 	sprintf(getRow(3), "PenDown: %s", IsPenDown?DN8App::sYES:DN8App::sNO);
 	if(update) {
 		sprintf(getRow(4), "Pen Pos(raw): %d, %d %d", int32_t(PenX), int32_t(PenY), int32_t(PenZ));
@@ -67,7 +67,7 @@ libesp::BaseMenu::ReturnStateContext TestMenu::onRun() {
 		sprintf(getRow(5), "Pen Pos: %d, %d", int32_t(TouchPosInBuf.getX()), int32_t(TouchPosInBuf.getY()));
 	}
 	
-	if (DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN| ButtonInfo::BUTTON_LEFT_UP)) {
+	if (backAction()) {
 		nextState = DN8App::get().getMenuState();
 	}
 

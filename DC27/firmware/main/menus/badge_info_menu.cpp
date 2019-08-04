@@ -52,7 +52,7 @@ ErrorType BadgeInfoMenu::onInit() {
 			pCP[22], pCP[23], pCP[24]);
 	sprintf(getRow(5), "Free HeapSize: %u\n",libesp::System::get().getFreeHeapSize());
 	sprintf(getRow(6), "Free Min HeapSize: %u\n",libesp::System::get().getMinimumFreeHeapSize());
-	sprintf(getRow(7), "HAL Version: %s", libesp::System::get().getIDFVersion());
+	sprintf(getRow(7), "IDF Version: %s", libesp::System::get().getIDFVersion());
 	sprintf(getRow(8), "SVer: %s", VERSION);
 
 	for (uint32_t i = 0; i < (sizeof(Items) / sizeof(Items[0])); i++) {
@@ -66,10 +66,9 @@ ErrorType BadgeInfoMenu::onInit() {
 }
 
 BaseMenu::ReturnStateContext BadgeInfoMenu::onRun() {
-
 	BaseMenu *nextState = this;
-	if (DN8App::get().getButtonInfo().wereTheseButtonsReleased(ButtonInfo::BUTTON_RIGHT_DOWN| ButtonInfo::BUTTON_LEFT_UP)) {
-	nextState = DN8App::get().getMenuState();
+	if (backAction()) {
+		nextState = DN8App::get().getMenuState();
 	} else if(GUIListProcessor::process(&BadgeInfoList,BadgeInfoList.ItemsCount)) {
 		DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 		DN8App::get().getGUI().drawList(&BadgeInfoList);

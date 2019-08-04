@@ -1,15 +1,15 @@
-/*
- *
- *      Author: libesp
- */
-
 #include "pairing_menu.h"
 #include "menu_state.h"
 #include "gui_list_processor.h"
 #include "../app.h"
 #include "../buttons.h"
-//#include <system.h>
+#include <app/display_message_state.h>
+#include <system.h>
 //#include "cryptoauthlib.h"
+#include <esp_log.h>
+
+#include <driver/uart.h>
+#include "../devkit.h"
 
 using libesp::RGBColor;
 using libesp::ErrorType;
@@ -19,8 +19,14 @@ PairingMenu::PairingMenu() : DN8BaseMenu() { }
 
 PairingMenu::~PairingMenu() { }
 
+uint8_t uart_buf[PAIR_BUFSIZE];
+
 ErrorType PairingMenu::onInit() {
 	InternalState = NEGOTIATE;
+
+	this->isAlice = false;
+	this->isBob = false;
+	this->tempAlice = false;
 
 	this->timesRunCalledSinceReset = 0;
 	this->msgId = 1;
@@ -28,14 +34,18 @@ ErrorType PairingMenu::onInit() {
 	memset(&AIC, 0, sizeof(AIC));
 	memset(&BRTI, 0, sizeof(BRTI));
 	memset(&ATBS, 0, sizeof(ATBS));
+	memset(uart_buf, 0, PAIR_BUFSIZE);
 
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
-	DN8App::get().getDisplay().drawString(5, 10, (const char*)"Pairing...", RGBColor::BLUE);
+	DN8App::get().getDisplay().drawString(5, 10,
+		(const char*)"Negotiating...", RGBColor::WHITE);
 
 	return ErrorType();
 }
 
-
+#define ALICE_CONFIRM "\x8C"
+#define BOB_CONFIRM   "\x8D"
+#define RESET_NEG     "\x8E"
 
 BaseMenu::ReturnStateContext PairingMenu::onRun() {
 
@@ -43,14 +53,48 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 
 	if (InternalState == NEGOTIATE)
 	{
-		// TODO: Negotiate Alice and Bob, this may need to be multiple states
-			// Alice: ALICE_SEND_AIC
-			// Bob: BOB_RECEIVE_AIC
-		if (this->timesRunCalledSinceReset > 500)
+		if (uart_read_bytes(PAIRING_UART, uart_buf, 4,
+			20 / portTICK_RATE_MS) > 0)
+		{
+			if ((uart_buf[0] == '\x8C') && this->tempAlice) //AliceConf
+			{
+				this->isAlice = false;
+				this->isBob = false;
+				this->tempAlice = false;
+				uart_write_bytes(PAIRING_UART, (const char*)RESET_NEG, 1);
+				srand(clock());
+				vTaskDelay((rand() % 250) / portTICK_RATE_MS);
+			}
+			else if (uart_buf[0] == '\x8C') // Alice Confirm
+			{
+				this->isBob = true;
+				uart_write_bytes(PAIRING_UART, (const char*)BOB_CONFIRM, 1);
+				InternalState = BOB_RECEIVE_AIC;
+			}
+			else if (uart_buf[0] == '\x8D') // Bob Confirm
+			{
+				this->isAlice = true;
+				InternalState = ALICE_INIT;
+			}
+			else if (uart_buf[0] == '\x8E') // Reset Negotiation
+			{
+				this->isAlice = false;
+				this->isBob = false;
+				this->tempAlice = false;
+			}
+		}
+		else if (!this->tempAlice)
+		{
+			uart_write_bytes(PAIRING_UART, (const char*)ALICE_CONFIRM, 1);
+			this->tempAlice = true;
+		}
+		if (this->timesRunCalledSinceReset > 250)
 			InternalState = PAIRING_FAILED;
 	}
 	else if (InternalState == ALICE_INIT)
 	{
+		DN8App::get().getDisplay().drawString(5, 20,
+			(const char*)"Alice Init", RGBColor::WHITE);
 		// TODO: AliceInitConvo
 		AIC.irmsgid = ALICE_INIT;
 		//memcpy(&AIC.AlicePublicKey[0], DN8App::get().getCompressedPublicKey(), // TODO
@@ -65,6 +109,8 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 	}
 	else if (InternalState == BOB_RECEIVE_AIC)
 	{
+		DN8App::get().getDisplay().drawString(5, 20,
+			(const char*)"Bob Init", RGBColor::WHITE);
 		if (false) // TODO: Receive AIC
 		{
 			uint8_t signature[128]; // FIXME: magic number
@@ -100,7 +146,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			InternalState = BOB_RECEIVE_ATBS;
 		}
 
-		if (this->timesRunCalledSinceReset > 500)
+		if (this->timesRunCalledSinceReset > 250)
 			InternalState = PAIRING_FAILED;
 	}
 	else if (InternalState == ALICE_RECEIVE_BRTI)
@@ -142,7 +188,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 
 			InternalState = PAIRING_SUCCESS;
 		}
-		if (this->timesRunCalledSinceReset > 500)
+		if (this->timesRunCalledSinceReset > 250)
 			InternalState = PAIRING_FAILED;
 	}
 	else if (InternalState == BOB_RECEIVE_ATBS)
@@ -185,18 +231,20 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 				InternalState = PAIRING_FAILED;
 			*/
 		}
-		if (this->timesRunCalledSinceReset > 500)
+		if (this->timesRunCalledSinceReset > 250)
 			InternalState = PAIRING_FAILED;
 	}
 	else if (InternalState == PAIRING_SUCCESS)
 	{
-		// TODO: Display Success
-		// TODO: nextState = getMenu()
+		nextState = DN8App::get().getDisplayMessageState(
+			DN8App::get().getMenuState(),
+			(const char *)"Pairing Successful", 2000);
 	}
 	else if (InternalState == PAIRING_FAILED)
 	{
-		// TODO: Display Error
-		// TODO: nextState = getMenu()
+		nextState = DN8App::get().getDisplayMessageState(
+			DN8App::get().getMenuState(),
+			(const char *)"Pairing Failed", 2000);
 	}
 
 	this->timesRunCalledSinceReset += 1;
