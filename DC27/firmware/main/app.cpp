@@ -222,8 +222,14 @@ libesp::ErrorType DN8App::onInit() {
 	}
 	
 	TouchTask.start();
+	ESP_LOGI(LOGTAG,"After touch Task start: Free: %u, Min %u",
+		System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	BTTask.start();
+	ESP_LOGI(LOGTAG,"After BT Task start: Free: %u, Min %u",
+		System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	GMTask.start();
+	ESP_LOGI(LOGTAG,"After GM Task start: Free: %u, Min %u",
+		System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
 	WifiTask.start();
 	ESP_LOGI(LOGTAG,"After Task starts: Free: %u, Min %u",
