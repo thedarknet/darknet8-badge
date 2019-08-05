@@ -22,7 +22,7 @@ public:
 	const uint8_t *getUniqueID();
 	bool isUberBadge();
 	const uint8_t *getPublicKey();
-	bool sign(const uint8_t message[Contact::MESSAGE_DIGEST_SIZE], uint8_t sig[Contact::SIGNATURE_LENGTH]);
+	bool sign(const uint8_t pk[Contact::PUBLIC_KEY_LENGTH], uint8_t id[Contact::CONTACT_ID_SIZE], uint8_t sig[Contact::SIGNATURE_LENGTH]);
 protected:
 	uint16_t getFlags();
 	void logCryptoInfoConfig(const uint8_t *config);

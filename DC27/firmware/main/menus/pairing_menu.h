@@ -7,36 +7,27 @@
 
 #include "dn8base_menu.h"
 #include "../devkit.h"
-
-//class ContactStore; // FIXME
+#include "../contact.h"
 
 void initialize_pairing_uart(void);
 
 class PairingMenu: public DN8BaseMenu {
 public:
 	struct AliceInitConvo {
-        uint8_t irmsgid;
-        //uint8_t AlicePublicKey[ContactStore::PUBLIC_KEY_COMPRESSED_LENGTH]; // TODO
-		uint8_t AlicePublicKey[100]; // FIXME
-        uint16_t AliceRadioID;
-        //char AliceName[ContactStore::AGENT_NAME_LENGTH]; // TODO
-        char AliceName[32]; // FIXME
+		uint8_t AlicePublicKey[Contact::PUBLIC_KEY_LENGTH]; 
+		uint8_t AliceID[Contact::CONTACT_ID_SIZE];
+      char AliceName[Contact::AGENT_NAME_LENGTH];
 	};
 
-    struct BobReplyToInit {
-        uint8_t irmsgid;
-        //uint8_t BoBPublicKey[ContactStore::PUBLIC_KEY_COMPRESSED_LENGTH]; // TODO
-        uint8_t BoBPublicKey[100]; // FIXME
-        uint16_t BoBRadioID;
-        //char BobAgentName[ContactStore::AGENT_NAME_LENGTH]; // TODO
-        char BobAgentName[32]; // FIXME
-        //uint8_t SignatureOfAliceData[ContactStore::SIGNATURE_LENGTH]; // TODO
-        uint8_t SignatureOfAliceData[128]; // FIXME
+	struct BobReplyToInit {
+		uint8_t BobPublicKey[Contact::PUBLIC_KEY_LENGTH]; 
+		uint8_t BobID[Contact::CONTACT_ID_SIZE];
+		char BobAgentName[Contact::AGENT_NAME_LENGTH];
+      uint8_t BobSignatureOfAliceData[Contact::SIGNATURE_LENGTH];
     };  
 
-    struct AliceToBobSignature {
-        uint8_t irmsgid;
-        uint8_t signature[48];
+	struct AliceToBobSignature {
+		uint8_t AliceSignatureOfBobData[Contact::SIGNATURE_LENGTH];
     };
 
 	PairingMenu();
@@ -53,11 +44,9 @@ protected:
 private:
 	char MesgBuf[PAIR_BUFSIZE];
 	unsigned int MesgLen;
-	size_t buffered_len;
 
 	// Internal State information
 	INTERNAL_STATE InternalState;
-	uint32_t ESPRequestID;
 	uint32_t timesRunCalledSinceReset;
 
 	// Pairing State information

@@ -232,6 +232,29 @@ uint16_t MyInfo::getFlags() {
 	return Flags;
 }
 
+bool MyInfo::sign(const uint8_t pk[Contact::PUBLIC_KEY_LENGTH], uint8_t id[Contact::CONTACT_ID_SIZE], uint8_t sig[Contact::SIGNATURE_LENGTH]) {
+	ATCA_STATUS status = atcab_sha_start();
+	if(status==ATCA_SUCCESS) {
+		uint8_t buf[Contact::PUBLIC_KEY_LENGTH+Contact::CONTACT_ID_SIZE];
+		memcpy(&buf[0],&pk[0],Contact::PUBLIC_KEY_LENGTH);
+		memcpy(&buf[Contact::PUBLIC_KEY_LENGTH],&id[0],sizeof(Contact::CONTACT_ID_SIZE));
+		uint8_t digest[Contact::MESSAGE_DIGEST_SIZE];
+		status = atcab_sha(sizeof(buf),&buf[0],&digest[0]);
+		if (status == ATCA_SUCCESS) {
+			if(status==atcab_sign(MY_KEY_SLOT,&digest[0],&sig[0])) {
+				return true;
+			} else {
+				ESP_LOGE(LOGTAG,"failed sign");
+			}
+		} else {
+			ESP_LOGE(LOGTAG,"sha failed");
+		}
+	} else {
+		ESP_LOGE(LOGTAG,"sha init failed");
+	}
+	return false;
+}
+
 
 bool DNRandom::generateRandom(int32_t &value) {
 	ATCA_STATUS status = ATCA_GEN_FAIL;
