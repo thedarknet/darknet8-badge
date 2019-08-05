@@ -6,7 +6,6 @@
 #include "freertos/queue.h"
 #include <map>
 #include <nvs_flash.h>
-#include <time.h>
 
 #include "app.h"
 #include "KeyStore.h"
@@ -671,8 +670,7 @@ static void init_ble_security(void)
 	uint8_t auth_option = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_ENABLE;
 
 	//generate a random number for the passkey
-	srand(time(NULL));
-	PASSKEY = rand() % 999999;
+	PASSKEY = esp_random() % 999999;
 
 	// FIXME: Different passkey? No passkey but use verification?
 	esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &PASSKEY, sizeof(uint32_t));

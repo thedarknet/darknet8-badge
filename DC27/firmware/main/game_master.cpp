@@ -270,9 +270,9 @@ void GameTask::T3DmakePlay(GameMsg* msg)
         bool moved = false;
         do
         {
-            t3_x = rand() % 3;
-            t3_y = rand() % 3;
-            t3_z = rand() % 3;
+            t3_x = esp_random() % 3;
+            t3_y = esp_random() % 3;
+            t3_z = esp_random() % 3;
             if (this->t3_board[t3_x][t3_y][t3_z] == '_')
             {
                 this->t3_board[t3_x][t3_y][t3_z] = 'O';
@@ -555,7 +555,7 @@ static void exp_level2(GameMsg* msg)
     {
         SendStringResponse(msg, "Level 2\n");
         SendStringResponse(msg, "Input the password. 4*[0-9]\n");
-        password2 = rand();
+        password2 = esp_random() % 9999;
         level2_greeting = true;
         return;
     }
@@ -563,7 +563,7 @@ static void exp_level2(GameMsg* msg)
     {
         SendStringResponse(msg, "TIMED OUT\n");
         SendStringResponse(msg, "Password reset.\n");
-        password2 = rand();
+        password2 = esp_random() % 9999;
         start_time2 = time(0);
         return;
     }
@@ -588,7 +588,7 @@ static void exp_level1(GameMsg* msg)
         SendStringResponse(msg, "Input the password. 8*[a-z]\n");
         SendStringResponse(msg, "You have 30 seconds.\n");
         for (i = 0; i < 8; i++)
-            password[i] = (rand() % (122 - 97 + 1)) + 97;
+            password[i] = (esp_random() % (122 - 97 + 1)) + 97;
         start_time1 = time(0);
         level1_greeting = true;
         return;
@@ -598,7 +598,7 @@ static void exp_level1(GameMsg* msg)
         SendStringResponse(msg, "TIMED OUT\n");
         SendStringResponse(msg, "Password reset.\n");
         for (i = 0; i < 8; i++)
-            password[i] = (rand() % (122 - 97 + 1)) + 97;
+            password[i] = (esp_random() % (122 - 97 + 1)) + 97;
         start_time1 = time(0);
         return;
     }
