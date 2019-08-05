@@ -843,7 +843,7 @@ bool GameTask::init()
 	unlocked_games[0] = true; // GameMaster Menu is always unlocked
 
 	// retrieve locked status
-	if (nvs_open("storage", NVS_READWRITE, &this->my_nvs_handle) != ESP_OK)
+	if (nvs_open("nvs", NVS_READWRITE, &this->my_nvs_handle) != ESP_OK)
 	{
 		ESP_LOGE(LOGTAG, "FAILED TO OPEN NVS");
 		return false;

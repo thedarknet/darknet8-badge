@@ -15,12 +15,32 @@ using libesp::RGBColor;
 using libesp::ErrorType;
 using libesp::BaseMenu;
 
+void initialize_pairing_uart()
+{
+	uart_config_t uart_config {
+		.baud_rate           = 115200,
+		.data_bits           = UART_DATA_8_BITS,
+		.parity              = UART_PARITY_DISABLE,
+		.stop_bits           = UART_STOP_BITS_1,
+		.flow_ctrl           = UART_HW_FLOWCTRL_DISABLE,
+		.rx_flow_ctrl_thresh = 122,
+		.use_ref_tick        = false
+	};
+	uart_param_config(PAIRING_UART, &uart_config);
+	uart_set_pin(PAIRING_UART, PAIRING_TX, PAIRING_RX,
+		PAIRING_RTS, PAIRING_CTS);
+	uart_driver_install(PAIRING_UART, PAIR_BUFSIZE, PAIR_BUFSIZE,
+		0, NULL, 0);
+}
+
 PairingMenu::PairingMenu() : DN8BaseMenu() { }
 
 PairingMenu::~PairingMenu() { }
 
 ErrorType PairingMenu::onInit() {
 	InternalState = NEGOTIATE;
+
+	uart_flush(PAIRING_UART);
 
 	this->isAlice = false;
 	this->isBob = false;
@@ -118,7 +138,6 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 				20/portTICK_RATE_MS);
 			DN8App::get().getDisplay().drawString(5, 20,
 				(const char*)"Bob Received AIC", RGBColor::WHITE);
-
 			// TODO: Sign or hash the data
 			/* SHA256 code
 			uint8_t message_hash[SHA256_HASH_SIZE];
@@ -162,7 +181,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 		uart_get_buffered_data_len(PAIRING_UART, &buffered_len);
 		if (buffered_len == sizeof(BRTI))
 		{
-			uart_read_bytes(PAIRING_UART, (uint8_t*)MesgBuf, sizeof(AIC),
+			uart_read_bytes(PAIRING_UART, (uint8_t*)MesgBuf, sizeof(BRTI),
 				20/portTICK_RATE_MS);
 			DN8App::get().getDisplay().drawString(5, 30,
 				(const char*)"Alice Received BRTI", RGBColor::WHITE);

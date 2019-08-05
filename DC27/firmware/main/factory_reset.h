@@ -13,7 +13,7 @@ const char* FRST_LOGTAG = "FACTORY_RESET";
 static void do_factory_reset(void)
 {
 	uint32_t my_nvs_handle = 0;
-	nvs_open("storage", NVS_READWRITE, &my_nvs_handle);
+	nvs_open("nvs", NVS_READWRITE, &my_nvs_handle);
 
 	const esp_partition_t* esp_part = NULL;
 	esp_partition_iterator_t itr;
