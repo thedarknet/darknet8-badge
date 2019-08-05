@@ -18,7 +18,7 @@ class WIFIResponseMsg;
 
 class CommunicationSettingState: public DN8BaseMenu {
 public:
-	static const int TOUCH_QUEUE_SIZE = 4;
+	static const int TOUCH_QUEUE_SIZE = 8;
 	static const int TOUCH_MSG_SIZE = sizeof(libesp::TouchNotification*);
 	static const int WIFI_QUEUE_SIZE = 4;
 	static const int WIFI_MSG_SIZE = sizeof(WIFIResponseMsg*);

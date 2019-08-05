@@ -15,6 +15,7 @@
 #include "menu3d.h"
 #include "top_board.h"
 #include <esp_log.h>
+#include "drawing.h"
 
 using libesp::ErrorType;
 using libesp::BaseMenu;
@@ -30,7 +31,7 @@ static const char *LOGTAG = "MenuState";
 MenuState::MenuState() :
 	DN8BaseMenu(), MenuList("Main Menu", Items, 0, 0, 
 	DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel()
-	, 0, (sizeof(Items) / sizeof(Items[0]))) {
+	, 0, ItemCount) {
 	
 	InternalQueueHandler = xQueueCreateStatic(QUEUE_SIZE,MSG_SIZE,&InternalQueueBuffer[0],&InternalQueue);
 }
@@ -54,17 +55,19 @@ ErrorType MenuState::onInit() {
 	Items[3].id = 3;
 	Items[3].text = (const char *) "Screen Saver";
 	Items[4].id = 4;
-	Items[4].text = (const char *) "Badge Info";
+	Items[4].text = (const char *) "Draw";
 	Items[5].id = 5;
-	Items[5].text = (const char *) "Communications Settings";
+	Items[5].text = (const char *) "Badge Info";
 	Items[6].id = 6;
-	Items[6].text = (const char *) "Scan for NPCs";
+	Items[6].text = (const char *) "Communications Settings";
 	Items[7].id = 7;
-	Items[7].text = (const char *) "Test Badge";
+	Items[7].text = (const char *) "Scan for NPCs";
 	Items[8].id = 8;
-	Items[8].text = (const char *) "Calibrate Touch";
+	Items[8].text = (const char *) "Test Badge";
 	Items[9].id = 9;
-	Items[9].text = (const char *) "Connected Devices";
+	Items[9].text = (const char *) "Calibrate Touch";
+	Items[10].id = 10;
+	Items[10].text = (const char *) "Connected Devices";
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&this->MenuList);
 	//empty queue
@@ -106,22 +109,25 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 					nextState = DN8App::get().getGameOfLifeMenu();
 					break;
 				case 4:
-					nextState = DN8App::get().getBadgeInfoMenu();
+					nextState = DN8App::get().getDrawingMenu();
 					break;
 				case 5:
-					nextState = DN8App::get().getCommunicationSettingState();
+					nextState = DN8App::get().getBadgeInfoMenu();
 					break;
 				case 6:
+					nextState = DN8App::get().getCommunicationSettingState();
+					break;
+				case 7:
 					DN8App::get().getWifiScanMenu()->setNPCOnly(true);
 					nextState = DN8App::get().getWifiScanMenu();
 					break;
-				case 7:
+				case 8:
 					nextState = DN8App::get().getTestMenu();
 					break;
-				case 8:
+				case 9:
 					nextState = DN8App::get().getCalibrationMenu();
 					break;
-				case 9:
+				case 10:
 					nextState = DN8App::get().getTopBoardMenu();
 					break;
 			}

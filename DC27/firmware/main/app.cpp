@@ -31,6 +31,7 @@
 #include "menus/test_menu.h"
 #include "menus/menu3d.h"
 #include "menus/top_board.h"
+#include "menus/drawing.h"
 #include <driver/uart.h>
 
 // This contains GPIO Pin definitions for various kits
@@ -175,10 +176,11 @@ libesp::ErrorType DN8App::onInit() {
 		Display.swap();
 		Display.fillRec(0,60,FRAME_BUFFER_WIDTH,10,libesp::RGBColor::GREEN);
 		Display.drawRec(0,75,100,10, libesp::RGBColor::BLUE);
-		Display.drawString(10,100,"HELLO!",libesp::RGBColor::RED);
-		Display.drawString(50,110,"GOODBYE!",libesp::RGBColor::WHITE);
+		Display.drawString(30,100,"HELLO Defcon 27!",libesp::RGBColor::RED);
+		Display.drawString(10,110,"Welcome To DarkNet 8!",libesp::RGBColor::BLUE, libesp::RGBColor::WHITE,1,false);
 		Display.swap();
 
+		vTaskDelay(1000 / portTICK_RATE_MS);
 		ESP_LOGI(LOGTAG,"After Display swap: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 		// libbt.a is like 300kb
@@ -309,7 +311,12 @@ Scan MyWifiScan;
 SettingMenu MySettingMenu;
 TestMenu MyTestMenu;
 Menu3D My3DMenu;
+DrawingMenu MyDrawingMenu;
 	
+DrawingMenu *DN8App::getDrawingMenu() {
+	return &MyDrawingMenu;
+}
+
 BadgeInfoMenu *DN8App::getBadgeInfoMenu() {
 	return &MyBadgeInfoMenu;
 }

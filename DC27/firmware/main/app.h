@@ -49,6 +49,7 @@ class SettingMenu;
 class TestMenu;
 class Menu3D;
 class TopBoardMenu;
+class DrawingMenu;
 
 class DN8App : public libesp::App {
 public:
@@ -95,6 +96,7 @@ public:
 	libesp::XPT2046 &getTouch();
 	Menu3D *get3DMenu();
 	TopBoardMenu *getTopBoardMenu();
+	DrawingMenu *getDrawingMenu();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();
