@@ -18,9 +18,16 @@ enum WIFIResponseType {
 	WIFI_SCAN_COMPLETE = 0x02, // No longer scanning
 	WIFI_STATUS_OK		 = 0x03,
 
+	WIFI_OTA_NOT_START = 0x10,
+	WIFI_OTA_START     = 0x11,
+	WIFI_OTA_CONNECT   = 0x12,
+	WIFI_OTA_DOWNLOAD  = 0x13,
+	WIFI_OTA_REBOOT    = 0x14,
+
 	// WIFI_ERR_x = 0x8_,
 	WIFI_ERR_CONNECTAP = 0x80,
-	WIFI_ERR_UNK = 0xFF
+	WIFI_ERR_OTA       = 0x81,
+	WIFI_ERR_UNK       = 0xFF
 };
 
 struct ScanResult {
@@ -153,12 +160,13 @@ private:
 	} data;
 };
 
-
+enum WIFIResponseType wifi_get_ota_status(void);
 class WIFITask : public Task {
 public:
 	static const int WIFI_QUEUE_SIZE = 3;
 	static const int WIFI_MSG_SIZE = sizeof(WIFIRequestMsg);
 	static const char *LOGTAG;
+	enum WIFIResponseType OTAStatus = WIFI_OTA_NOT_START;
 public:
 	WIFITask(const std::string &tName, uint16_t stackSize=5000, uint8_t priority=5);
 	bool init();
@@ -168,6 +176,8 @@ public:
 	libesp::ErrorType requestStatus(QueueHandle_t &t);
 	libesp::ErrorType requestAPDown(QueueHandle_t &t);
 	libesp::ErrorType requestAPUp(QueueHandle_t &t, uint16_t secType,const char *ssid,const char *pw);
+	libesp::ErrorType requestOTA(QueueHandle_t &t);
+	enum WIFIResponseType getOTAStatus(void);
 private:
 	QueueHandle_t WIFIQueueHandle = nullptr;
 	uint32_t my_nvs_handle;

@@ -17,6 +17,7 @@
 
 #include "factory_reset.h"
 #include "./wifi.h"
+#include "./app.h"
 #include "npc_interact.h"
 
 #include "wifi/WiFi.h"
@@ -27,8 +28,8 @@ const char *WIFITask::LOGTAG = "WIFITask";
 static const char *LOGTAG = "OTAWIFI";
 
 /**************************** OTA CODE **********************************/
-char OTA_WIFI_SSID[] = "FIXME\0"; // FIXME
-char OTA_WIFI_PASSWORD[] = "FIXME\0"; // FIXME
+char OTA_WIFI_SSID[] = "DN8OTA\0"; // FIXME
+char OTA_WIFI_PASSWORD[] = "DN8OTA\0"; // FIXME
 char OTA_FIRMWARE_UPGRADE_URL[] = "https://192.168.1.170:8070/dc27.bin\0";
 wifi_config_t wifi_config;
 esp_http_client_config_t http_config;
@@ -77,18 +78,27 @@ static void do_ota(void) {
 	ESP_LOGI(LOGTAG, "Starting OTA process...");
 
 	// wait for CONNECTED_BIT to be set in the event group
+	DN8App::get().getWifiTask()->OTAStatus = WIFI_OTA_CONNECT;
 	xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
 	ESP_LOGI(LOGTAG, "Connected to WiFi network! Attempting to connect to server...");
 
+
+	DN8App::get().getWifiTask()->OTAStatus = WIFI_OTA_DOWNLOAD;
 	http_config.url = OTA_FIRMWARE_UPGRADE_URL;
 	http_config.cert_pem = (char*)server_cert_pem_start;
 	http_config.event_handler = ota_http_event_handler;
 	ret = esp_https_ota(&http_config);
 
 	if (ret == ESP_OK)
+	{
+		DN8App::get().getWifiTask()->OTAStatus = WIFI_OTA_REBOOT;
 		esp_restart();
+	}
 	else
+	{
+		DN8App::get().getWifiTask()->OTAStatus = WIFI_ERR_OTA;
 		ESP_LOGE(LOGTAG, "Firmware upgrade failed");
+	}
 
 	return;
 }
@@ -323,6 +333,14 @@ libesp::ErrorType WIFITask::requestAPUp(QueueHandle_t &t, uint16_t secType,const
 	return xQueueSend(getQueueHandle(),&req, (TickType_t)10);
 }
 
+libesp::ErrorType WIFITask::requestOTA(QueueHandle_t &t)
+{
+	OTAStatus = WIFI_OTA_NOT_START;
+	WIFIRequestMsg *req = new WIFIRequestMsg(WIFI_ATTEMPT_OTA,
+		t);
+	return xQueueSend(getQueueHandle(), &req, (TickType_t)10);
+}
+
 #define CmdQueueTimeout ((TickType_t) 1000 / portTICK_PERIOD_MS)
 #define BOOT_CONSIDERED_SUCCESS (30)
 void WIFITask::run(void* data) {
@@ -332,6 +350,7 @@ void WIFITask::run(void* data) {
 		if (xQueueReceive(WIFIQueueHandle, &msg, CmdQueueTimeout)) {
 			switch(msg->cmd) {
 			case WIFI_ATTEMPT_OTA:
+				OTAStatus = WIFI_OTA_START;
 				wifi.stopWiFi();
 				wifi.shutdown();
 				initialize_wifi();
@@ -371,6 +390,11 @@ void WIFITask::run(void* data) {
 	return;	
 }
 
+enum WIFIResponseType WIFITask::getOTAStatus(void)
+{
+	return OTAStatus;
+}
+
 bool WIFITask::init() {
 	int32_t attempted_boot = 0;
 	int32_t boot_successful = 0;
@@ -407,6 +431,7 @@ bool WIFITask::init() {
 WIFITask::WIFITask(const std::string &tName, uint16_t stackSize, uint8_t priority)
 	: Task(tName, stackSize, priority) {
 	ESP_LOGI(LOGTAG, "CREATED");
+	OTAStatus = WIFI_OTA_NOT_START;
 	return;
 }
 

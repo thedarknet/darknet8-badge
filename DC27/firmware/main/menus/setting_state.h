@@ -25,7 +25,7 @@ protected:
 	virtual libesp::ErrorType onShutdown();
 private:
 	libesp::GUIListData SettingList;
-	libesp::GUIListItemData Items[4];
+	libesp::GUIListItemData Items[5];
 	char AgentName[Contact::AGENT_NAME_LENGTH];
 	uint8_t SubState;
 	uint8_t MiscCounter;

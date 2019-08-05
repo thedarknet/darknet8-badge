@@ -9,6 +9,7 @@
 #include "menu_state.h"
 #include "../app.h"
 #include "../buttons.h"
+#include "../wifi.h"
 #include <app/display_message_state.h>
 #include <device/touch/XPT2046.h>
 #include "gui_list_processor.h"
@@ -47,6 +48,9 @@ ErrorType SettingMenu::onInit() {
 	Items[3].id = 3;
 	Items[3].text = (const char *) "Factory Reset";
 	Items[3].setShouldScroll();
+	Items[4].id = 4;
+	Items[4].text = (const char *) "OTA Update";
+	Items[4].setShouldScroll();
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&SettingList);
 	IHC.set(&AgentName[0],sizeof(AgentName));
@@ -156,6 +160,62 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 				nextState = DN8App::get().getMenuState();
 			} else if (DN8App::get().getButtonInfo().wasAnyButtonReleased()) {
 				nextState = DN8App::get().getMenuState();
+			}
+		case 104:
+			if (selectAction())
+			{
+				if (DN8App::get().getWifiTask())
+				{
+					enum WIFIResponseType otastat;
+					DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
+					// FIXME: TouchQueueHandle isn't used here but the build
+					// is being annoying because i don't have a queue to hand
+					// to the message constructor and it won't take null
+					// so f*** it
+					DN8App::get().getWifiTask()->requestOTA(TouchQueueHandle);
+					do
+					{
+						otastat = DN8App::get().getWifiTask()->getOTAStatus();
+						switch(otastat)
+						{
+						case WIFI_OTA_NOT_START:
+							DN8App::get().getDisplay().drawString(0, 10,
+								(const char*) "OTA...", RGBColor::WHITE,
+								RGBColor::BLACK, 1, true);
+							break;
+						case WIFI_OTA_START:
+							DN8App::get().getDisplay().drawString(0, 20,
+								(const char*) "Started", RGBColor::WHITE,
+								RGBColor::BLACK, 1, true);
+							break;
+						case WIFI_OTA_CONNECT:
+							DN8App::get().getDisplay().drawString(0, 30,
+								(const char*) "Connect", RGBColor::WHITE,
+								RGBColor::BLACK, 1, true);
+							break;
+						case WIFI_OTA_DOWNLOAD:
+							DN8App::get().getDisplay().drawString(0, 40,
+								(const char*) "Download", RGBColor::WHITE,
+								RGBColor::BLACK, 1, true);
+							break;
+						case WIFI_OTA_REBOOT:
+							DN8App::get().getDisplay().drawString(0, 50,
+								(const char*) "Rebooting", RGBColor::WHITE,
+								RGBColor::BLACK, 1, true);
+							break;
+						case WIFI_ERR_OTA:
+						default:
+							break;
+						}
+					} while (otastat != WIFI_ERR_OTA);
+					nextState = DN8App::get().getDisplayMessageState(this,
+						(const char *)"OTA Error... ", 2000);
+				}
+				else
+				{
+					nextState = DN8App::get().getDisplayMessageState(this,
+						(const char *)"Wifi Not Enabled. ", 2000);
+				}
 			}
 		break;
 		}
