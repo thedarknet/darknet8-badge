@@ -40,6 +40,8 @@ PairingMenu::~PairingMenu() { }
 ErrorType PairingMenu::onInit() {
 	InternalState = NEGOTIATE;
 
+	uart_flush(PAIRING_UART);
+
 	this->isAlice = false;
 	this->isBob = false;
 	this->tempAlice = false;
