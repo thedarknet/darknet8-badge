@@ -11,6 +11,7 @@
 #include "../app.h"
 #include "../buttons.h"
 #include "../wifi.h"
+#include "../ble.h"
 #include "../KeyStore.h"
 #include <device/touch/XPT2046.h>
 #include "app/display_message_state.h"
@@ -303,7 +304,9 @@ ErrorType CommunicationSettingState::onInit() {
 	}
 	DN8App::get().getWifiTask().requestStatus(WifiQueueHandle);
 	//sprintf(getRow(1),"BLE Advertise: %s",DN8App::get().getBTTask().isAdvertiseStr());
-	sprintf(getRow(2),"BLE DeviceName: %s",DN8App::get().getContacts().getSettings().getAgentName());
+	sprintf(getRow(2),"BLE Status: %s", ble_get_initialized() ? "Active" : "Inactive");
+	sprintf(getRow(3),"BLE DeviceName: %s",DN8App::get().getContacts().getSettings().getAgentName());
+	sprintf(getRow(4), "BLE Passkey: %d",ble_get_passkey());
 
 	TouchNotification *pe = nullptr;
 	for(int i=0;i<2;i++) {
