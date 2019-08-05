@@ -13,7 +13,7 @@ using libesp::Point2Ds;
 
 const char *DN8BaseMenu::LOGTAG = "DN8BaseMenu";
 
-char DN8BaseMenu::ListBuffer[10][32] = {0};
+char DN8BaseMenu::ListBuffer[10][64] = {0};
 uint8_t DN8BaseMenu::NumRows = 10;
 
 void DN8BaseMenu::clearListBuffer() {

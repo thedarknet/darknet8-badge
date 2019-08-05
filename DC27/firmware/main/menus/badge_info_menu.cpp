@@ -10,6 +10,7 @@
 #include "../buttons.h"
 #include <system.h>
 #include "cryptoauthlib.h"
+#include "../KeyStore.h"
 
 using libesp::RGBColor;
 using libesp::ErrorType;
@@ -39,12 +40,16 @@ static const char *VERSION = "8.dc27.1";
 
 ErrorType BadgeInfoMenu::onInit() {
 	clearListBuffer();
-	sprintf(getRow(0), "Name: %s", "NOT DONE"); //DN8App::get().getContacts().getSettings().getAgentName());
-	sprintf(getRow(1), "Num contacts: %u", 0); //DN8App::get().getContacts().getSettings().getNumContacts());
+	sprintf(getRow(0), "Name: %s", DN8App::get().getContacts().getSettings().getAgentName());
+	sprintf(getRow(1), "Num contacts: %u", DN8App::get().getContacts().getNumContacts());
 	sprintf(getRow(2), "REG: %s", getRegCode());
-	sprintf(getRow(3), "UID: %u", 0); //DN8App::get().getContacts().getMyInfo().getUniqueID());
-	uint8_t fake[25] = {1};
-	uint8_t *pCP =	&fake[0]; //DN8App::get().getContacts().getMyInfo().getCompressedPublicKey();
+	//const uint8_t *uid = DN8App::get().getContacts().getMyInfo().getUniqueID();
+	//sprintf(getRow(3), "UID: %02x%02x%02x%02x%02x%02x%02x%02x%02x", 
+	//					 uid[0],uid[1],uid[2],uid[3],uid[4],uid[5],uid[6],
+	//					 uid[7],uid[8]); 
+	
+	sprintf(getRow(2), "PUT SOMETHING HERE");
+	const uint8_t *pCP =	DN8App::get().getContacts().getMyInfo().getPublicKey();
 	sprintf(getRow(4), "PK: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 			pCP[0], pCP[1], pCP[2], pCP[3], pCP[4], pCP[5], pCP[6], pCP[7],
 			pCP[8], pCP[9], pCP[10], pCP[11], pCP[12], pCP[13], pCP[14],

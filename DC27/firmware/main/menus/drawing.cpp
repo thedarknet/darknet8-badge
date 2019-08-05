@@ -47,15 +47,40 @@ ErrorType DrawingMenu::onInit() {
 	}
 	DN8App::get().getTouch().addObserver(InternalQueueHandler);
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
+	drawVirtualButtons();
 	return ErrorType();
 }
 	
 void DrawingMenu::drawVirtualButtons() {
-
+	DN8App::get().getDisplay().fillRec(0,14,14,14, libesp::RGBColor::WHITE);
+	//Save
+	DN8App::get().getDisplay().drawString(4,16,"S",RGBColor::BLACK);
+	//Delete
+	DN8App::get().getDisplay().fillRec(0,40,14,14, libesp::RGBColor::WHITE);
+	DN8App::get().getDisplay().drawString(4,42,"D",RGBColor::BLACK);
+	//Color
+	DN8App::get().getDisplay().fillRec(0,66,15,15, libesp::RGBColor::BLUE);
+	//D
 }
 
 BaseMenu *DrawingMenu::processVirtualButtons() {
-	return this;
+	BaseMenu *retVal = this;
+	if(upAction()) {
+		if(ColorIndex==MAX_COLORS-1) {
+			ColorIndex = 0;
+		} else {
+			++ColorIndex;
+		}
+	} else if(downAction()) {
+		if(ColorIndex==0) {
+			ColorIndex = MAX_COLORS-1;
+		} else {
+			--ColorIndex;
+		}
+	} else if(selectAction()) {
+		retVal = DN8App::get().getMenuState();
+	}
+	return retVal;
 }
 
 BaseMenu *DrawingMenu::processButtons() {
@@ -81,17 +106,17 @@ libesp::BaseMenu::ReturnStateContext DrawingMenu::onRun() {
 			Point2Ds TouchPosInBuf = DN8App::get().getCalibrationMenu()->getPickPoint(screenPoint);
 			sprintf(getRow(5), "Pen Pos: %d, %d", int32_t(TouchPosInBuf.getX()), int32_t(TouchPosInBuf.getY()));
 			if(isPenDown) {
-				if(TouchPosInBuf.getX()>10) {
+				if(TouchPosInBuf.getX()>15) {
 					DN8App::get().getDisplay().drawPixel(TouchPosInBuf.getX(),TouchPosInBuf.getY(),Colors[ColorIndex]);
 				}
 			} else {
-				if(TouchPosInBuf.getX()<10) {
+				if(TouchPosInBuf.getX()<15) {
 					nextState = processVirtualButtons();
 				}
 			}
 		}
 	}
-	if(nextState!=this) {
+	if(nextState==this) {
 		nextState = processButtons();
 	}
 	
