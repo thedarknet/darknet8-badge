@@ -45,34 +45,33 @@ using libesp::BaseMenu;
 using libesp::System;
 
 const char *DN8App::LOGTAG = "AppTask";
-static StaticQueue_t InCommingQueue;
-static uint8_t CommandBuffer[DN8App::QUEUE_SIZE * DN8App::ITEM_SIZE] = { 0 };
 const char *DN8App::sYES = "Yes";
 const char *DN8App::sNO = "No";
 
 
-//static const uint16_t FRAME_BUFFER_HEIGHT	= 132;
-//static const uint16_t FRAME_BUFFER_WIDTH	= 176;
 #define START_ROT libesp::DisplayILI9341::LANDSCAPE_TOP_LEFT
 static const uint16_t PARALLEL_LINES = 10;
 
 libesp::DisplayILI9341 Display(DN8App::DISPLAY_WIDTH,DN8App::DISPLAY_HEIGHT,START_ROT,
 	PIN_NUM_DISPLAY_BACKLIGHT, PIN_NUM_DISPLAY_RESET);
 
-uint16_t *BackBuffer = new uint16_t[DN8App::FRAME_BUFFER_WIDTH*DN8App::FRAME_BUFFER_HEIGHT];
+//static uint16_t BkBuffer[DN8App::FRAME_BUFFER_WIDTH*DN8App::FRAME_BUFFER_HEIGHT];
+static uint16_t *BackBuffer = new uint16_t[DN8App::FRAME_BUFFER_WIDTH*DN8App::FRAME_BUFFER_HEIGHT];
+//static uint16_t *BackBuffer = &BkBuffer[0];
+
 uint16_t ParallelLinesBuffer[DN8App::DISPLAY_WIDTH*PARALLEL_LINES] = {0};
 
 libesp::ScalingBuffer FrameBuf(&Display, DN8App::FRAME_BUFFER_WIDTH, DN8App::FRAME_BUFFER_HEIGHT, uint8_t(16), DN8App::DISPLAY_WIDTH,DN8App::DISPLAY_HEIGHT, PARALLEL_LINES, (uint8_t*)&BackBuffer[0],(uint8_t*)&ParallelLinesBuffer[0]);
 
-GUI DN8Gui(&Display);
-ContactStore MyContactStore;
-XPT2046 TouchTask(PIN_NUM_TOUCH_IRQ,true);
-BluetoothTask BTTask("BluetoothTask");
-GameTask GMTask("GameTask");
-ButtonInfo MyButtons;
-CalibrationMenu DN8CalibrationMenu;
-WIFITask WifiTask("WifiTask");
-TopBoardMenu MyTopBoardMenu;
+static GUI DN8Gui(&Display);
+static ContactStore MyContactStore;
+static XPT2046 TouchTask(PIN_NUM_TOUCH_IRQ,true);
+static GameTask GMTask("GameTask");
+static ButtonInfo MyButtons;
+static CalibrationMenu DN8CalibrationMenu;
+static TopBoardMenu MyTopBoardMenu;
+BluetoothTask *BTTask; //("BluetoothTask");
+WIFITask *WifiTask; //("WifiTask");
 
 const char *DN8ErrorMap::toString(int32_t err) {
 	return "TODO";
@@ -104,6 +103,14 @@ libesp::ErrorType DN8App::onInit() {
 	ErrorType et;
 	ESP_LOGI(LOGTAG,"OnInit: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	MyContactStore.init();
+	bool useBT = MyContactStore.getSettings().isBLE();
+	if(useBT) {
+		BTTask = new BluetoothTask("BlueToothTask");
+		ESP_LOGI(LOGTAG,"*************BLE*****************");
+	} else {
+		ESP_LOGI(LOGTAG,"*************WIFI*****************");
+		WifiTask = new WIFITask("WifiTask");
+	}
 	//ESP_LOGI(LOGTAG,"After Contact Store: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
   // Configure UART parameters for pairing
@@ -175,19 +182,24 @@ libesp::ErrorType DN8App::onInit() {
 		ESP_LOGI(LOGTAG,"After Display swap: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 		// libbt.a is like 300kb
-		if(!BTTask.init()) {
-			return ErrorType(BT_INIT_FAIL);
+		if(BTTask) {
+			if(!BTTask->init()) {
+				return ErrorType(BT_INIT_FAIL);
+			}
+			ESP_LOGI(LOGTAG,"After BT: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 		}
-		ESP_LOGI(LOGTAG,"After BT: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 		if(!GMTask.init()) {
 			return ErrorType(GAME_TASK_INIT_FAIL);
 		}
 		ESP_LOGI(LOGTAG,"After GameTask: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
-		if(!WifiTask.init()) {
-			return ErrorType(WIFI_TASK_INIT_FAIL);
+
+		if(WifiTask) {
+			if(!WifiTask->init()) {
+				return ErrorType(WIFI_TASK_INIT_FAIL);
+			}
+			ESP_LOGI(LOGTAG,"After Wifi: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 		}
-		ESP_LOGI(LOGTAG,"After Wifi: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 		if(!MyButtons.init()) {
 			return ErrorType(BUTTON_INIT_FAIL);
 		} else {
@@ -207,26 +219,32 @@ libesp::ErrorType DN8App::onInit() {
 	
 	TouchTask.start();
 	//ESP_LOGI(LOGTAG,"After touch Task start: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
-	BTTask.start();
+	if(BTTask) {
+		BTTask->start();
+	}
 	//ESP_LOGI(LOGTAG,"After BT Task start: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	GMTask.start();
 	//ESP_LOGI(LOGTAG,"After GM Task start: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
-	BTTask.setGameTaskQueue(GMTask.getQueueHandle());
-	WifiTask.start();
+	if(BTTask) {
+		BTTask->setGameTaskQueue(GMTask.getQueueHandle());
+	}
+	if(WifiTask) {
+		WifiTask->start();
+	}
 	ESP_LOGI(LOGTAG,"After Task starts: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	
 	setCurrentMenu(getMenuState());
 	return et;
 }
 
-BluetoothTask &DN8App::getBTTask() {
+BluetoothTask *DN8App::getBTTask() {
 	return BTTask;
 }
 
 GameTask &DN8App::getGameTask() {
 	return GMTask;
 }
-WIFITask &DN8App::getWifiTask() {
+WIFITask *DN8App::getWifiTask() {
 	return WifiTask;
 }
 

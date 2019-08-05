@@ -215,9 +215,9 @@ protected:
 						if(SSID[0]!='\0') { 
 							QueueHandle_t h = nullptr;
 							if(APStatus) { //ap down bring it up
-								DN8App::get().getWifiTask().requestAPUp(h,SecurityType,&SSID[0],&Password[0]);
+								DN8App::get().getWifiTask()->requestAPUp(h,SecurityType,&SSID[0],&Password[0]);
 							} else { //ap up bring it down
-								DN8App::get().getWifiTask().requestAPDown(h);
+								DN8App::get().getWifiTask()->requestAPDown(h);
 							}
 							nextState = DN8App::get().getDisplayMessageState(DN8App::get().getCommunicationSettingState(),(const char *)"Updating ESP",5000);
 						} else {
@@ -302,7 +302,7 @@ ErrorType CommunicationSettingState::onInit() {
 		Items[i].id = i;
 		Items[i].setShouldScroll();
 	}
-	DN8App::get().getWifiTask().requestStatus(WifiQueueHandle);
+	DN8App::get().getWifiTask()->requestStatus(WifiQueueHandle);
 	//sprintf(getRow(1),"BLE Advertise: %s",DN8App::get().getBTTask().isAdvertiseStr());
 	sprintf(getRow(2),"BLE Status: %s", ble_get_initialized() ? "Active" : "Inactive");
 	sprintf(getRow(3),"BLE DeviceName: %s",DN8App::get().getContacts().getSettings().getAgentName());

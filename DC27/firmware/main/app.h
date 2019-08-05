@@ -63,14 +63,16 @@ public:
 	static const char *sNO;
 	static const uint16_t DISPLAY_HEIGHT		= 240;
 	static const uint16_t DISPLAY_WIDTH			= 320;
-	static const uint16_t FRAME_BUFFER_HEIGHT	= 132;
-	static const uint16_t FRAME_BUFFER_WIDTH	= 176;
+	//static const uint16_t FRAME_BUFFER_HEIGHT	= 132;
+	//static const uint16_t FRAME_BUFFER_WIDTH	= 176;
+	static const uint16_t FRAME_BUFFER_HEIGHT	= 138;
+	static const uint16_t FRAME_BUFFER_WIDTH	= 184;
 	static DN8App &get();
 public:
 	virtual ~DN8App();
-	BluetoothTask &getBTTask();
+	BluetoothTask *getBTTask();
 	GameTask &getGameTask();
-	WIFITask &getWifiTask();
+	WIFITask *getWifiTask();
 	uint16_t getCanvasWidth();
 	uint16_t getCanvasHeight();
 	uint16_t getLastCanvasWidthPixel();
