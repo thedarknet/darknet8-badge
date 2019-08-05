@@ -10,6 +10,8 @@
 
 //class ContactStore; // FIXME
 
+void initialize_pairing_uart(void);
+
 class PairingMenu: public DN8BaseMenu {
 public:
 	struct AliceInitConvo {

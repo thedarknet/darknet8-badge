@@ -15,6 +15,24 @@ using libesp::RGBColor;
 using libesp::ErrorType;
 using libesp::BaseMenu;
 
+void initialize_pairing_uart()
+{
+	uart_config_t uart_config {
+		.baud_rate           = 115200,
+		.data_bits           = UART_DATA_8_BITS,
+		.parity              = UART_PARITY_DISABLE,
+		.stop_bits           = UART_STOP_BITS_1,
+		.flow_ctrl           = UART_HW_FLOWCTRL_DISABLE,
+		.rx_flow_ctrl_thresh = 122,
+		.use_ref_tick        = false
+	};
+	uart_param_config(PAIRING_UART, &uart_config);
+	uart_set_pin(PAIRING_UART, PAIRING_TX, PAIRING_RX,
+		PAIRING_RTS, PAIRING_CTS);
+	uart_driver_install(PAIRING_UART, PAIR_BUFSIZE, PAIR_BUFSIZE,
+		0, NULL, 0);
+}
+
 PairingMenu::PairingMenu() : DN8BaseMenu() { }
 
 PairingMenu::~PairingMenu() { }
