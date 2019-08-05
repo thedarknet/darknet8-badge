@@ -28,6 +28,8 @@ public:
 		bool isNameSet();
 		bool setAgentname(const char name[Contact::AGENT_NAME_LENGTH]);
 		void resetToFactory();
+		bool setBLE(bool b);
+		bool isBLE();
 	protected:
 		struct DataStructure {
 			union {
@@ -35,6 +37,7 @@ public:
 					uint32_t ScreenSaverType :4;
 					uint32_t SleepTimer :4;
 					uint32_t ScreenSaverTime :4;
+					uint32_t BLE:1;
 				} Settings;
 				uint32_t Blob;
 			};

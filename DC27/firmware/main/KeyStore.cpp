@@ -18,6 +18,7 @@ ContactStore::SettingsInfo::SettingsInfo() : AgentName(), Data() {
 	Data.Settings.ScreenSaverTime = 1;
 	Data.Settings.ScreenSaverType = 0;
 	Data.Settings.SleepTimer = 3;
+	Data.Settings.BLE = 0;
 	memset(&AgentName[0], 0, sizeof(AgentName));
 }
 
@@ -27,6 +28,7 @@ bool ContactStore::SettingsInfo::init() {
 		Data.Settings.ScreenSaverTime = 1;
 		Data.Settings.ScreenSaverType = 0;
 		Data.Settings.SleepTimer = 3;
+		Data.Settings.BLE = 0;
 		et = NVSMe.setValue("mysetting",Data.Blob);
 	}
 	if(et.ok()) {
@@ -76,6 +78,16 @@ bool ContactStore::SettingsInfo::setScreenSaverType(uint8_t value) {
 uint8_t ContactStore::SettingsInfo::getScreenSaverType() {
 	return Data.Settings.ScreenSaverType;
 }
+
+bool ContactStore::SettingsInfo::setBLE(bool b) {
+	Data.Settings.BLE = b;
+	return NVSMe.setValue("mysetting",Data.Blob).ok();
+}
+
+bool ContactStore::SettingsInfo::isBLE() {
+	return Data.Settings.BLE==1;
+}
+
 
 bool ContactStore::SettingsInfo::setScreenSaverTime(uint8_t value) {
 	Data.Settings.ScreenSaverTime = value & 0xF;
