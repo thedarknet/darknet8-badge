@@ -138,7 +138,6 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 				20/portTICK_RATE_MS);
 			DN8App::get().getDisplay().drawString(5, 20,
 				(const char*)"Bob Received AIC", RGBColor::WHITE);
-
 			// TODO: Sign or hash the data
 			/* SHA256 code
 			uint8_t message_hash[SHA256_HASH_SIZE];
@@ -182,7 +181,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 		uart_get_buffered_data_len(PAIRING_UART, &buffered_len);
 		if (buffered_len == sizeof(BRTI))
 		{
-			uart_read_bytes(PAIRING_UART, (uint8_t*)MesgBuf, sizeof(AIC),
+			uart_read_bytes(PAIRING_UART, (uint8_t*)MesgBuf, sizeof(BRTI),
 				20/portTICK_RATE_MS);
 			DN8App::get().getDisplay().drawString(5, 30,
 				(const char*)"Alice Received BRTI", RGBColor::WHITE);
