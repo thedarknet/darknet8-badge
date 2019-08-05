@@ -350,13 +350,6 @@ BaseMenu::ReturnStateContext CommunicationSettingState::onRun() {
 				case 0:
 					nextState = &WiFiMenuInstance;
 					break;
-				case 1:
-					nextState = &BLEAdvertise_Menu;
-					break;
-				case 2:
-					BLESetName_Menu.setCurrentNamePtr(&CurrentDeviceName[0]);
-					nextState = &BLESetName_Menu;
-					break;
 				}
 			} else if(hdrHit) {
 				nextState = DN8App::get().getMenuState();
