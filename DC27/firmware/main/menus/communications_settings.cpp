@@ -303,10 +303,9 @@ ErrorType CommunicationSettingState::onInit() {
 		Items[i].setShouldScroll();
 	}
 	DN8App::get().getWifiTask().requestStatus(WifiQueueHandle);
-	//sprintf(getRow(1),"BLE Advertise: %s",DN8App::get().getBTTask().isAdvertiseStr());
-	sprintf(getRow(2),"BLE Status: %s", ble_get_initialized() ? "Active" : "Inactive");
-	sprintf(getRow(3),"BLE DeviceName: %s",DN8App::get().getContacts().getSettings().getAgentName());
-	sprintf(getRow(4), "BLE Passkey: %d",ble_get_passkey());
+	sprintf(getRow(1),"BLE Status: %s", ble_get_initialized() ? "Active" : "Inactive");
+	sprintf(getRow(2),"BLE DeviceName: %s",DN8App::get().getContacts().getSettings().getAgentName());
+	sprintf(getRow(3), "BLE Passkey: %d",ble_get_passkey());
 
 	TouchNotification *pe = nullptr;
 	for(int i=0;i<2;i++) {
@@ -349,13 +348,6 @@ BaseMenu::ReturnStateContext CommunicationSettingState::onRun() {
 				switch(CommSettingList.selectedItem) {
 				case 0:
 					nextState = &WiFiMenuInstance;
-					break;
-				case 1:
-					nextState = &BLEAdvertise_Menu;
-					break;
-				case 2:
-					BLESetName_Menu.setCurrentNamePtr(&CurrentDeviceName[0]);
-					nextState = &BLESetName_Menu;
 					break;
 				}
 			} else if(hdrHit) {
