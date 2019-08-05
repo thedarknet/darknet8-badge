@@ -375,7 +375,7 @@ bool WIFITask::init() {
 	int32_t attempted_boot = 0;
 	int32_t boot_successful = 0;
 	esp_err_t err;
-	err = nvs_open("storage", NVS_READWRITE, &this->my_nvs_handle);
+	err = nvs_open("nvs", NVS_READWRITE, &this->my_nvs_handle);
 	if (err != ESP_OK) {
 		ESP_LOGE(LOGTAG, "FAILED TO OPEN NVS");
 		return false;
