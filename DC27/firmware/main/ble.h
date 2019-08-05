@@ -115,6 +115,9 @@ typedef struct serial_recv_data_buff
 	serial_recv_data_node_t * first_node;
 } serial_recv_data_buff_t;
 
+uint32_t ble_get_passkey(void);
+bool ble_get_initialized(void);
+
 class BluetoothTask : public Task {
 private:
 	QueueHandle_t gameTaskQueue = nullptr;

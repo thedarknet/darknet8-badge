@@ -6,6 +6,10 @@
 #include "freertos/queue.h"
 #include <map>
 #include <nvs_flash.h>
+#include <time.h>
+
+#include "app.h"
+#include "KeyStore.h"
 
 // bluetooth libraries
 #include "esp_bt.h"
@@ -473,10 +477,15 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 {
 	ESP_LOGV(LOGTAG, "GATTS Profile Event = %x\n", event);
 	uint8_t res = 0xff;
+	const char* dname = NULL;
 	switch (event)
 	{
 		case ESP_GATTS_REG_EVT:
-			esp_ble_gap_set_device_name(DN8_DEVICE_NAME);
+			dname = DN8App::get().getContacts().getSettings().getAgentName();
+			if (dname[0] == '\0')
+				esp_ble_gap_set_device_name(DN8_DEVICE_NAME);
+			else
+				esp_ble_gap_set_device_name(dname);
 			esp_ble_gap_config_local_privacy(true);
 			esp_ble_gatts_create_attr_tab(dn8_gatt_db, gatts_if, DN8_IDX_NB, DN8_SVC_INST_ID);
 			break;
@@ -640,6 +649,18 @@ static void init_ble_globals(void)
 
 }
 
+static bool ble_initialized = false;
+bool ble_get_initialized()
+{
+	return ble_initialized;
+}
+
+static uint32_t PASSKEY = 0;
+uint32_t ble_get_passkey()
+{
+	return PASSKEY;
+}
+
 static void init_ble_security(void)
 {
 	esp_ble_auth_req_t auth_req = ESP_LE_AUTH_REQ_SC_MITM_BOND; // Bond w/ device after auth
@@ -647,11 +668,14 @@ static void init_ble_security(void)
 	uint8_t key_size = 16; // 7-16 bytes in length
 	uint8_t init_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
 	uint8_t resp_key = ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK;
-	uint32_t passkey = 123456; // TODO: Random?
 	uint8_t auth_option = ESP_BLE_ONLY_ACCEPT_SPECIFIED_AUTH_ENABLE;
 
+	//generate a random number for the passkey
+	srand(time(NULL));
+	PASSKEY = rand() % 999999;
+
 	// FIXME: Different passkey? No passkey but use verification?
-	esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &passkey, sizeof(uint32_t));
+	esp_ble_gap_set_security_param(ESP_BLE_SM_SET_STATIC_PASSKEY, &PASSKEY, sizeof(uint32_t));
 	esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &auth_req,
 		sizeof(esp_ble_auth_req_t));
 	esp_ble_gap_set_security_param(ESP_BLE_SM_IOCAP_MODE, &iocap, sizeof(esp_ble_io_cap_t));
@@ -760,6 +784,7 @@ bool BluetoothTask::init()
 	// Setup Advertising
 
 	ESP_LOGI(LOGTAG, "INIT COMPLETE");
+	ble_initialized = true;
 	return true;
 }
 
