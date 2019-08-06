@@ -15,6 +15,8 @@
 
 #include "app.h"
 
+#include "wifi.h"
+
 // This contains GPIO pin definitions for different kits
 #include "devkit.h"
 
@@ -23,6 +25,30 @@ extern "C" {
 }
 
 #define ESP_INTR_FLAG_DEFAULT 0
+
+static void check_for_ota(void)
+{
+  int32_t do_ota = 0;
+  uint32_t nvsh = 0;
+  QueueHandle_t nullhandle;
+  nvs_open("nvs", NVS_READWRITE, &nvsh);
+  nvs_get_i32(nvsh, "do_ota", &do_ota);
+  nvs_set_i32(nvsh, "do_ota", 0);
+  if (do_ota == 1)
+  {
+    WIFITask* WifiTask = new WIFITask("WifiTask");
+    WifiTask->init();
+    WifiTask->start();
+    WifiTask->requestOTA(nullhandle);
+    while (true)
+    {
+      if (WifiTask->getOTAStatus() == WIFI_ERR_OTA)
+        esp_restart();
+      vTaskDelay(1000 / portTICK_RATE_MS);
+    }
+  }
+}
+
 
 void app_main() {
 	static const char *LOGTAG="APP_MAIN";
@@ -35,6 +61,8 @@ void app_main() {
 		ret = nvs_flash_init();
 	}
 	ESP_ERROR_CHECK( ret );
+
+	check_for_ota();
 
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 

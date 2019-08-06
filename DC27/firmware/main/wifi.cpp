@@ -30,7 +30,7 @@ static const char *LOGTAG = "OTAWIFI";
 /**************************** OTA CODE **********************************/
 char OTA_WIFI_SSID[] = "DN8OTA\0";
 char OTA_WIFI_PASSWORD[] = "DN8OTAPW\0";
-char OTA_FIRMWARE_UPGRADE_URL[] = "https://192.168.4.1:8070/dc27.bin\0";
+char OTA_FIRMWARE_UPGRADE_URL[] = "https://192.168.4.1:4433/dc27.bin\0";
 wifi_config_t wifi_config;
 esp_http_client_config_t http_config;
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
@@ -72,18 +72,20 @@ static esp_err_t ota_http_event_handler(esp_http_client_event_t *evt) {
 	return ESP_OK;
 }
 
+
+static enum WIFIResponseType OTAStatus;
 static void do_ota(void) {
 	esp_err_t ret;
 
 	ESP_LOGI(LOGTAG, "Starting OTA process...");
 
 	// wait for CONNECTED_BIT to be set in the event group
-	DN8App::get().getWifiTask()->OTAStatus = WIFI_OTA_CONNECT;
+	OTAStatus = WIFI_OTA_CONNECT;
 	xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
 	ESP_LOGI(LOGTAG, "Connected to WiFi network! Attempting to connect to server...");
 
 
-	DN8App::get().getWifiTask()->OTAStatus = WIFI_OTA_DOWNLOAD;
+	OTAStatus = WIFI_OTA_DOWNLOAD;
 	http_config.url = OTA_FIRMWARE_UPGRADE_URL;
 	http_config.cert_pem = (char*)server_cert_pem_start;
 	http_config.event_handler = ota_http_event_handler;
@@ -91,12 +93,12 @@ static void do_ota(void) {
 
 	if (ret == ESP_OK)
 	{
-		DN8App::get().getWifiTask()->OTAStatus = WIFI_OTA_REBOOT;
+		OTAStatus = WIFI_OTA_REBOOT;
 		esp_restart();
 	}
 	else
 	{
-		DN8App::get().getWifiTask()->OTAStatus = WIFI_ERR_OTA;
+		OTAStatus = WIFI_ERR_OTA;
 		ESP_LOGE(LOGTAG, "Firmware upgrade failed");
 	}
 
@@ -350,6 +352,7 @@ void WIFITask::run(void* data) {
 		if (xQueueReceive(WIFIQueueHandle, &msg, CmdQueueTimeout)) {
 			switch(msg->cmd) {
 			case WIFI_ATTEMPT_OTA:
+				ESP_LOGI(LOGTAG, "Starting OTA");
 				OTAStatus = WIFI_OTA_START;
 				wifi.stopWiFi();
 				wifi.shutdown();

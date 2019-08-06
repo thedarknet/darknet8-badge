@@ -153,7 +153,7 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 					nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Save FAILED!", 4000);
 				}
 			}
-		break;
+			break;
 		case 103:
 			if(selectAction()) {
 				DN8App::get().getContacts().resetToFactory();
@@ -161,63 +161,16 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 			} else if (DN8App::get().getButtonInfo().wasAnyButtonReleased()) {
 				nextState = DN8App::get().getMenuState();
 			}
+			break;
 		case 104:
-			if (selectAction())
-			{
-				if (DN8App::get().getWifiTask())
-				{
-					enum WIFIResponseType otastat;
-					DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
-					// FIXME: TouchQueueHandle isn't used here but the build
-					// is being annoying because i don't have a queue to hand
-					// to the message constructor and it won't take null
-					// so f*** it
-					DN8App::get().getWifiTask()->requestOTA(TouchQueueHandle);
-					do
-					{
-						otastat = DN8App::get().getWifiTask()->getOTAStatus();
-						switch(otastat)
-						{
-						case WIFI_OTA_NOT_START:
-							DN8App::get().getDisplay().drawString(0, 10,
-								(const char*) "OTA...", RGBColor::WHITE,
-								RGBColor::BLACK, 1, true);
-							break;
-						case WIFI_OTA_START:
-							DN8App::get().getDisplay().drawString(0, 20,
-								(const char*) "Started", RGBColor::WHITE,
-								RGBColor::BLACK, 1, true);
-							break;
-						case WIFI_OTA_CONNECT:
-							DN8App::get().getDisplay().drawString(0, 30,
-								(const char*) "Connect", RGBColor::WHITE,
-								RGBColor::BLACK, 1, true);
-							break;
-						case WIFI_OTA_DOWNLOAD:
-							DN8App::get().getDisplay().drawString(0, 40,
-								(const char*) "Download", RGBColor::WHITE,
-								RGBColor::BLACK, 1, true);
-							break;
-						case WIFI_OTA_REBOOT:
-							DN8App::get().getDisplay().drawString(0, 50,
-								(const char*) "Rebooting", RGBColor::WHITE,
-								RGBColor::BLACK, 1, true);
-							break;
-						case WIFI_ERR_OTA:
-						default:
-							break;
-						}
-					} while (otastat != WIFI_ERR_OTA);
-					nextState = DN8App::get().getDisplayMessageState(this,
-						(const char *)"OTA Error... ", 2000);
-				}
-				else
-				{
-					nextState = DN8App::get().getDisplayMessageState(this,
-						(const char *)"Wifi Not Enabled. ", 2000);
-				}
-			}
-		break;
+			uint32_t nvsh;
+			nvs_open("nvs", NVS_READWRITE, &nvsh);
+			nvs_set_i32(nvsh, "do_ota", 1);
+			nvs_commit(nvsh);
+			DN8App::get().getDisplay().drawString(0, 10,
+				(const char*) "Power Cycle Badge");
+			while (true);
+			break;
 		}
 	}
 	if(SubState<100 && (penUp|| DN8App::get().getButtonInfo().wasAnyButtonReleased())) {

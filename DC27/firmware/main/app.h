@@ -72,7 +72,7 @@ public:
 public:
 	virtual ~DN8App();
 	BluetoothTask *getBTTask();
-	GameTask &getGameTask();
+	GameTask *getGameTask();
 	WIFITask *getWifiTask();
 	uint16_t getCanvasWidth();
 	uint16_t getCanvasHeight();
@@ -97,6 +97,8 @@ public:
 	Menu3D *get3DMenu();
 	TopBoardMenu *getTopBoardMenu();
 	DrawingMenu *getDrawingMenu();
+
+	uint32_t my_nvs_handle;
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();

@@ -67,10 +67,10 @@ libesp::ScalingBuffer FrameBuf(&Display, DN8App::FRAME_BUFFER_WIDTH, DN8App::FRA
 static GUI DN8Gui(&Display);
 static ContactStore MyContactStore;
 static XPT2046 TouchTask(PIN_NUM_TOUCH_IRQ,true);
-static GameTask GMTask("GameTask");
 static ButtonInfo MyButtons;
 static CalibrationMenu DN8CalibrationMenu;
 static TopBoardMenu MyTopBoardMenu;
+GameTask* GMTask = NULL;  //GMTask("GameTask");
 BluetoothTask *BTTask = NULL; //("BluetoothTask");
 WIFITask *WifiTask = NULL; //("WifiTask");
 
@@ -102,11 +102,14 @@ ButtonInfo &DN8App::getButtonInfo() {
 
 libesp::ErrorType DN8App::onInit() {
 	ErrorType et;
+
 	ESP_LOGI(LOGTAG,"OnInit: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
+
 	MyContactStore.init();
 	bool useBT = MyContactStore.getSettings().isBLE();
 	if(useBT) {
 		BTTask = new BluetoothTask("BlueToothTask");
+		GMTask = new GameTask("GameTask");
 		ESP_LOGI(LOGTAG,"*************BLE*****************");
 	} else {
 		ESP_LOGI(LOGTAG,"*************WIFI*****************");
@@ -169,18 +172,20 @@ libesp::ErrorType DN8App::onInit() {
 		vTaskDelay(1000 / portTICK_RATE_MS);
 		ESP_LOGI(LOGTAG,"After Display swap: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
+
 		// libbt.a is like 300kb
 		if(BTTask) {
 			if(!BTTask->init()) {
 				return ErrorType(BT_INIT_FAIL);
 			}
 			ESP_LOGI(LOGTAG,"After BT: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
+
+			if(!GMTask->init()) {
+				return ErrorType(GAME_TASK_INIT_FAIL);
+			}
+			ESP_LOGI(LOGTAG,"After GameTask: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 		}
 
-		if(!GMTask.init()) {
-			return ErrorType(GAME_TASK_INIT_FAIL);
-		}
-		ESP_LOGI(LOGTAG,"After GameTask: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 		if(WifiTask) {
 			if(!WifiTask->init()) {
@@ -209,12 +214,12 @@ libesp::ErrorType DN8App::onInit() {
 	//ESP_LOGI(LOGTAG,"After touch Task start: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	if(BTTask) {
 		BTTask->start();
+		GMTask->start();
 	}
 	//ESP_LOGI(LOGTAG,"After BT Task start: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
-	GMTask.start();
 	//ESP_LOGI(LOGTAG,"After GM Task start: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 	if(BTTask) {
-		BTTask->setGameTaskQueue(GMTask.getQueueHandle());
+		BTTask->setGameTaskQueue(GMTask->getQueueHandle());
 	}
 	if(WifiTask) {
 		WifiTask->start();
@@ -229,7 +234,7 @@ BluetoothTask *DN8App::getBTTask() {
 	return BTTask;
 }
 
-GameTask &DN8App::getGameTask() {
+GameTask *DN8App::getGameTask() {
 	return GMTask;
 }
 WIFITask *DN8App::getWifiTask() {

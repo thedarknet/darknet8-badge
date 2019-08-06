@@ -166,7 +166,6 @@ public:
 	static const int WIFI_QUEUE_SIZE = 3;
 	static const int WIFI_MSG_SIZE = sizeof(WIFIRequestMsg);
 	static const char *LOGTAG;
-	enum WIFIResponseType OTAStatus = WIFI_OTA_NOT_START;
 public:
 	WIFITask(const std::string &tName, uint16_t stackSize=5000, uint8_t priority=5);
 	bool init();
