@@ -12,11 +12,12 @@ class DrawingMenu: public DN8BaseMenu {
 public:
 	static const int QUEUE_SIZE = 10;
 	static const int MSG_SIZE = sizeof(libesp::TouchNotification*);
-	static const uint8_t MAX_SAVE_SLOTS = 3;
+	static const char *LOGTAG;
 public:
 	DrawingMenu();
 	virtual ~DrawingMenu();
 	libesp::ErrorType initStorage();
+	void clearStorage();
 protected:
 	virtual libesp::ErrorType onInit();
 	virtual libesp::BaseMenu::ReturnStateContext onRun();

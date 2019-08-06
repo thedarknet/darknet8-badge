@@ -133,9 +133,16 @@ libesp::ErrorType DN8App::onInit() {
 
 	et = DN8CalibrationMenu.initNVS();
 	if(!et.ok()) {
-		ESP_LOGE(LOGTAG,"failed to init nvs");
+		ESP_LOGE(LOGTAG,"failed to init nvs for calibration");
 		return et;
 	}
+
+	et = MyDrawingMenu.initStorage();
+	if(!et.ok()) {
+		ESP_LOGE(LOGTAG,"failed to init nvs for drawings");
+		return et;
+	}
+
 
 	et = XPT2046::initTouch(PIN_NUM_TOUCH_MISO, PIN_NUM_TOUCH_MOSI, PIN_NUM_TOUCH_CLK,VSPI_HOST, 1);
 	//ESP_LOGI(LOGTAG,"After Touch and Calibration: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());

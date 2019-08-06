@@ -14,6 +14,7 @@
 #include <device/touch/XPT2046.h>
 #include "gui_list_processor.h"
 #include <esp_log.h>
+#include "drawing.h"
 
 using libesp::ErrorType;
 using libesp::BaseMenu;
@@ -157,6 +158,7 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 		case 103:
 			if(selectAction()) {
 				DN8App::get().getContacts().resetToFactory();
+				DN8App::get().getDrawingMenu()->clearStorage();
 				nextState = DN8App::get().getMenuState();
 			} else if (DN8App::get().getButtonInfo().wasAnyButtonReleased()) {
 				nextState = DN8App::get().getMenuState();
