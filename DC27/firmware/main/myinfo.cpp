@@ -269,6 +269,19 @@ bool DNRandom::generateRandom(int32_t &value) {
 	}
 }
 
+bool DNRandom::generateRandom(uint32_t &value) {
+	ATCA_STATUS status = ATCA_GEN_FAIL;
+	uint8_t random_number[32];
+	status = atcab_random(&random_number[0]);
+	if (status==ATCA_SUCCESS) {
+		value = (*((uint32_t*)&random_number[0]));
+		return true;
+	} else {
+		value = 0;
+		return false;
+	}
+}
+
 bool DNRandom::generateRandom(uint8_t value[32]) {
 	ATCA_STATUS status = ATCA_GEN_FAIL;
 	status = atcab_random(&value[0]);

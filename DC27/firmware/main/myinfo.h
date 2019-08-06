@@ -8,6 +8,7 @@
 class DNRandom {
 public:
 	static bool generateRandom(int32_t &value);
+	static bool generateRandom(uint32_t &value);
 	static bool generateRandom(uint8_t value[32]);
 };
 

@@ -15,7 +15,7 @@ const char *ContactStore::LOGTAG = "ContactStore";
 //////////////////////////////////////////////////////////////////
 // SettingInfo
 ContactStore::SettingsInfo::SettingsInfo() : AgentName(), Data() {
-	Data.Settings.ScreenSaverTime = 1;
+	Data.Settings.ScreenSaverTime = 5;
 	Data.Settings.ScreenSaverType = 0;
 	Data.Settings.SleepTimer = 3;
 	Data.Settings.BLE = 0;

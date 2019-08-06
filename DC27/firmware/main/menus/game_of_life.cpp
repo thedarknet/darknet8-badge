@@ -5,6 +5,8 @@
 #include "../app.h"
 #include <freertos.h>
 #include "../buttons.h"
+#include "../myinfo.h"
+#include <esp_log.h>
 
 using libesp::ErrorType;
 using libesp::RGBColor;
@@ -111,6 +113,14 @@ void GameOfLife::initGame() {
 	uint32_t start = FreeRTOS::getTimeSinceStart();
 	CurrentGeneration = 0;
 	Neighborhood = (start & 1) == 0 ? 'm' : 'v';
+	uint32_t rNum;
+	ESP_LOGI(LOGTAG, "before random");
+  	if(DNRandom::generateRandom(rNum)) {
+		ESP_LOGI(LOGTAG, "after random %u", rNum);
+		start = rNum%16000;
+	} else {
+		ESP_LOGE(LOGTAG, "Error generating atecc608a random going with c-rand");
+	}
 	srand(start);
 	short chanceToBeAlive = rand() % 50;
 	memset(&Buffer[0], 0, sizeof(Buffer));
@@ -124,7 +134,7 @@ void GameOfLife::initGame() {
 	}
 	Generations = 100 + (rand() % 75);
 	InternalState = MESSAGE;
-	DisplayMessageUntil = start + 3000;
+	DisplayMessageUntil = FreeRTOS::getTimeSinceStart() + 2500;
 	sprintf(&UtilityBuf[0], "  Max\n  Generations: %d", Generations);
 }
 //The life function is the most important function in the program.
