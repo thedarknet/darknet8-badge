@@ -28,9 +28,9 @@ const char *WIFITask::LOGTAG = "WIFITask";
 static const char *LOGTAG = "OTAWIFI";
 
 /**************************** OTA CODE **********************************/
-char OTA_WIFI_SSID[] = "DN8OTA\0"; // FIXME
-char OTA_WIFI_PASSWORD[] = "DN8OTA\0"; // FIXME
-char OTA_FIRMWARE_UPGRADE_URL[] = "https://192.168.1.170:8070/dc27.bin\0";
+char OTA_WIFI_SSID[] = "DN8OTA\0";
+char OTA_WIFI_PASSWORD[] = "DN8OTAPW\0";
+char OTA_FIRMWARE_UPGRADE_URL[] = "https://192.168.4.1:8070/dc27.bin\0";
 wifi_config_t wifi_config;
 esp_http_client_config_t http_config;
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
