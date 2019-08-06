@@ -14,7 +14,7 @@ static StaticQueue_t InternalQueue;
 static uint8_t InternalQueueBuffer[TestMenu::QUEUE_SIZE*TestMenu::MSG_SIZE] = {0};
 static const char *LOGTAG = "TestMenu";
 
-TestMenu::TestMenu() : DN8BaseMenu(), ButtonList("Button Info:", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel(), 0, (sizeof(Items) / sizeof(Items[0]))), PenX(0), PenY(0), PenZ(0), IsPenDown(false), InternalQueueHandler() {
+TestMenu::TestMenu() : DN8BaseMenu(), ButtonList("Button Info:", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel(), 0, ItemCount ), PenX(0), PenY(0), PenZ(0), IsPenDown(false), InternalQueueHandler() {
 	InternalQueueHandler = xQueueCreateStatic(QUEUE_SIZE,MSG_SIZE,&InternalQueueBuffer[0],&InternalQueue);
 }
 
@@ -45,6 +45,7 @@ ErrorType TestMenu::onInit() {
 libesp::BaseMenu::ReturnStateContext TestMenu::onRun() {
 	BaseMenu *nextState = this;
 	TouchNotification *pe = nullptr;
+	bool hdrHit = false;
 	bool update = false;
 	if(xQueueReceive(InternalQueueHandler, &pe, 0)) {
 		PenX = pe->getX();
@@ -64,10 +65,13 @@ libesp::BaseMenu::ReturnStateContext TestMenu::onRun() {
 		sprintf(getRow(4), "Pen Pos(raw): %d, %d %d", int32_t(PenX), int32_t(PenY), int32_t(PenZ));
 		Point2Ds screenPoint(PenX,PenY);
 		Point2Ds TouchPosInBuf = DN8App::get().getCalibrationMenu()->getPickPoint(screenPoint);
+		if(TouchPosInBuf.getY()<=10 && !IsPenDown) {
+			hdrHit = true;
+		}
 		sprintf(getRow(5), "Pen Pos: %d, %d", int32_t(TouchPosInBuf.getX()), int32_t(TouchPosInBuf.getY()));
 	}
 	
-	if (backAction()) {
+	if (backAction() || hdrHit) {
 		nextState = DN8App::get().getMenuState();
 	}
 

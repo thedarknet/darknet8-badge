@@ -33,6 +33,7 @@
 #include "menus/top_board.h"
 #include "menus/drawing.h"
 #include <driver/uart.h>
+#include "freertos.h"
 
 // This contains GPIO Pin definitions for various kits
 #include "devkit.h"
@@ -44,6 +45,7 @@ using libesp::GUI;
 using libesp::DisplayMessageState;
 using libesp::BaseMenu;
 using libesp::System;
+using libesp::FreeRTOS;
 
 const char *DN8App::LOGTAG = "AppTask";
 const char *DN8App::sYES = "Yes";
@@ -73,6 +75,7 @@ static TopBoardMenu MyTopBoardMenu;
 GameTask* GMTask = NULL;  //GMTask("GameTask");
 BluetoothTask *BTTask = NULL; //("BluetoothTask");
 WIFITask *WifiTask = NULL; //("WifiTask");
+DrawingMenu MyDrawingMenu;
 
 const char *DN8ErrorMap::toString(int32_t err) {
 	return "TODO";
@@ -83,6 +86,15 @@ DN8App DN8App::mSelf;
 DN8App &DN8App::get() {
 	return mSelf;
 }
+
+uint8_t *DN8App::getBackBuffer() {
+	return (uint8_t *)&BackBuffer[0];
+}
+
+uint32_t DN8App::getBackBufferSize() {
+	return DN8App::FRAME_BUFFER_WIDTH*DN8App::FRAME_BUFFER_HEIGHT*2;
+}
+
 
 DN8App::DN8App() : AppErrors() {
 	ErrorType::setAppDetail(&AppErrors);
@@ -279,6 +291,14 @@ ErrorType DN8App::onRun() {
 			ESP_LOGI(LOGTAG,"on Menu swap: Free: %u, Min %u",
 				System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 		} else {
+
+			uint32_t screenSaveTime = DN8App::get().getContacts().getSettings().getScreenSaverTime()*1000*60;
+			uint32_t now = FreeRTOS::getTimeSinceStart();
+			if (getCurrentMenu() != DN8App::get().getGameOfLifeMenu()
+				&& (((now-MyButtons.lastTickButtonPushed())>screenSaveTime)
+				&& ((now-TouchTask.lastTickScreenTouch()>screenSaveTime)))) {
+				setCurrentMenu(DN8App::get().getGameOfLifeMenu());
+			}
 		}
 	} else {
 		//setCurrentState(StateCollection::getDisplayMessageState(
@@ -302,7 +322,6 @@ Scan MyWifiScan;
 SettingMenu MySettingMenu;
 TestMenu MyTestMenu;
 Menu3D My3DMenu;
-DrawingMenu MyDrawingMenu;
 	
 DrawingMenu *DN8App::getDrawingMenu() {
 	return &MyDrawingMenu;

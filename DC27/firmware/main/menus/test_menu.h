@@ -26,5 +26,7 @@ private:
 	int32_t PenZ;
 	bool IsPenDown;
 	QueueHandle_t InternalQueueHandler;
+public:
+	static const uint16_t ItemCount = (sizeof(Items)/sizeof(Items[0]));
 };
 #endif
