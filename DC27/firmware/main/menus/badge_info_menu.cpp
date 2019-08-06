@@ -43,12 +43,8 @@ ErrorType BadgeInfoMenu::onInit() {
 	sprintf(getRow(0), "Name: %s", DN8App::get().getContacts().getSettings().getAgentName());
 	sprintf(getRow(1), "Num contacts: %u", DN8App::get().getContacts().getNumContacts());
 	sprintf(getRow(2), "REG: %s", getRegCode());
-	//const uint8_t *uid = DN8App::get().getContacts().getMyInfo().getUniqueID();
-	//sprintf(getRow(3), "UID: %02x%02x%02x%02x%02x%02x%02x%02x%02x", 
-	//					 uid[0],uid[1],uid[2],uid[3],uid[4],uid[5],uid[6],
-	//					 uid[7],uid[8]); 
 	
-	sprintf(getRow(2), "PUT SOMETHING HERE");
+	sprintf(getRow(3), "FrameBuffer %d KB", (DN8App::get().getBackBufferSize()/1024));
 	const uint8_t *pCP =	DN8App::get().getContacts().getMyInfo().getPublicKey();
 	sprintf(getRow(4), "PK: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 			pCP[0], pCP[1], pCP[2], pCP[3], pCP[4], pCP[5], pCP[6], pCP[7],
@@ -72,7 +68,7 @@ ErrorType BadgeInfoMenu::onInit() {
 
 BaseMenu::ReturnStateContext BadgeInfoMenu::onRun() {
 	BaseMenu *nextState = this;
-	if (backAction()) {
+	if (backAction() || selectAction()) {
 		nextState = DN8App::get().getMenuState();
 	} else if(GUIListProcessor::process(&BadgeInfoList,BadgeInfoList.ItemsCount)) {
 		DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);

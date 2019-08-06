@@ -97,6 +97,8 @@ public:
 	Menu3D *get3DMenu();
 	TopBoardMenu *getTopBoardMenu();
 	DrawingMenu *getDrawingMenu();
+	uint8_t *getBackBuffer();
+	uint32_t getBackBufferSize();
 protected:
 	DN8App();
 	virtual libesp::ErrorType onInit();
