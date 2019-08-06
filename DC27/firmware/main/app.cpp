@@ -71,8 +71,8 @@ static GameTask GMTask("GameTask");
 static ButtonInfo MyButtons;
 static CalibrationMenu DN8CalibrationMenu;
 static TopBoardMenu MyTopBoardMenu;
-BluetoothTask *BTTask; //("BluetoothTask");
-WIFITask *WifiTask; //("WifiTask");
+BluetoothTask *BTTask = NULL; //("BluetoothTask");
+WIFITask *WifiTask = NULL; //("WifiTask");
 
 const char *DN8ErrorMap::toString(int32_t err) {
 	return "TODO";
