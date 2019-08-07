@@ -99,6 +99,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			InternalState = PAIRING_FAILED;
 	}
 	else if (InternalState == ALICE_INIT) {
+		ESP_LOGI(LOGTAG,"ALICE INIT");
 		memcpy(&AIC.AlicePublicKey[0], DN8App::get().getContacts().getMyInfo().getPublicKey(), sizeof(AIC.AlicePublicKey));
 		memcpy(&AIC.AliceID[0], DN8App::get().getContacts().getMyInfo().getUniqueID(), sizeof(AIC.AliceID));
 		strncpy(&AIC.AliceName[0], DN8App::get().getContacts().getSettings().getAgentName(), sizeof(AIC.AliceName));
@@ -109,7 +110,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 
 		this->InternalState = ALICE_RECEIVE_BRTI;
 	} else if (InternalState == BOB_RECEIVE_AIC) {
-
+		ESP_LOGI(LOGTAG,"BOB RECEIVE AIC");
 		uart_get_buffered_data_len(PAIRING_UART, &buffered_len);
 		if (buffered_len == sizeof(AIC)) {
 			uart_read_bytes(PAIRING_UART, (uint8_t*)&AIC, sizeof(AIC), 20/portTICK_RATE_MS);
@@ -139,6 +140,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 	else if (InternalState == ALICE_RECEIVE_BRTI) {
 		uart_get_buffered_data_len(PAIRING_UART, &buffered_len);
 		if (buffered_len == sizeof(BRTI)) {
+			ESP_LOGI(LOGTAG,"ALICE_RECEIVE_BRTI");
 			uart_read_bytes(PAIRING_UART, (uint8_t *)&BRTI
 								 , sizeof(BRTI), 20/portTICK_RATE_MS);
 
@@ -158,10 +160,11 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			Bob.setPairingSignature(BRTI.BobSignatureOfAliceData);
 
 			if(DN8App::get().getContacts().addContact(Bob)) {
+				ESP_LOGE(LOGTAG,"ALICE SAVED BOB SUCCESSFUL");
 				InternalState = PAIRING_SUCCESS;
 			} else {
 				InternalState = PAIRING_FAILED;
-				ESP_LOGE(LOGTAG,"FAILED TO SAVE CONTACT");
+				ESP_LOGE(LOGTAG,"ALICE SAVED BOB FAILED");
 			}
 		}
 		if (this->timesRunCalledSinceReset > 250)
@@ -169,6 +172,7 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 	} else if (InternalState == BOB_RECEIVE_ATBS) {
 		uart_get_buffered_data_len(PAIRING_UART, &buffered_len);
 		if (buffered_len == sizeof(ATBS)) {
+			ESP_LOGI(LOGTAG,"BOB_RECEIVE_ATBS");
 			uart_read_bytes(PAIRING_UART, (uint8_t*) &ATBS, 
 								 sizeof(ATBS), 20/portTICK_RATE_MS);
 
@@ -184,10 +188,14 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			Alice.setPairingSignature(ATBS.AliceSignatureOfBobData);
 			
 			if(DN8App::get().getContacts().addContact(Alice)) {
-				DN8App::get().getDisplay().drawString(5,40,
-					(const char *)"BOB Send Complete", RGBColor::BLUE);
+				DN8App::get().getDisplay().drawString(5,50,
+					(const char *)"Contact Added", RGBColor::BLUE);
+				ESP_LOGE(LOGTAG,"BOB SAVED ALICE SUCCESSFUL");
 				InternalState = PAIRING_SUCCESS; 
 			} else {
+				DN8App::get().getDisplay().drawString(5,50,
+					(const char *)"Contact failed to save", RGBColor::BLUE);
+				ESP_LOGE(LOGTAG,"BOB SAVED ALICE FAILED");
 				InternalState = PAIRING_FAILED;
 			}
 		}
@@ -195,11 +203,9 @@ BaseMenu::ReturnStateContext PairingMenu::onRun() {
 			InternalState = PAIRING_FAILED;
 	} else if (InternalState == PAIRING_SUCCESS) {
 		nextState = DN8App::get().getDisplayMessageState(
-			DN8App::get().getMenuState(),
-			(const char *)"Pairing Successful", 2000);
+			DN8App::get().getMenuState(), (const char *)"Pairing Successful", 2000);
 	} else if (InternalState == PAIRING_FAILED) {
-		nextState = DN8App::get().getDisplayMessageState(
-			DN8App::get().getMenuState(),
+		nextState = DN8App::get().getDisplayMessageState( DN8App::get().getMenuState(),
 			(const char *)"Pairing Failed", 2000);
 	}
 

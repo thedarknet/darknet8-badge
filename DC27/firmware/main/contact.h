@@ -31,6 +31,7 @@ public:
 	bool isValidContact() const;
 	bool save(libesp::NVS &nvs) const;
 	void toString(char buf[CONTACT_ID_SIZE*2+1]) const;
+	void toStringForSave(char buf[15]) const;
 protected:
 	struct __attribute__((__packed__)) ContactSaveData {
 		uint8_t ContactID[CONTACT_ID_SIZE];

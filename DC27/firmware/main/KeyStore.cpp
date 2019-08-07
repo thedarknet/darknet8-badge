@@ -149,8 +149,9 @@ bool ContactStore::init() {
 
 bool ContactStore::addContact(const Contact &c) {
 	if(c.save(NVSContact)) {
-		char buf[Contact::CONTACT_ID_SIZE*2+1];
-		c.toString(buf);
+		char buf[15];
+		c.toStringForSave(buf);
+		//verify not already in list
 		strcpy(MyIndex.ConIndex[MyIndex.NumContacts], &buf[0]);
 		MyIndex.NumContacts++;
 		ErrorType et = NVSContact.setBlob("MyIndex",&MyIndex,sizeof(MyIndex));
@@ -160,6 +161,7 @@ bool ContactStore::addContact(const Contact &c) {
 			ESP_LOGE(LOGTAG,"add contact fail: %s", et.toString());
 		}
 	}
+	ESP_LOGE(LOGTAG,"FAILED TO SAVE CONTACT:");
 	return false;
 }
 

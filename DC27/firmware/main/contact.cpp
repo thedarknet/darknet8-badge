@@ -80,11 +80,27 @@ void Contact::toString(char buf[CONTACT_ID_SIZE*2+1]) const {
 				int32_t(ContactData.ContactID[8]));
 }
 
+void Contact::toStringForSave(char buf[15]) const {
+		memset(&buf[0],0,15);
+		sprintf(&buf[0],"%02x%02x%02x%02x%02x%02x%02x",
+				int32_t(ContactData.ContactID[0]),
+				int32_t(ContactData.ContactID[1]),
+				int32_t(ContactData.ContactID[2]),
+				int32_t(ContactData.ContactID[3]),
+				int32_t(ContactData.ContactID[4]),
+				int32_t(ContactData.ContactID[5]),
+				int32_t(ContactData.ContactID[6])
+				);
+}
+
 bool Contact::save(libesp::NVS &nvs) const {
 	if(isValidContact()) {
 		char buf[(CONTACT_ID_SIZE*2)+1] = {'\0'};
-		toString(buf);
+		toStringForSave(buf);
 		ErrorType et = nvs.setBlob(&buf[0],&ContactData,sizeof(ContactData));
+		if(!et.ok()) {
+			ESP_LOGE(LOGTAG,"error saving contact blob: %s", et.toString());
+		}
 		return et.ok();
 	}
 	return false;
