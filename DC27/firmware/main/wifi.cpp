@@ -190,33 +190,28 @@ public:
 		return ESP_OK;
 	}   
 	virtual esp_err_t staScanDone(system_event_sta_scan_done_t info) {
-			  /*
 		ESP_LOGI(logTag, "MyWiFiEventHandler(Class): scan done: APs Found %d", (int32_t) info.number);
 		uint16_t numAPs = info.number;
 		wifi_ap_record_t *recs = new wifi_ap_record_t[numAPs];
-		int numberToReturn = 0;
-		WIFIResponseMsg* rmsg = new WIFIResponseMsg(WIFI_SCAN_COMPLETE);
+		WIFIResponseMsg* rmsg = new WIFIResponseMsg(WIFI_SCAN_RESP);
+		WiFiScanResult *wsr = new WiFiScanResult();
 		if(ESP_OK==esp_wifi_scan_get_ap_records(&numAPs,recs)) {
 			for(auto i=0;i<numAPs;++i) {
-				if(numberToReturn<5) {
-					if(strstr("dark",(const char *)recs[i].ssid)
-						&& recs[i].bssid[0]==0xdc
-						&& recs[i].bssid[1]==0xd0) {
-
-						ScanResult* sres = new ScanResult();
-						memcpy(sres->bssid, recs[i].bssid, 6);
-						memcpy(sres->ssid, recs[i].ssid, 33);
-						sres->authmode = recs[i].authmode;
-						rmsg->SRes.push_back(sres);
-
-						++numberToReturn;
+				if(strstr("dark",(const char *)recs[i].ssid)
+					&& recs[i].bssid[0]==0xdc && recs[i].bssid[1]==0xd0) {
+					if(i<WiFiScanResult::ItemCount) {
+						wsr->RealCount++;
+						memcpy(&wsr->ResultArray[i].bssid, recs[i].bssid, 6);
+						memcpy(&wsr->ResultArray[i].ssid,  recs[i].ssid, 33);
+						wsr->ResultArray[i].authmode = recs[i].authmode;
+						wsr->ResultArray[i].rssi = recs[i].rssi;
 					}
 				}
 			}
 		}
+		rmsg->setResponse(wsr);
 		xQueueSend(respQueue, (void* )&rmsg,(TickType_t ) 100);
 		delete [] recs;
-		*/
 		return ESP_OK;
 	}
 	virtual esp_err_t staAuthChange(system_event_sta_authmode_change_t info) { return ESP_OK; }
@@ -240,7 +235,7 @@ void WIFITask::npcInteract(WIFIRequestMsg* msg) {
 	WifiNpcMsg* wnm = msg->data.wnm;
 	ESP_LOGI(LOGTAG, "processing wifi npc interaction");
 	wifi.stopWiFi();
-	if (ESP_OK == wifi.connectAP(wnm->ssid, (const char*)"DCDN-8-DC27", wnm->data)) {
+	if (ESP_OK == wifi.connectAP(wnm->ssid, (const char*)"DCDN-8-DC27", (const uint8_t *)wnm->data)) {
 		NPCInteractionTask::NPCMsg* nmsg = nullptr;
 		if (wnm->type == NPC_LIST) { // NPC List Request
 			nmsg = new NPCInteractionTask::NPCMsg(NPCInteractionTask::NPCMsg::HELO,
@@ -253,8 +248,8 @@ void WIFITask::npcInteract(WIFIRequestMsg* msg) {
 		success = true;
 	}
 
-	free(wnm->ssid);
-	free(wnm->data);
+	//free(wnm->ssid);
+	//free(wnm->data);
 	if (!success) free(wnm->npcname); // it not successful, this wasn't passed anywhere
 
 	// Send an OK or error response
@@ -305,6 +300,7 @@ void WIFITask::stopAp(WIFIRequestMsg* msg) {
 	}
 }
 
+
 void WIFITask::handleStatus(WIFIRequestMsg *msg) {
 	WIFIResponseMsg *resp = new WIFIResponseMsg(WIFI_STATUS_OK);
 	MyWiFiEventHandler *eh = (MyWiFiEventHandler*)wifi.getWifiEventHandler();
@@ -327,6 +323,13 @@ libesp::ErrorType WIFITask::requestAPDown(QueueHandle_t &t) {
 	return xQueueSend(getQueueHandle(),&req, (TickType_t)10);
 }
 
+libesp::ErrorType WIFITask::requestWifiScan(QueueHandle_t &t, bool npcOnly) {
+	WIFIRequestMsg *req = new WIFIRequestMsg(WIFI_SCAN, t);
+	WifiScanMsg *wsm = new WifiScanMsg(npcOnly);
+	req->setMsg(wsm);
+	return xQueueSend(getQueueHandle(),&req, (TickType_t)10);
+}
+
 libesp::ErrorType WIFITask::requestAPUp(QueueHandle_t &t, uint16_t secType,const char *ssid,const char *pw) {
 	WIFIRequestMsg *req = new WIFIRequestMsg(WIFI_AP_START, t);
 	StartAPMsg *sapmsg = new StartAPMsg();
@@ -336,6 +339,17 @@ libesp::ErrorType WIFITask::requestAPUp(QueueHandle_t &t, uint16_t secType,const
 	req->setStartAPMsg(sapmsg);
 	return xQueueSend(getQueueHandle(),&req, (TickType_t)10);
 }
+
+libesp::ErrorType WIFITask::requestNPCList(QueueHandle_t &t, const char *name, const uint8_t *data ) {
+	WIFIRequestMsg *req = new WIFIRequestMsg(WIFI_NPC_INTERACT, t);
+	WifiNpcMsg *m = new WifiNpcMsg();
+	m->type = NPC_LIST;
+	strncpy(&m->npcname[0],name,sizeof(m->npcname));
+	memcpy(&m->data,data,6);//bssid
+	req->setMsg(m);
+	return xQueueSend(getQueueHandle(),&req, (TickType_t)10);
+}
+
 
 libesp::ErrorType WIFITask::requestOTA(QueueHandle_t &t)
 {
@@ -417,7 +431,7 @@ void DN8Handler(libesp::HttpRequest* pHttpRequest,libesp::HttpResponse* pHttpRes
 		sprintf(&buf[0],"<html><body>Serial number %s<br/>Public Key: %s<br/></body></html>",&serial[0],&pk[0]);
 		pHttpResponse->sendData((uint8_t*)&buf[0],strlen(&buf[0]));
 	} else if (s.find("pair",0)!=std::string::npos) {
-		sprintf(&buf[0],"<html><body>Not done yet<br/></body></html>",&serial[0],&pk[0]);
+		sprintf(&buf[0],"<html><body>Not done yet<br/></body></html>");
 		pHttpResponse->sendData((uint8_t*)&buf[0],strlen(&buf[0]));
 	} else {
 		pHttpResponse->sendData(&index_html_start[0],strlen((const char *)&index_html_start[0]));

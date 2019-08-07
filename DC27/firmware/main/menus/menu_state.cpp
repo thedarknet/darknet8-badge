@@ -118,8 +118,12 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 					nextState = DN8App::get().getCommunicationSettingState();
 					break;
 				case 7:
-					DN8App::get().getWifiScanMenu()->setNPCOnly(true);
-					nextState = DN8App::get().getWifiScanMenu();
+					if(DN8App::get().getWifiTask()) {
+						DN8App::get().getWifiScanMenu()->setNPCOnly(true);
+						nextState = DN8App::get().getWifiScanMenu();
+					} else {
+						nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *) "Enable WiFi first in settings", 3000);
+					}
 					break;
 				case 8:
 					nextState = DN8App::get().getTestMenu();

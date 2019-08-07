@@ -34,12 +34,16 @@ struct ScanResult {
 	char bssid[6];
 	char ssid[33];
 	wifi_auth_mode_t authmode;
+	int8_t rssi;
 };
 
 struct WiFiScanResult {
-	WiFiScanResult() : Length(0), ResultArray(0) {}
-	uint8_t	Length;
-	ScanResult *ResultArray;
+	WiFiScanResult() : RealCount(0), ResultArray() {
+		memset(&ResultArray[0],0,sizeof(ResultArray));
+	}
+	uint8_t RealCount;
+	ScanResult ResultArray[9];
+	static const uint16_t  ItemCount = (sizeof(ResultArray)/sizeof(ResultArray[0]));
 };
 
 class StatusMsg {
@@ -85,12 +89,13 @@ enum NpcMsgType {
 
 struct WifiNpcMsg {
 	NpcMsgType type;
-	char* npcname;
-	char* ssid;
-	uint8_t* data;
+	char npcname[30];
+	char ssid[33];
+	uint8_t data;
 };
 
 struct WifiScanMsg {
+	WifiScanMsg(bool b) : npcfilter(b) {}
 	bool npcfilter;
 };
 
@@ -119,6 +124,8 @@ public:
 		}
 	}
 	void setStartAPMsg(StartAPMsg *msg) {data.sap = msg;}
+	void setMsg(WifiScanMsg *m) { data.wsm = m;}
+	void setMsg(WifiNpcMsg *m) {data.wnm = m;}
 public:
 	WIFICmd cmd;
 	union {
@@ -139,6 +146,7 @@ public:
 			case WIFI_OK:
 			break;
 			case WIFI_SCAN_RESP:
+				delete data.wsr;
 			break;
 			case WIFI_STATUS_OK:
 				delete data.smsg;
@@ -149,6 +157,8 @@ public:
 			break;
 		}
 	}
+	void setResponse(WiFiScanResult *wsr) {data.wsr = wsr;}
+	WiFiScanResult &getScanResult() {return *data.wsr;}
 	void setResponse(StatusMsg *s) {data.smsg = s;}
 	WIFIResponseType &getType() {return type;}
 	const StatusMsg &getStatusMsg() {return *data.smsg;}
@@ -172,10 +182,12 @@ public:
 	virtual void run(void* data);
 	virtual ~WIFITask();
 	QueueHandle_t getQueueHandle() {return WIFIQueueHandle;}
+	libesp::ErrorType requestWifiScan(QueueHandle_t &t, bool npcOnly);
 	libesp::ErrorType requestStatus(QueueHandle_t &t);
 	libesp::ErrorType requestAPDown(QueueHandle_t &t);
 	libesp::ErrorType requestAPUp(QueueHandle_t &t, uint16_t secType,const char *ssid,const char *pw);
 	libesp::ErrorType requestOTA(QueueHandle_t &t);
+	libesp::ErrorType requestNPCList(QueueHandle_t &t, const char *name, const uint8_t *data );
 	enum WIFIResponseType getOTAStatus(void);
 private:
 	QueueHandle_t WIFIQueueHandle = nullptr;
