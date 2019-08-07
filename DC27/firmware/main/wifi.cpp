@@ -23,6 +23,8 @@
 #include "wifi/WiFi.h"
 #include "HttpServer.h"
 #include "system.h"
+#include <regex>
+#include "KeyStore.h"
 
 const char *WIFITask::LOGTAG = "WIFITask";
 static const char *LOGTAG = "OTAWIFI";
@@ -398,6 +400,31 @@ enum WIFIResponseType WIFITask::getOTAStatus(void)
 	return OTAStatus;
 }
 
+
+extern uint8_t index_html_start[] asm("_binary_index_html_start");
+extern uint8_t index_html_end[] asm("_binary_index_html_end");
+
+static std::regex allRegex(".*");
+
+void DN8Handler(libesp::HttpRequest* pHttpRequest,libesp::HttpResponse* pHttpResponse) {
+	char buf[512] = {0};
+	char serial[Contact::CONTACT_ID_SIZE*2+1];
+	char pk[Contact::PUBLIC_KEY_LENGTH*2+1];
+	std::string s = pHttpRequest->getPath();
+	if(s.find("badge",0)!=std::string::npos) {
+		DN8App::get().getContacts().getMyInfo().getUniqueID(serial);
+		DN8App::get().getContacts().getMyInfo().getPK(pk);
+		sprintf(&buf[0],"<html><body>Serial number %s<br/>Public Key: %s<br/></body></html>",&serial[0],&pk[0]);
+		pHttpResponse->sendData((uint8_t*)&buf[0],strlen(&buf[0]));
+	} else if (s.find("pair",0)!=std::string::npos) {
+		sprintf(&buf[0],"<html><body>Not done yet<br/></body></html>",&serial[0],&pk[0]);
+		pHttpResponse->sendData((uint8_t*)&buf[0],strlen(&buf[0]));
+	} else {
+		pHttpResponse->sendData(&index_html_start[0],strlen((const char *)&index_html_start[0]));
+	}
+}
+
+
 bool WIFITask::init() {
 	int32_t attempted_boot = 0;
 	int32_t boot_successful = 0;
@@ -428,6 +455,7 @@ bool WIFITask::init() {
 	NPCITask.start();
 	WiFiEventHandler* handler = new MyWiFiEventHandler();
 	wifi.setWifiEventHandler(handler);
+	Port80WebServer.addPathHandler("GET",&allRegex,&DN8Handler);
 	return true;
 }
 

@@ -34,6 +34,7 @@
 #include "menus/drawing.h"
 #include <driver/uart.h>
 #include "freertos.h"
+#include "fatfsvfs.h"
 
 // This contains GPIO Pin definitions for various kits
 #include "devkit.h"

@@ -123,6 +123,7 @@ BaseMenu *DrawingMenu::processVirtualButtons(Point2Ds &touchPoint) {
 		}
 	} else if(touchPoint.getY()>=40&&touchPoint.getY()<=54) {
 		retVal = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Abandoning Drawing...\nWas it that bad???", 2000);
+		NVSDrawing.eraseKey("s1");
 	} else if(touchPoint.getY()>=66&&touchPoint.getY()<=80) {
 		if(ColorIndex==MAX_COLORS-1) {
 			ColorIndex = 0;

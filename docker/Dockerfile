@@ -4,7 +4,7 @@ FROM ubuntu:18.04
 RUN apt -qq update \
     && apt install -y gcc git wget make libncurses-dev flex bison gperf python python-serial curl \
                           cmake ninja-build ccache vim picocom python-pip python-setuptools \
-       			python-cryptography python-future python-pyparsing libusb-1.0 telnet ccache \
+       			python-cryptography python-future python-pyparsing libusb-1.0 telnet ccache dosfstools \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

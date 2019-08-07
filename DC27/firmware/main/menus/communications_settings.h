@@ -31,7 +31,7 @@ protected:
 	virtual libesp::ErrorType onShutdown();
 private:
 	libesp::GUIListData CommSettingList;
-	libesp::GUIListItemData Items[5];
+	libesp::GUIListItemData Items[6];
 	char CurrentDeviceName[13];
 	INTERNAL_STATE InternalState;
 	QueueHandle_t WifiQueueHandle;

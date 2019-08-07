@@ -217,6 +217,7 @@ protected:
 							if(APStatus) { //ap down bring it up
 								DN8App::get().getWifiTask()->requestAPUp(h,SecurityType,&SSID[0],&Password[0]);
 							} else { //ap up bring it down
+								ESP_LOGI(LOGTAG,"Bringing WIFI DOWN");
 								DN8App::get().getWifiTask()->requestAPDown(h);
 							}
 							nextState = DN8App::get().getDisplayMessageState(DN8App::get().getCommunicationSettingState(),(const char *)"Updating ESP",5000);
@@ -302,7 +303,11 @@ ErrorType CommunicationSettingState::onInit() {
 		Items[i].id = i;
 		Items[i].setShouldScroll();
 	}
-	DN8App::get().getWifiTask()->requestStatus(WifiQueueHandle);
+	if(DN8App::get().getWifiTask()) {
+		DN8App::get().getWifiTask()->requestStatus(WifiQueueHandle);
+	} else {
+		sprintf(getRow(0),"WifiStatus: %s", "DISABLED");
+	}
 	//sprintf(getRow(1),"BLE Advertise: %s",DN8App::get().getBTTask().isAdvertiseStr());
 	sprintf(getRow(2),"BLE Status: %s", ble_get_initialized() ? "Active" : "Inactive");
 	sprintf(getRow(3),"BLE DeviceName: %s",DN8App::get().getContacts().getSettings().getAgentName());
@@ -345,11 +350,15 @@ BaseMenu::ReturnStateContext CommunicationSettingState::onRun() {
 		pe = processTouch(TouchQueueHandle, CommSettingList, ItemCount, penUp, hdrHit);
 		if(pe || !GUIListProcessor::process(&CommSettingList,ItemCount)) {
 			if (penUp || selectAction()) {
-				DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
-				switch(CommSettingList.selectedItem) {
-				case 0:
-					nextState = &WiFiMenuInstance;
-					break;
+				if(DN8App::get().getWifiTask()) {
+					DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
+					switch(CommSettingList.selectedItem) {
+					case 0:
+						nextState = &WiFiMenuInstance;
+						break;
+					}
+				} else {
+					sprintf(getRow(5),"Wifi Disabled: Turn On first");
 				}
 			} else if(hdrHit) {
 				nextState = DN8App::get().getMenuState();

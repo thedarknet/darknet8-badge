@@ -216,8 +216,44 @@ bool MyInfo::init() {
 	return true;
 }
 
+void MyInfo::getUniqueID(char uid[Contact::CONTACT_ID_SIZE*2+1]) {
+	memset(&uid[0],0,Contact::CONTACT_ID_SIZE*2+1);
+	sprintf(&uid[0], "%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
+		UniqueID[0], UniqueID[1], UniqueID[2], UniqueID[3], UniqueID[4], 
+		UniqueID[5], UniqueID[6], UniqueID[7], UniqueID[8]);
+}
 const uint8_t *MyInfo::getUniqueID() {
 	return &UniqueID[0];
+}
+
+void MyInfo::getPK(char pk[Contact::PUBLIC_KEY_LENGTH*2+1]) {
+	memset(&pk[0],0,Contact::PUBLIC_KEY_LENGTH*2+1);
+	sprintf(&pk[0], 
+			"%02x%02x%02x%02x%02x%02x%02x%02x"\
+			"%02x%02x%02x%02x%02x%02x%02x%02x"\
+			"%02x%02x%02x%02x%02x%02x%02x%02x"\
+			"%02x%02x%02x%02x%02x%02x%02x%02x"\
+			"%02x%02x%02x%02x%02x%02x%02x%02x"\
+			"%02x%02x%02x%02x%02x%02x%02x%02x"\
+			"%02x%02x%02x%02x%02x%02x%02x%02x"\
+			"%02x%02x%02x%02x%02x%02x%02x%02x",
+		PublicKey[0], PublicKey[1], PublicKey[2], PublicKey[3], 
+		PublicKey[4], PublicKey[5], PublicKey[6], PublicKey[7], 
+		PublicKey[8], PublicKey[9], PublicKey[10], PublicKey[11], 
+		PublicKey[12], PublicKey[13], PublicKey[14], PublicKey[15], 
+		PublicKey[16], PublicKey[17], PublicKey[18], PublicKey[19], 
+		PublicKey[20], PublicKey[21], PublicKey[22], PublicKey[23], 
+		PublicKey[24], PublicKey[25], PublicKey[26], PublicKey[27], 
+		PublicKey[28], PublicKey[29], PublicKey[30], PublicKey[31], 
+		PublicKey[32], PublicKey[33], PublicKey[34], PublicKey[35], 
+		PublicKey[36], PublicKey[37], PublicKey[38], PublicKey[39], 
+		PublicKey[40], PublicKey[41], PublicKey[42], PublicKey[43], 
+		PublicKey[44], PublicKey[45], PublicKey[46], PublicKey[47], 
+		PublicKey[48], PublicKey[49], PublicKey[50], PublicKey[51], 
+		PublicKey[52], PublicKey[53], PublicKey[54], PublicKey[55], 
+		PublicKey[56], PublicKey[57], PublicKey[58], PublicKey[59], 
+		PublicKey[60], PublicKey[61], PublicKey[62], PublicKey[63] 
+		);
 }
 
 const uint8_t *MyInfo::getPublicKey() {

@@ -66,7 +66,6 @@ void app_main() {
 
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
-	
 	libesp::ErrorType et;
 	et = DN8App::get().init();
 

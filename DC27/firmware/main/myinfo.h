@@ -20,8 +20,10 @@ public:
 public:
 	MyInfo();
 	bool init();
+	void getUniqueID(char uid[Contact::CONTACT_ID_SIZE*2+1]);
 	const uint8_t *getUniqueID();
 	bool isUberBadge();
+	void getPK(char pk[Contact::PUBLIC_KEY_LENGTH*2+1]);
 	const uint8_t *getPublicKey();
 	bool sign(const uint8_t pk[Contact::PUBLIC_KEY_LENGTH], uint8_t id[Contact::CONTACT_ID_SIZE], uint8_t sig[Contact::SIGNATURE_LENGTH]);
 protected:
