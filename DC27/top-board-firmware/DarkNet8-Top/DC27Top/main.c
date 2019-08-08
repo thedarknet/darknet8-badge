@@ -1,5 +1,6 @@
 #include <atmel_start.h>
 #include <atomic.h>
+#include <stdlib.h>
 
 #define NONE 0xff
 
@@ -64,6 +65,7 @@ uint8_t setupSlave(void)
 }
 #define TOTAL_LEDS 24
 static LEDFUN LedFunctions[TOTAL_LEDS];
+static uint8_t LEDS[TOTAL_LEDS];
 
 void setupLeds() {
 	LedFunctions[0] = &LED1_set_level;
@@ -102,14 +104,7 @@ typedef struct DANCEFUN {
 
 static timer_struct_t LedTimer;
 
-absolutetime_t queueNext(LedDanceFun *data) {
-	if(data) {
-		LedTimer.callback_ptr = data->light;
-		LedTimer.payload = data;
-		return data->TimeOut;
-	} 
-	return 0; //stop timer
-}
+absolutetime_t queueNext(LedDanceFun *data);
 
 absolutetime_t turnAll(void *d) {
 	LedDanceFun *data = (LedDanceFun *)d;
@@ -123,9 +118,9 @@ absolutetime_t turnOnHalf(void *d) {
 	LedDanceFun *data = (LedDanceFun *)d;
 	for(int i=0;i<TOTAL_LEDS;++i) {
 		if((i&0x1)) {
-			(*LedFunctions[i])(data->ExtraData);
+			LEDS[i]=data->ExtraData;
 		} else {
-			(*LedFunctions[i])(!data->ExtraData);
+			LEDS[i]=data->ExtraData;
 		}
 	}
 	return queueNext(data->next);
@@ -135,14 +130,50 @@ absolutetime_t turnOnEveryN(void *d) {
 	LedDanceFun *data = (LedDanceFun *)d;
 	for(int i=0;i<TOTAL_LEDS;++i) {
 		if((i%data->ExtraData)==0) {
-			(*LedFunctions[i])(true);
-			//LedCache|=(1<<i);
+			LEDS[i]=255;
 			} else {
-			(*LedFunctions[i])(false);
+			LEDS[i]=0;
 		}
 	}
 	return queueNext(data->next);
 }
+
+absolutetime_t turnOnOffRandom(void *d) {
+	LedDanceFun *data = (LedDanceFun *)d;
+	static uint16_t count = 0;
+	count++;
+	for(int i=0;i<data->ExtraData;++i)
+	{
+		LEDS[rand() % TOTAL_LEDS]=255;
+		LEDS[rand() % TOTAL_LEDS]=0;
+	}
+
+	if(count>1000) {
+		count=0;
+		return queueNext(data->next);
+	}
+	return queueNext(data);
+}
+
+absolutetime_t turnOnRandom(void *d) {
+	LedDanceFun *data = (LedDanceFun *)d;
+	static uint16_t state = 0;
+	
+	LEDS[rand() % TOTAL_LEDS]=data->ExtraData;
+	
+    state = 1;
+	for(int i=0;i<TOTAL_LEDS;++i) {
+      if(LEDS[i] != data->ExtraData)
+      {
+        state = 0; 
+      }
+    }
+	if(state) {
+		return queueNext(data->next);
+	}
+	return queueNext(data);
+}
+
 
 absolutetime_t danceVertical(void *d) {
 	static int8_t danc1_value = 1;
@@ -156,50 +187,50 @@ absolutetime_t danceVertical(void *d) {
 			count++;
 			break;
 		case 1:
-			(*LedFunctions[2])(danc1_value>0?true:false);
-			(*LedFunctions[5])(danc1_value>0?true:false);
-			(*LedFunctions[8])(danc1_value>0?true:false);
-			(*LedFunctions[11])(danc1_value>0?true:false);
+			LEDS[2]=(danc1_value>0?255:0);
+			LEDS[5]=(danc1_value>0?255:0);
+			LEDS[8]=(danc1_value>0?255:0);
+			LEDS[11]=(danc1_value>0?255:0);
 			data->TimeOut = 10000;
 			data->ExtraData+=danc1_value;
 			break;
 		case 2:
-			(*LedFunctions[1])(danc1_value>0?true:false);
-			(*LedFunctions[4])(danc1_value>0?true:false);
-			(*LedFunctions[7])(danc1_value>0?true:false);
-			(*LedFunctions[10])(danc1_value>0?true:false);
+			LEDS[1]=(danc1_value>0?255:0);
+			LEDS[4]=(danc1_value>0?255:0);
+			LEDS[7]=(danc1_value>0?255:0);
+			LEDS[10]=(danc1_value>0?255:0);
 			data->TimeOut = 10000;
 			data->ExtraData+=danc1_value;
 		break;
 		case 3:
-			(*LedFunctions[0])(danc1_value>0?true:false);
-			(*LedFunctions[3])(danc1_value>0?true:false);
-			(*LedFunctions[6])(danc1_value>0?true:false);
-			(*LedFunctions[9])(danc1_value>0?true:false);
+			LEDS[0]=(danc1_value>0?255:0);
+			LEDS[3]=(danc1_value>0?255:0);
+			LEDS[6]=(danc1_value>0?255:0);
+			LEDS[9]=(danc1_value>0?255:0);
 			data->TimeOut = 10000;
 			data->ExtraData+=danc1_value;
 		break;
 		case 4:
-			(*LedFunctions[14])(danc1_value>0?true:false);
-			(*LedFunctions[17])(danc1_value>0?true:false);
-			(*LedFunctions[20])(danc1_value>0?true:false);
-			(*LedFunctions[23])(danc1_value>0?true:false);
+			LEDS[14]=(danc1_value>0?255:0);
+			LEDS[17]=(danc1_value>0?255:0);
+			LEDS[20]=(danc1_value>0?255:0);
+			LEDS[23]=(danc1_value>0?255:0);
 			data->TimeOut = 10000;
 			data->ExtraData+=danc1_value;
 		break;
 		case 5:
-			(*LedFunctions[13])(danc1_value>0?true:false);
-			(*LedFunctions[16])(danc1_value>0?true:false);
-			(*LedFunctions[19])(danc1_value>0?true:false);
-			(*LedFunctions[22])(danc1_value>0?true:false);
+			LEDS[13]=(danc1_value>0?255:0);
+			LEDS[16]=(danc1_value>0?255:0);
+			LEDS[19]=(danc1_value>0?255:0);
+			LEDS[22]=(danc1_value>0?255:0);
 			data->TimeOut = 10000;
 			data->ExtraData+=danc1_value;
 		break;
 		case 6:
-			(*LedFunctions[12])(danc1_value>0?true:false);
-			(*LedFunctions[15])(danc1_value>0?true:false);
-			(*LedFunctions[18])(danc1_value>0?true:false);
-			(*LedFunctions[21])(danc1_value>0?true:false);
+			LEDS[12]=(danc1_value>0?255:0);
+			LEDS[15]=(danc1_value>0?255:0);
+			LEDS[18]=(danc1_value>0?255:0);
+			LEDS[21]=(danc1_value>0?255:0);
 			data->TimeOut = 10000;
 			data->ExtraData+=danc1_value;
 		break;
@@ -207,6 +238,129 @@ absolutetime_t danceVertical(void *d) {
 			data->TimeOut = 5000;
 			danc1_value = -1;
 			data->ExtraData+=danc1_value;
+		break;
+	}
+	if(count>5) {
+		count=0;
+		danc1_value = 1;
+		return queueNext(data->next);
+	}
+	return queueNext(data);
+}
+
+absolutetime_t danceVerticalCylon(void *d) {
+	static int8_t danc1_value = 1;
+	static uint8_t count = 0;
+	LedDanceFun *data = (LedDanceFun *)d;
+	switch(data->ExtraData) {
+		case 0:
+		data->TimeOut = 5000;
+		danc1_value = 1;
+		data->ExtraData+=danc1_value;
+		count++;
+		break;
+		case 1:
+		LEDS[2]=255;
+		LEDS[5]=255;
+		LEDS[8]=255;
+		LEDS[11]=255;
+
+		LEDS[1]=0;
+		LEDS[4]=0;
+		LEDS[7]=0;
+		LEDS[10]=0;
+		data->TimeOut = 10000;
+		data->ExtraData+=danc1_value;
+		break;
+		case 2:
+		LEDS[2]=0;
+		LEDS[5]=0;
+		LEDS[8]=0;
+		LEDS[11]=0;
+
+		LEDS[1]=255;
+		LEDS[4]=255;
+		LEDS[7]=255;
+		LEDS[10]=255;
+
+		LEDS[0]=0;
+		LEDS[3]=0;
+		LEDS[6]=0;
+		LEDS[9]=0;
+		data->TimeOut = 10000;
+		data->ExtraData+=danc1_value;
+		break;
+		case 3:
+		LEDS[1]=0;
+		LEDS[4]=0;
+		LEDS[7]=0;
+		LEDS[10]=0;
+
+		LEDS[0]=255;
+		LEDS[3]=255;
+		LEDS[6]=255;
+		LEDS[9]=255;
+
+		LEDS[14]=0;
+		LEDS[17]=0;
+		LEDS[20]=0;
+		LEDS[23]=0;
+		data->TimeOut = 10000;
+		data->ExtraData+=danc1_value;
+		break;
+		case 4:
+		LEDS[0]=0;
+		LEDS[3]=0;
+		LEDS[6]=0;
+		LEDS[9]=0;
+
+		LEDS[14]=255;
+		LEDS[17]=255;
+		LEDS[20]=255;
+		LEDS[23]=255;
+
+		LEDS[13]=0;
+		LEDS[16]=0;
+		LEDS[19]=0;
+		LEDS[22]=0;
+		data->TimeOut = 10000;
+		data->ExtraData+=danc1_value;
+		break;
+		case 5:
+		LEDS[14]=0;
+		LEDS[17]=0;
+		LEDS[20]=0;
+		LEDS[23]=0;
+
+		LEDS[13]=255;
+		LEDS[16]=255;
+		LEDS[19]=255;
+		LEDS[22]=255;
+
+		LEDS[12]=0;
+		LEDS[15]=0;
+		LEDS[18]=0;
+		LEDS[21]=0;
+		data->TimeOut = 10000;
+		data->ExtraData+=danc1_value;
+		break;
+		case 6:
+		LEDS[13]=0;
+		LEDS[16]=0;
+		LEDS[19]=0;
+		LEDS[22]=0;
+
+		LEDS[12]=255;
+		LEDS[15]=255;
+		LEDS[18]=255;
+		LEDS[21]=255;
+		data->TimeOut = 10000;
+		data->ExtraData+=danc1_value;
+		break;
+		case 7:
+		data->TimeOut = 5000;
+		danc1_value = -1;
+		data->ExtraData+=danc1_value;
 		break;
 	}
 	if(count>5) {
@@ -229,42 +383,42 @@ absolutetime_t danceHorizonal(void *d) {
 		count++;
 		break;
 		case 1:
-		(*LedFunctions[0])(danc1_value>0?true:false);
-		(*LedFunctions[1])(danc1_value>0?true:false);
-		(*LedFunctions[2])(danc1_value>0?true:false);
-		(*LedFunctions[23])(danc1_value>0?true:false);
-		(*LedFunctions[22])(danc1_value>0?true:false);
-		(*LedFunctions[21])(danc1_value>0?true:false);
+		LEDS[0]=(danc1_value>0?255:0);
+		LEDS[1]=(danc1_value>0?255:0);
+		LEDS[2]=(danc1_value>0?255:0);
+		LEDS[23]=(danc1_value>0?255:0);
+		LEDS[22]=(danc1_value>0?255:0);
+		LEDS[21]=(danc1_value>0?255:0);
 		data->TimeOut = 10000;
 		data->ExtraData+=danc1_value;
 		break;
 		case 2:
-		(*LedFunctions[5])(danc1_value>0?true:false);
-		(*LedFunctions[4])(danc1_value>0?true:false);
-		(*LedFunctions[3])(danc1_value>0?true:false);
-		(*LedFunctions[20])(danc1_value>0?true:false);
-		(*LedFunctions[19])(danc1_value>0?true:false);
-		(*LedFunctions[18])(danc1_value>0?true:false);
+		LEDS[5]=(danc1_value>0?255:0);
+		LEDS[4]=(danc1_value>0?255:0);
+		LEDS[3]=(danc1_value>0?255:0);
+		LEDS[20]=(danc1_value>0?255:0);
+		LEDS[19]=(danc1_value>0?255:0);
+		LEDS[18]=(danc1_value>0?255:0);
 		data->TimeOut = 10000;
 		data->ExtraData+=danc1_value;
 		break;
 		case 3:
-		(*LedFunctions[8])(danc1_value>0?true:false);
-		(*LedFunctions[7])(danc1_value>0?true:false);
-		(*LedFunctions[6])(danc1_value>0?true:false);
-		(*LedFunctions[17])(danc1_value>0?true:false);
-		(*LedFunctions[16])(danc1_value>0?true:false);
-		(*LedFunctions[15])(danc1_value>0?true:false);
+		LEDS[8]=(danc1_value>0?255:0);
+		LEDS[7]=(danc1_value>0?255:0);
+		LEDS[6]=(danc1_value>0?255:0);
+		LEDS[17]=(danc1_value>0?255:0);
+		LEDS[16]=(danc1_value>0?255:0);
+		LEDS[15]=(danc1_value>0?255:0);
 		data->TimeOut = 10000;
 		data->ExtraData+=danc1_value;
 		break;
 		case 4:
-		(*LedFunctions[11])(danc1_value>0?true:false);
-		(*LedFunctions[10])(danc1_value>0?true:false);
-		(*LedFunctions[9])(danc1_value>0?true:false);
-		(*LedFunctions[14])(danc1_value>0?true:false);
-		(*LedFunctions[13])(danc1_value>0?true:false);
-		(*LedFunctions[12])(danc1_value>0?true:false);
+		LEDS[11]=(danc1_value>0?255:0);
+		LEDS[10]=(danc1_value>0?255:0);
+		LEDS[9]=(danc1_value>0?255:0);
+		LEDS[14]=(danc1_value>0?255:0);
+		LEDS[13]=(danc1_value>0?255:0);
+		LEDS[12]=(danc1_value>0?255:0);
 		data->TimeOut = 10000;
 		data->ExtraData+=danc1_value;
 		break;
@@ -282,19 +436,177 @@ absolutetime_t danceHorizonal(void *d) {
 	return queueNext(data);
 }
 
-LedDanceFun Dance1 = {&danceHorizonal,30000,1,0};
-LedDanceFun Dance2 = {&danceVertical, 30000,1,0};
+absolutetime_t danceRain(void *d) {
+	static uint16_t count = 0;
+	LedDanceFun *data = (LedDanceFun *)d;
 
-LedDanceFun Initial8 = {&turnAll		,30000,0,	0};
-LedDanceFun Initial7 = {&danceHorizonal	,30000,0,	&Initial8};
-LedDanceFun Initial6 = {&danceVertical	,30000,0,	&Initial7};
-LedDanceFun Initial5 = {&turnAll		,30000,0,	&Initial6};
-LedDanceFun Initial4 = {&turnOnEveryN	,30000,8,	&Initial5};
-LedDanceFun Initial3 = {&turnOnEveryN	,30000,4,	&Initial4};
-LedDanceFun Initial2 = {&turnOnHalf		,30000,1,	&Initial3};
-LedDanceFun Initial1 = {&turnOnHalf		,30000,1,	&Initial2};
-LedDanceFun Initial0 = {&turnOnHalf		,30000,0,	&Initial1};
+    count++;
+
+	LEDS[0]=LEDS[5];
+	LEDS[1]=LEDS[4];
+	LEDS[2]=LEDS[3];
+	LEDS[23]=LEDS[20];
+	LEDS[22]=LEDS[19];
+	LEDS[21]=LEDS[18];
+
+	LEDS[5]=LEDS[8];
+	LEDS[4]=LEDS[7];
+	LEDS[3]=LEDS[6];
+	LEDS[20]=LEDS[17];
+	LEDS[19]=LEDS[16];
+	LEDS[18]=LEDS[15];
+
+	LEDS[8]=LEDS[11];
+	LEDS[7]=LEDS[10];
+	LEDS[6]=LEDS[9];
+	LEDS[17]=LEDS[14];
+	LEDS[16]=LEDS[13];
+	LEDS[15]=LEDS[12];
+
+	LEDS[11]=0;
+	LEDS[10]=0;
+	LEDS[9]=0;
+	LEDS[14]=0;
+	LEDS[13]=0;
+	LEDS[12]=0;
+
+    switch(rand() % 16) {
+        case 0:
+			LEDS[11]=255;
+		break;
+        case 1:
+			LEDS[10]=255;
+		break;
+        case 2:
+			LEDS[9]=255;
+		break;
+		case 3:
+			LEDS[14]=255;
+		break;
+		case 4:
+			LEDS[13]=255;
+		break;
+		case 5:
+			LEDS[12]=255;
+		break;
+	}
+	if(count>400) {
+		count=0;
+		return queueNext(data->next);
+	}
+	return queueNext(data);
+}
+
+
+absolutetime_t stareV(void *d) {
+	LedDanceFun *data = (LedDanceFun *)d;
+	for(int i=0;i<TOTAL_LEDS;++i) {
+		if(i==4 || i==7 || i==16 || i==19) {
+			LEDS[i] = data->ExtraData;
+		} else {
+			LEDS[i] = 0;
+		}
+	}
+	return queueNext(data->next);
+}
+
+absolutetime_t stareH(void *d) {
+	LedDanceFun *data = (LedDanceFun *)d;
+	for(int i=0;i<TOTAL_LEDS;++i) {
+		if(i==4 || i==5 || i==16 || i==17) {
+			LEDS[i] = data->ExtraData;
+			} else {
+			LEDS[i] = 0;
+		}
+	}
+	return queueNext(data->next);
+}
+
+LedDanceFun StareH  = {&stareH, 30000,255,0};
+LedDanceFun StareV  = {&stareV, 30000,255,0};
+LedDanceFun Dance1 = {&danceHorizonal,30000,1,0};
+LedDanceFun Dance2 = {&danceVerticalCylon, 30000,1,0};
+
+LedDanceFun Initial16 = {&turnAll		,30000,0,	0};
+LedDanceFun Initial15 = {&danceVertical	,30000,0,	&Initial16};
+LedDanceFun Initial14 = {&turnAll		,1000,0,	&Initial15};
+LedDanceFun Initial13 = {&danceHorizonal	,30000,0,	&Initial14};
+LedDanceFun Initial12 = {&turnOnRandom,300,0,	&Initial13};
+LedDanceFun Initial11 = {&turnOnRandom,300,1,	&Initial12};
+LedDanceFun Initial10 = {&danceVerticalCylon	,30000,0,	&Initial11};
+
+LedDanceFun Initial9b = {&turnOnRandom,300,0,	&Initial10};
+LedDanceFun Initial9 = {&danceRain		,2000,0,		&Initial9b};
+
+LedDanceFun Initial8 = {&turnAll		,30000,0,	&Initial9};
+
+LedDanceFun Initial7 = {&turnOnEveryN	,30000,8,	&Initial8};
+LedDanceFun Initial6 = {&turnOnEveryN	,30000,4,	&Initial7};
+LedDanceFun Initial5 = {&turnOnHalf		,30000,1,	&Initial6};
+LedDanceFun Initial4 = {&turnOnHalf		,30000,1,	&Initial5};
+LedDanceFun Initial3 = {&turnOnHalf		,30000,0,	&Initial4};
+
+LedDanceFun Initial2 = {&danceVerticalCylon	,30000,0,	&Initial8};
+
+LedDanceFun Initial1  = {&turnAll		,30000,0,	&Initial2};
+
+LedDanceFun Initial0 = {&turnOnOffRandom,300,1,	&Initial1};
 LedDanceFun Initial  = {&turnAll		,30000,1,	&Initial0};
+LedDanceFun InitialSH = {&stareH          ,30000,255, &Initial};
+LedDanceFun InitialSV = {&stareV          ,30000,255, &InitialSH};
+
+LedDanceFun InitialOFF0 = {&turnOnRandom,1000,0,	&InitialSV};
+
+LedDanceFun InitialON = {&turnOnRandom,1000,255,	&InitialOFF0};
+LedDanceFun InitialOFF = {&turnOnRandom,1000,0,	&InitialON};
+
+LedDanceFun *DanceSequences[] = {
+	&InitialOFF
+	,&InitialON
+	,&InitialOFF0
+	,&InitialSV
+	,&InitialSH
+	,&Initial
+	,&Initial1
+	,&Initial2
+	,&Initial3
+	,&Initial4
+	,&Initial5
+	,&Initial7
+	,&Initial8
+	,&Initial9
+	,&Initial9b
+	,&Initial10
+	,&Initial11
+	,&Initial12
+	,&Initial13
+	,&Initial14
+	,&Initial15
+	,&Initial16
+	,&Dance1
+	,&Dance2
+	,&StareH
+	,&StareV
+};
+
+#define NUMBER_OF_DANCES (sizeof(DanceSequences)/sizeof(DanceSequences[0]))
+
+absolutetime_t queueNext(LedDanceFun *data) {
+	LedDanceFun *ds = 0;
+	if(data) {
+		LedTimer.callback_ptr = data->light;
+		LedTimer.payload = data;
+		return data->TimeOut;
+	} else {
+		int r = rand()%NUMBER_OF_DANCES;
+		ds = DanceSequences[r];
+		LedTimer.callback_ptr = ds->light;
+		LedTimer.payload = ds;
+		return ds->TimeOut;
+	}
+	
+}
+
 
 #if 0
 bool PWMOn = true;
@@ -348,23 +660,22 @@ int main(void)
 	//setupPWM();
 	//PWM_handler_cb();
 	
-	
 	ENABLE_INTERRUPTS();
-	LedTimer.callback_ptr = turnAll;
-	LedTimer.payload = &Initial;
-	TIMER_0_timeout_create(&LedTimer, 1000);
+	LedTimer.callback_ptr = stareV;
+	LedTimer.payload = &InitialOFF;
+	TIMER_0_timeout_create(&LedTimer, 30000);
 	
-	
-	
-	//for(int i=0;i<TOTAL_LEDS;++i) {
-	//	(*LedFunctions[i])(true);
-	//}
-	//LedCache = 0xFFF;
-	
-	
-		
+	int led = 0;
 	/* Replace with your application code */
 	while (1) {
+		if(LEDS[led]>0) {
+			(*LedFunctions[led])(true);
+		} else {
+			(*LedFunctions[led])(false);
+		}
+		if(++led>=TOTAL_LEDS) {
+			led=0;
+		}
 		if(NONE!=I2C_0_register_address && NONE!=I2C_0_cmd) {
 			switch(I2C_0_register_address) {
 				case 1:
