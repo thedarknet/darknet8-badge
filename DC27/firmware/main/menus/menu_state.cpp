@@ -60,14 +60,14 @@ ErrorType MenuState::onInit() {
 	Items[5].text = (const char *) "Badge Info";
 	Items[6].id = 6;
 	Items[6].text = (const char *) "Communications Settings";
+	//Items[7].id = 7;
+	//Items[7].text = (const char *) "Scan for NPCs ";
 	Items[7].id = 7;
-	Items[7].text = (const char *) "Scan for NPCs";
+	Items[7].text = (const char *) "Test Badge";
 	Items[8].id = 8;
-	Items[8].text = (const char *) "Test Badge";
+	Items[8].text = (const char *) "Calibrate Touch";
 	Items[9].id = 9;
-	Items[9].text = (const char *) "Calibrate Touch";
-	Items[10].id = 10;
-	Items[10].text = (const char *) "Connected Devices";
+	Items[9].text = (const char *) "Connected Devices";
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&this->MenuList);
 	//empty queue
@@ -117,6 +117,7 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 				case 6:
 					nextState = DN8App::get().getCommunicationSettingState();
 					break;
+					/*
 				case 7:
 					if(DN8App::get().getWifiTask()) {
 						DN8App::get().getWifiScanMenu()->setNPCOnly(true);
@@ -125,13 +126,14 @@ libesp::BaseMenu::ReturnStateContext MenuState::onRun() {
 						nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *) "Enable WiFi first in settings", 3000);
 					}
 					break;
-				case 8:
+					*/
+				case 7:
 					nextState = DN8App::get().getTestMenu();
 					break;
-				case 9:
+				case 8:
 					nextState = DN8App::get().getCalibrationMenu();
 					break;
-				case 10:
+				case 9:
 					nextState = DN8App::get().getTopBoardMenu();
 					break;
 			}

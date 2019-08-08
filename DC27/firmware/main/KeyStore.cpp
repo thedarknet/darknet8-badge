@@ -147,10 +147,36 @@ bool ContactStore::init() {
 	return false;
 }
 
+void ContactStore::dumpContacts() {
+	ESP_LOGI(LOGTAG,"**********************************************");
+	ESP_LOGI(LOGTAG,"****************Contacts**********************");
+	ESP_LOGI(LOGTAG,"**********************************************");
+	for(int i=0;i<MyIndex.NumContacts;++i) {
+		ESP_LOGI(LOGTAG,"**********************************************");
+		Contact c;
+		if(c.load(NVSContact,MyIndex.ConIndex[i])) {
+			c.dumpContact();
+		} else {
+			ESP_LOGE(LOGTAG,"Failed to load contact");
+		}
+		ESP_LOGI(LOGTAG,"**********************************************");
+	}
+	ESP_LOGI(LOGTAG,"**********************************************");
+	ESP_LOGI(LOGTAG,"****************Contacts**********************");
+	ESP_LOGI(LOGTAG,"**********************************************");
+}
+
 bool ContactStore::addContact(const Contact &c) {
 	if(c.save(NVSContact)) {
-		char buf[Contact::CONTACT_ID_SIZE*2+1];
-		c.toString(buf);
+		char buf[15];
+		c.toStringForSave(buf);
+		//verify not already in list
+		for(int i=0;i<MyIndex.NumContacts;++i) {
+			if(0==strcmp(MyIndex.ConIndex[MyIndex.NumContacts],&buf[0])) {
+				ESP_LOGI(LOGTAG,"already paired with %s", c.getAgentName());
+				return true;
+			}
+		}
 		strcpy(MyIndex.ConIndex[MyIndex.NumContacts], &buf[0]);
 		MyIndex.NumContacts++;
 		ErrorType et = NVSContact.setBlob("MyIndex",&MyIndex,sizeof(MyIndex));
@@ -160,6 +186,7 @@ bool ContactStore::addContact(const Contact &c) {
 			ESP_LOGE(LOGTAG,"add contact fail: %s", et.toString());
 		}
 	}
+	ESP_LOGE(LOGTAG,"FAILED TO SAVE CONTACT:");
 	return false;
 }
 

@@ -21,7 +21,7 @@ public:
 public:
 	Contact();
 	const uint8_t *getUniqueID();
-	const char *getAgentName();
+	const char *getAgentName() const ;
 	const uint8_t *getPublicKey();
 	const uint8_t *getPairingSignature();
 	void setUniqueID(uint8_t contactID[CONTACT_ID_SIZE]);
@@ -31,6 +31,11 @@ public:
 	bool isValidContact() const;
 	bool save(libesp::NVS &nvs) const;
 	void toString(char buf[CONTACT_ID_SIZE*2+1]) const;
+	void toStringForSave(char buf[15]) const;
+	void dumpContact();
+	bool load(libesp::NVS &nvs, const char *ns);
+	void toStringPK(char buf[(PUBLIC_KEY_LENGTH*2)+1]) const;
+	void toStringSignature(char buf[(SIGNATURE_LENGTH*2)+1]) const;
 protected:
 	struct __attribute__((__packed__)) ContactSaveData {
 		uint8_t ContactID[CONTACT_ID_SIZE];

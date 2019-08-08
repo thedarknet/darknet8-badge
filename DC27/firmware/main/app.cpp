@@ -119,6 +119,7 @@ libesp::ErrorType DN8App::onInit() {
 	ESP_LOGI(LOGTAG,"OnInit: Free: %u, Min %u", System::get().getFreeHeapSize(),System::get().getMinimumFreeHeapSize());
 
 	MyContactStore.init();
+	MyContactStore.dumpContacts();
 	bool useBT = MyContactStore.getSettings().isBLE();
 	if(useBT) {
 		BTTask = new BluetoothTask("BlueToothTask");

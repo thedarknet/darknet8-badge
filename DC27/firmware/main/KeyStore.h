@@ -56,6 +56,7 @@ public:
 	uint8_t getNumContacts();
 	uint8_t getNumContactsThatCanBeStored();
 	void resetToFactory();
+	void dumpContacts();
 protected:
 	struct ContactIndex {
 		ContactIndex() : NumContacts(0), ConIndex() {}

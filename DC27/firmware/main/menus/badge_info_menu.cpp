@@ -11,15 +11,21 @@
 #include <system.h>
 #include "cryptoauthlib.h"
 #include "../KeyStore.h"
+#include <device/touch/XPT2046.h>
 
 using libesp::RGBColor;
 using libesp::ErrorType;
 using libesp::BaseMenu;
+using libesp::TouchNotification;
+
+static StaticQueue_t TouchQueue;
+static uint8_t TouchQueueBuffer[BadgeInfoMenu::TOUCH_QUEUE_SIZE*BadgeInfoMenu::TOUCH_MSG_SIZE] = {0};
 
 BadgeInfoMenu::BadgeInfoMenu() : DN8BaseMenu(), 
 	BadgeInfoList("Badge Info:", Items, 0, 0, DN8App::get().getLastCanvasWidthPixel(), DN8App::get().getLastCanvasHeightPixel(),
 				0, (sizeof(Items) / sizeof(Items[0]))), RegCode() {
 	memset(&RegCode, 0, sizeof(RegCode));
+	TouchQueueHandle = xQueueCreateStatic(TOUCH_QUEUE_SIZE,TOUCH_MSG_SIZE,&TouchQueueBuffer[0],&TouchQueue);
 }
 
 BadgeInfoMenu::~BadgeInfoMenu() {
@@ -61,6 +67,13 @@ ErrorType BadgeInfoMenu::onInit() {
 		Items[i].id = i;
 		Items[i].setShouldScroll();
 	}
+	TouchNotification *pe = nullptr;
+	for(int i=0;i<2;i++) {
+		if(xQueueReceive(TouchQueueHandle, &pe, 0)) {
+			delete pe;
+		}
+	}
+	DN8App::get().getTouch().addObserver(TouchQueueHandle);
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&BadgeInfoList);
 	return ErrorType();
@@ -68,16 +81,22 @@ ErrorType BadgeInfoMenu::onInit() {
 
 BaseMenu::ReturnStateContext BadgeInfoMenu::onRun() {
 	BaseMenu *nextState = this;
-	if (backAction() || selectAction()) {
-		nextState = DN8App::get().getMenuState();
-	} else if(GUIListProcessor::process(&BadgeInfoList,BadgeInfoList.ItemsCount)) {
-		DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
-		DN8App::get().getGUI().drawList(&BadgeInfoList);
-	}
+	bool penUp = false;
+	bool hdrHit = false;
+	TouchNotification *pe = nullptr;
+	pe = processTouch(TouchQueueHandle, BadgeInfoList, ItemCount, penUp, hdrHit);
+	if (pe || !GUIListProcessor::process(&BadgeInfoList,ItemCount)) {
+		if (penUp || backAction() || selectAction()) {
+			nextState = DN8App::get().getMenuState();
+		} 
+	} 
+	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
+	DN8App::get().getGUI().drawList(&BadgeInfoList);
 	return ReturnStateContext(nextState);
 }
 
 ErrorType BadgeInfoMenu::onShutdown() {
+	DN8App::get().getTouch().removeObserver(TouchQueueHandle);
 	return ErrorType();
 }
 

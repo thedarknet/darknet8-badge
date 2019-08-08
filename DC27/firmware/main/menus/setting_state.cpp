@@ -55,6 +55,13 @@ ErrorType SettingMenu::onInit() {
 	DN8App::get().getDisplay().fillScreen(RGBColor::BLACK);
 	DN8App::get().getGUI().drawList(&SettingList);
 	IHC.set(&AgentName[0],sizeof(AgentName));
+	TouchNotification *pe = nullptr;
+	for(int i=0;i<2;i++) {
+		if(xQueueReceive(TouchQueueHandle, &pe, 0)) {
+			delete pe;
+		}
+	}
+	DN8App::get().getTouch().addObserver(TouchQueueHandle);
 	return ErrorType();
 }
 
@@ -97,6 +104,8 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 					DN8App::get().getDisplay().drawString(0, 30, (const char*) "Fire1 = YES");
 					break;
 				}
+			} else if (backAction() || hdrHit) {
+				nextState = DN8App::get().getMenuState();
 			}
 		}
 	} else {
@@ -182,5 +191,6 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 }
 
 ErrorType SettingMenu::onShutdown() {
+	DN8App::get().getTouch().removeObserver(TouchQueueHandle);
 	return ErrorType();
 }

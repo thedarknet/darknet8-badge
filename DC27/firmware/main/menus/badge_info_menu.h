@@ -9,10 +9,16 @@
 
 #include "dn8base_menu.h"
 
+namespace libesp {
+	class TouchNotification;
+}
+
 class ContactStore;
 
 class BadgeInfoMenu: public DN8BaseMenu {
 public:
+	static const int TOUCH_QUEUE_SIZE = 10;
+	static const int TOUCH_MSG_SIZE = sizeof(libesp::TouchNotification*);
 	BadgeInfoMenu();
 	virtual ~BadgeInfoMenu();
 protected:
@@ -24,6 +30,8 @@ private:
 	libesp::GUIListData BadgeInfoList;
 	libesp::GUIListItemData Items[9];
 	char RegCode[19];
+	QueueHandle_t TouchQueueHandle;
+	static const uint16_t ItemCount = (sizeof(Items)/sizeof(Items[0]));
 };
 
 
