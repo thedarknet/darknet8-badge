@@ -159,6 +159,7 @@ BaseMenu::ReturnStateContext SettingMenu::onRun() {
 			} else if (selectAction()) {
 				if(DN8App::get().getContacts().getSettings().setBLE(MiscCounter==1)) {
 					nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Setting saved", 2000);
+					esp_restart();
 				} else {
 					nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(), (const char *)"Save FAILED!", 4000);
 				}

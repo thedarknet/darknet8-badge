@@ -28,24 +28,16 @@ extern "C" {
 
 static void check_for_ota(void)
 {
-  int32_t do_ota = 0;
+  int32_t doing_ota = 0;
   uint32_t nvsh = 0;
   QueueHandle_t nullhandle;
   nvs_open("nvs", NVS_READWRITE, &nvsh);
-  nvs_get_i32(nvsh, "do_ota", &do_ota);
+  nvs_get_i32(nvsh, "do_ota", &doing_ota);
   nvs_set_i32(nvsh, "do_ota", 0);
-  if (do_ota == 1)
+  if (doing_ota == 1)
   {
-    WIFITask* WifiTask = new WIFITask("WifiTask");
-    WifiTask->init();
-    WifiTask->start();
-    WifiTask->requestOTA(nullhandle);
-    while (true)
-    {
-      if (WifiTask->getOTAStatus() == WIFI_ERR_OTA)
-        esp_restart();
-      vTaskDelay(1000 / portTICK_RATE_MS);
-    }
+		initialize_ota_wifi();
+		do_ota();
   }
 }
 

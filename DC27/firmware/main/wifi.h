@@ -46,6 +46,9 @@ struct WiFiScanResult {
 	static const uint16_t  ItemCount = (sizeof(ResultArray)/sizeof(ResultArray[0]));
 };
 
+void initialize_ota_wifi(void);
+void do_ota(void);
+
 class StatusMsg {
 public:
 	StatusMsg(bool isApStarted ) : IsApStarted(isApStarted) {

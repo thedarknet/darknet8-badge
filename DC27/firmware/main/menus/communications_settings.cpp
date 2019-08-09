@@ -329,7 +329,7 @@ BaseMenu::ReturnStateContext CommunicationSettingState::onRun() {
 	BaseMenu *nextState = this;
 	if(InternalState==FETCHING_DATA) {
 		WIFIResponseMsg *wifimsg;
-		if(xQueueReceive(WifiQueueHandle, &wifimsg, 0)) {
+		if(xQueueReceive(WifiQueueHandle, &wifimsg, 100 / portTICK_PERIOD_MS)) {
 			if(wifimsg->getType()==WIFI_STATUS_OK) {
 				sprintf(getRow(0),"WifiStatus: %s",
 									 wifimsg->getStatusMsg().isApStarted()?"AP UP":"AP DOWN");
@@ -338,11 +338,18 @@ BaseMenu::ReturnStateContext CommunicationSettingState::onRun() {
 				DN8App::get().getTouch().addObserver(TouchQueueHandle);
 				InternalState=DISPLAY_DATA;
 			}
+			delete wifimsg;
+		}
+		else
+		{
+				sprintf(getRow(0),"WifiStatus: OFF");
+				WiFiMenuInstance.setAPStatus(false);
+				WiFiMenuInstance.setSSID((const char*)"none\0");
+				InternalState=DISPLAY_DATA;
 		}
 		if(this->getTimesRunCalledSinceLastReset()>250) {
 			nextState = DN8App::get().getDisplayMessageState(DN8App::get().getMenuState(),"Failed to fetch data",2000);
 		}
-		delete wifimsg;
 	} else {
 		TouchNotification *pe = nullptr;
 		bool penUp = false;

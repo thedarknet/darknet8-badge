@@ -76,7 +76,7 @@ static esp_err_t ota_http_event_handler(esp_http_client_event_t *evt) {
 
 
 static enum WIFIResponseType OTAStatus;
-static void do_ota(void) {
+void do_ota() {
 	esp_err_t ret;
 
 	ESP_LOGI(LOGTAG, "Starting OTA process...");
@@ -126,7 +126,7 @@ static esp_err_t ota_event_handler(void *ctxt, system_event_t *event) {
 	return ESP_OK;
 }
 
-static void initialize_wifi(void) {
+void initialize_ota_wifi(void) {
 	tcpip_adapter_init();
 	wifi_event_group = xEventGroupCreate();
 	ESP_ERROR_CHECK( esp_event_loop_init(ota_event_handler, NULL));
@@ -372,7 +372,7 @@ void WIFITask::run(void* data) {
 				OTAStatus = WIFI_OTA_START;
 				wifi.stopWiFi();
 				wifi.shutdown();
-				initialize_wifi();
+				initialize_ota_wifi();
 				do_ota();
 				break;
 			case WIFI_AP_START:
